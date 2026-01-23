@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Beyond Efficiency: Ecosystem-Level Accounting for Sustainable Open-Source AI</title>
+
+  <meta name="description" content="Position paper proposing Data and Impact Accounting (DIA) for ecosystem-level carbon and water footprint visibility in open-source AI." />
+  <meta property="og:title" content="Beyond Efficiency: Ecosystem-Level Accounting for Sustainable Open-Source AI" />
+  <meta property="og:description" content="A lightweight coordination mechanism for tracking carbon emissions and water consumption in open-source AI ecosystems." />
+  <meta property="og:type" content="website" />
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  
+  <header class="site-header" role="banner">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <img src="assets/VectorLogo_Black.png" alt="Vector Institute" style="height: 80px; margin-left: 12px; vertical-align: middle;">
+        <div class="brand-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Water droplet -->
+            <path d="M24 8C24 8 16 18 16 26C16 30.4183 19.5817 34 24 34C28.4183 34 32 30.4183 32 26C32 18 24 8 24 8Z" fill="#0EA5E9" opacity="0.6"/>
+            <!-- CO2 cloud -->
+            <circle cx="34" cy="16" r="6" fill="#64748B" opacity="0.5"/>
+            <circle cx="38" cy="18" r="4" fill="#64748B" opacity="0.5"/>
+            <!-- Earth element -->
+            <circle cx="14" cy="36" r="5" fill="#10B981" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Beyond Efficiency</div>
+          <div class="brand-subtitle">Ecosystem-Level Accounting for Sustainable Open-Source AI</div>
+        </div>
+      </div>
+  
+      <nav class="top-nav" aria-label="Primary">
+        <a href="#abstract">Abstract</a>
+        <a href="#figures">Figures</a>
+        <a href="#table">Model Table</a>
+        <a href="#dia">DIA Proposal</a>
+        <a href="#acknowledgements">Acknowledgements</a>
+        <a href="#citation">Citation</a>
+      </nav>
+    </div>
+  </header>
+  
+  <main id="main" class="site-main">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-center">
+          <h1>Beyond Efficiency: Ecosystem-Level Accounting for Sustainable Open-Source AI</h1>
+
+          <div class="meta">
+            <div><span class="k">Type:</span> Position Paper</div>
+            <div><span class="k">Focus:</span> Carbon & Water Footprint Coordination in Open-Source AI</div>
+          </div>
+
+          <div class="paper-meta">
+            <div><span class="k">Authors:</span> Shaina Raza<sup>1</sup>, Iuliia Eyriay<sup>1,2</sup>, Ahmed Y. Radwan<sup>1</sup>, Nate Lesperance<sup>1,2</sup>, Deval Pandya<sup>1</sup>, Sedef Akinli Kocak<sup>1</sup>, Graham W. Taylor<sup>1,2</sup></div>
+            <div><span class="k">Affiliation:</span> <sup>1</sup>Vector Institute, <sup>2</sup>Guelph University</div>
+            <div class="paper-links">
+              <a href="#" target="_blank" rel="noopener">Paper</a>
+              <span class="dot">•</span>
+              <a href="#" target="_blank" rel="noopener">GitHub</a>
+              <span class="dot">•</span>
+              <a href="#citation">BibTeX</a>
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn" href="./assets/paper.pdf" target="_blank" rel="noopener">📄 Read Paper</a>
+            <button class="btn btn-secondary" id="copyBibBtn" type="button">📋 Copy BibTeX</button>
+          </div>
+        </div>
+
+        <div class="hero-cards-row">
+          <div class="card card-water">
+            <div class="card-icon">💧</div>
+            <div class="card-h">Water Impact (Hidden Cost)</div>
+            <div class="card-b">
+              <ul class="bullets tight">
+                <li><strong>150 ML</strong> water consumed training GPT-4 (estimated)</li>
+                <li><strong>1B+ gallons/year</strong> used by single data centers</li>
+                <li><strong>1 in 4</strong> data centers may face water scarcity by 2050</li>
+              </ul>
+              <p class="fineprint">Water consumption from on-site cooling + off-site electricity generation</p>
+            </div>
+          </div>
+
+          <div class="card card-carbon">
+            <div class="card-icon">🏭</div>
+            <div class="card-h">Carbon Footprint Growth</div>
+            <div class="card-b">
+              <ul class="bullets tight">
+                <li><strong>415 TWh → 945 TWh</strong> data center electricity (2024-2030)</li>
+                <li><strong>15% annual growth</strong> rate (4× faster than total demand)</li>
+                <li><strong>30% annual growth</strong> for AI-specific servers</li>
+              </ul>
+              <p class="fineprint">IEA projections showing aggregate consumption rising despite efficiency gains</p>
+            </div>
+          </div>
+
+          <div class="card card-rebound">
+            <div class="card-icon">♻️</div>
+            <div class="card-h">The Rebound Effect</div>
+            <div class="card-b">
+              <p>
+                Lower marginal costs → increased usage → higher aggregate demand. 
+                <strong>Efficiency improvements can be overwhelmed by scale</strong> without coordination.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-position">
+          <div class="callout-icon">💡</div>
+          <div>
+            <div class="callout-title">Position Statement</div>
+            <p>
+              Efficiency gains are critical, but reducing AI's aggregate environmental impact also requires <strong>coordination infrastructure</strong>. 
+              Open-source ecosystems need ecosystem-level carbon accounting to enable measurement, disclosure, and shared targets 
+              that make emissions visible, assign responsibility, and prevent the tragedy of the commons.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="abstract" class="section">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <p class="lead">
+          The open-source Artificial Intelligence (AI) ecosystem has grown explosively, with Hugging Face now hosting 
+          over 2 million models. While this growth democratizes AI, it also introduces a <strong>coordination gap</strong>. 
+          The downstream derivatives incur energy use, water consumption, and emissions that remain largely unobserved 
+          and inconsistently disclosed, limiting collective oversight and masking cumulative impact.
+        </p>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-h">The Problem</div>
+            <div class="card-b">
+              <p>
+                While quantization, pruning, and efficient fine-tuning are essential, lowering the marginal cost of 
+                training and inference can enable more experimentation, deployment, and new applications that 
+                <strong>overwhelm per-model gains</strong> through rebound effects.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h">Our Proposal: DIA</div>
+            <div class="card-b">
+              <p>
+                We propose <strong>Data and Impact Accounting (DIA)</strong>, a lightweight coordination mechanism 
+                that provides ecosystem-level visibility into carbon and water footprints without restricting 
+                open-source development.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top: 24px;">
+          <div class="callout-title">Key Insight: Tragedy of the Commons</div>
+          <p>
+            This dynamic represents the tragedy of the commons, where individually rational actions—such as 
+            fine-tuning models for specific use cases—can collectively increase total energy and water use. 
+            The open-source ecosystem currently <strong>lacks governance mechanisms</strong> to coordinate 
+            mitigation or set norms for responsible resource use.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="figures" class="section alt">
+      <div class="wrap">
+        <h2>Key Figures</h2>
+        <p class="muted">
+          Visual evidence of the hidden environmental reality in AI ecosystems
+        </p>
+
+        <div class="figure-grid">
+          <figure class="figure-card">
+            <button class="figure-btn" type="button" data-zoom-src="./assets/fig1-ecosystem.png" aria-label="Open Figure 1">
+              <div class="figure-placeholder" style="background: linear-gradient(135deg, #0EA5E9 0%, #64748B 100%);">
+                <span>Figure 1: The Hidden Environmental Reality</span>
+              </div>
+            </button>
+            <figcaption>
+              <strong>Figure 1.</strong> The hidden environmental reality of the AI ecosystem, illustrating: 
+              (A) Localized water stress with data center facilities, 
+              (B) Disparities in base model training footprints (carbon and water), 
+              (C) Cumulative environmental costs from derivative models and the rebound effect.
+            </figcaption>
+          </figure>
+
+          <figure class="figure-card">
+            <button class="figure-btn" type="button" data-zoom-src="./assets/fig2-dia.png" aria-label="Open Figure 2">
+              <div class="figure-placeholder" style="background: linear-gradient(135deg, #10B981 0%, #0EA5E9 100%);">
+                <span>Figure 2: DIA Overview</span>
+              </div>
+            </button>
+            <figcaption>
+              <strong>Figure 2.</strong> Overview of Data and Impact Accounting (DIA). 
+              Top: Current state with invisible footprint from untracked derivatives. 
+              Bottom: Proposed DIA system with standardized impact cards, automated tracking, and ecosystem dashboards.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">Figure Interpretation</div>
+          <p>
+            Figure 1 highlights that the footprint extends beyond base model training to include localized resource 
+            competition and the largely untracked proliferation of derivatives. A single base model like Llama 3 
+            can spawn <strong>hundreds of derivatives</strong>, each consuming additional compute, energy, and water.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="table" class="section">
+      <div class="wrap">
+        <h2>Model Training Footprints (2020-2024)</h2>
+        <p class="lead">
+          Training emissions and water consumption of selected GenAI models. 
+          Values marked with ⋆ are open-source. Tree equivalent assumes 25 kg CO₂/tree/year.
+        </p>
+
+        <div class="controls">
+          <div class="control">
+            <label for="searchBox">Search models</label>
+            <input id="searchBox" type="search" placeholder="Type to filter..." />
+          </div>
+
+          <div class="control">
+            <label class="checkbox">
+              <input id="openOnly" type="checkbox" />
+              <span>Show open-source only (⋆)</span>
+            </label>
+          </div>
+
+          <div class="control">
+            <label class="checkbox">
+              <input id="showMidpoints" type="checkbox" checked />
+              <span>Use midpoints for water ranges</span>
+            </label>
+          </div>
+
+          <div class="control">
+            <label for="scaleSelect">Plot scale</label>
+            <select id="scaleSelect">
+              <option value="log" selected>Logarithmic</option>
+              <option value="linear">Linear</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap" role="region" aria-label="Model footprints table" tabindex="0">
+          <table id="modelsTable">
+            <thead>
+              <tr>
+                <th data-key="model">Model</th>
+                <th data-key="year" class="num">Year</th>
+                <th data-key="params">Params</th>
+                <th data-key="open" class="center">Open</th>
+                <th data-key="tco2" class="num">tCO₂eq</th>
+                <th data-key="trees" class="num">Tree Equiv.</th>
+                <th data-key="water" class="num">Water (ML)</th>
+                <th data-key="status">R/Est.</th>
+              </tr>
+            </thead>
+            <tbody id="modelsTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="viz">
+          <div class="viz-head">
+            <h3>Carbon vs Water (Training Phase)</h3>
+            <p class="muted">
+              Each point represents a model from the table. Hover for details. 
+              Axes use logarithmic scale to show order-of-magnitude differences.
+            </p>
+          </div>
+          <canvas id="scatter" width="920" height="420" aria-label="Scatter plot of carbon vs water" role="img"></canvas>
+          <div id="tooltip" class="tooltip" role="status" aria-live="polite"></div>
+        </div>
+
+        <details class="notes">
+          <summary>📊 Data Notes & Methodology</summary>
+          <div class="notes-body">
+            <ul class="bullets">
+              <li><strong>Water values:</strong> Estimated using WUE (Water Usage Effectiveness) ranges of 1.8-4.0 L/kWh, 
+              combining on-site cooling and off-site electricity generation consumption.</li>
+              <li><strong>Reported vs Estimated:</strong> "R" indicates values disclosed by model creators; 
+              "Est." uses GPU-hours, TDP, PUE, and carbon intensity assumptions (see paper Appendix A).</li>
+              <li><strong>Training only:</strong> This table covers training phase only. The paper emphasizes that 
+              <em>inference and derivative proliferation can dominate lifecycle impact</em>.</li>
+              <li><strong>Upper bounds:</strong> TDP-based estimates provide upper bounds; actual utilization is typically 60-80% of TDP.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="dia" class="section alt">
+      <div class="wrap">
+        <h2>Data and Impact Accounting (DIA)</h2>
+        <p class="lead">
+          A lightweight, non-regulatory transparency infrastructure for ecosystem-level sustainability coordination
+        </p>
+
+        <div class="dia-components">
+          <div class="card card-component">
+            <div class="card-icon">📋</div>
+            <div class="card-h">1. Standardized Impact Cards</div>
+            <div class="card-b">
+              <p><strong>Minimal reporting schema</strong> embedded in model cards or repository metadata:</p>
+              <ul class="bullets tight">
+                <li>Hardware type and device count</li>
+                <li>Training duration (GPU-hours)</li>
+                <li>Estimated electricity use (kWh)</li>
+                <li>Estimated water use (L) or facility WUE</li>
+                <li>Grid carbon intensity or training region</li>
+                <li>Model lineage (base model(s) and derivatives)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card card-component">
+            <div class="card-icon">🔧</div>
+            <div class="card-h">2. Automated Tracking Tools</div>
+            <div class="card-b">
+              <p><strong>Low-friction instrumentation</strong> integrated into training pipelines:</p>
+              <ul class="bullets tight">
+                <li>CodeCarbon for automated energy/emissions tracking</li>
+                <li>ML CO₂ Impact Calculator for job-level estimation</li>
+                <li>Cloud provider sustainability APIs</li>
+                <li>MLPerf Inference for standardized benchmarks</li>
+                <li>Generate reports with minimal manual effort</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card card-component">
+            <div class="card-icon">📊</div>
+            <div class="card-h">3. Ecosystem Dashboards</div>
+            <div class="card-b">
+              <p><strong>Public aggregation</strong> via registries or model hub dashboards:</p>
+              <ul class="bullets tight">
+                <li>Summarize reported footprints across releases</li>
+                <li>Track trends over time</li>
+                <li>Identify high-impact model families</li>
+                <li>Benchmark efficiency improvements</li>
+                <li>Enable comparative analysis</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top: 32px;">
+          <div class="card">
+            <div class="card-h">Design Principles</div>
+            <div class="card-b">
+              <ul class="bullets">
+                <li><strong>Voluntary & low-friction:</strong> Driven by social incentives and community norms</li>
+                <li><strong>Imperfect is acceptable:</strong> Approximate estimates sufficient for directional insight</li>
+                <li><strong>Preserves open-source:</strong> No barriers to entry; small teams can provide minimal info</li>
+                <li><strong>Positive feedback loop:</strong> Makes efficiency visible and comparable</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h">What DIA is NOT</div>
+            <div class="card-b">
+              <ul class="bullets">
+                <li><strong>Not a regulation:</strong> Does not restrict training, fine-tuning, or releases</li>
+                <li><strong>Not a gate:</strong> Does not block access or participation</li>
+                <li><strong>Not auditing:</strong> Focuses on trends and relative impacts, not policing</li>
+                <li><strong>Not complete solution:</strong> Foundation for further coordination mechanisms</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top: 32px;">
+          <div class="callout-title">Implementation Pathway (4 Phases)</div>
+          <div class="phase-grid">
+            <div class="phase-item">
+              <div class="phase-num">1</div>
+              <div>
+                <strong>Norm-setting:</strong> Major labs adopt standardized reporting; conferences encourage emissions disclosure
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">2</div>
+              <div>
+                <strong>Friction reduction:</strong> Training stacks expose optional emissions tracking; cloud providers surface carbon/water data
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">3</div>
+              <div>
+                <strong>Ecosystem visibility:</strong> Model hubs aggregate and display data; dashboards track trends
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">4</div>
+              <div>
+                <strong>Accountability:</strong> Impact badges, standardized citations, voluntary targets and progress tracking
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="section">
+      <div class="wrap">
+        <h2>Methodology: Estimating Environmental Footprint</h2>
+        <p class="muted">
+          When direct measurements are unavailable, the paper estimates training electricity from GPU-hours and hardware power, 
+          then derives CO₂ emissions and water consumption.
+        </p>
+
+        <div class="formula-section">
+          <div class="formula">
+            <div class="formula-label">Energy Consumption (kWh)</div>
+            <div class="formula-line">
+              <code>E = (H<sub>GPU</sub> × P<sub>avg</sub> × PUE) / 1000</code>
+            </div>
+            <div class="formula-desc">
+              H<sub>GPU</sub> = aggregate GPU-hours | 
+              P<sub>avg</sub> = average power draw (W) | 
+              PUE = power usage effectiveness
+            </div>
+          </div>
+
+          <div class="formula">
+            <div class="formula-label">Carbon Emissions (tCO₂eq)</div>
+            <div class="formula-line">
+              <code>C = (E × CI) / 1000</code>
+            </div>
+            <div class="formula-desc">
+              CI = grid carbon intensity (kgCO₂/kWh)
+            </div>
+          </div>
+
+          <div class="formula">
+            <div class="formula-label">Water Consumption (L)</div>
+            <div class="formula-line">
+              <code>W = E × WUE<sub>total</sub></code>
+            </div>
+            <div class="formula-desc">
+              WUE<sub>total</sub> = water usage effectiveness (L/kWh), combining on-site cooling + off-site generation
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top: 32px;">
+          <div class="card">
+            <div class="card-h">The Water Dimension</div>
+            <div class="card-b">
+              <p>
+                Beyond carbon emissions, AI consumes large amounts of <strong>water for cooling</strong> and 
+                indirectly through electricity generation. Unlike carbon, water impacts are <strong>highly local</strong> 
+                and depend on basin-level scarcity.
+              </p>
+              <p class="fineprint">
+                A typical data center uses ~300,000 gallons/day (≈1,000 households). 
+                Large hyperscale facilities can consume up to 5 million gallons daily.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h">Open vs Closed Ecosystems</div>
+            <div class="card-b">
+              <p>
+                <strong>Closed models</strong> (e.g., GPT-4): Trained and served centrally, with centralized metering.
+              </p>
+              <p>
+                <strong>Open models</strong> (e.g., Llama 3): Trained once, then branch into many derivatives 
+                across distributed users, <em>diffusing impacts and making aggregate footprint harder to observe</em>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="call-to-action" class="section alt">
+      <div class="wrap">
+        <h2>Call to Action</h2>
+        <p class="lead">
+          Concrete steps the ML community can take toward ecosystem-level sustainability
+        </p>
+
+        <div class="action-grid">
+          <div class="action-card">
+            <div class="action-header">
+              <div class="action-icon">👨‍🔬</div>
+              <h3>Researchers & Practitioners</h3>
+            </div>
+            <ul class="bullets">
+              <li>Include emissions and water estimates in model cards and papers</li>
+              <li>Use CodeCarbon or similar tools to measure training costs</li>
+              <li>Document base models and incremental compute for derivatives</li>
+              <li>Remember: <strong>imperfect estimates are better than none</strong></li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="action-header">
+              <div class="action-icon">📝</div>
+              <h3>Conference Organizers</h3>
+            </div>
+            <ul class="bullets">
+              <li>Encourage environmental reporting in reproducibility checklists</li>
+              <li>Recognize efficiency as a first-class contribution</li>
+              <li>Consider environmental impact when evaluating scaling work</li>
+              <li>Provide graduated expectations for different resource levels</li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="action-header">
+              <div class="action-icon">🗂️</div>
+              <h3>Model Hub Operators</h3>
+            </div>
+            <ul class="bullets">
+              <li>Implement standardized metadata fields for carbon/water reporting</li>
+              <li>Develop dashboards aggregating data across model families</li>
+              <li>Surface efficiency metrics alongside accuracy benchmarks</li>
+              <li>Make sustainability visible in model discovery interfaces</li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="action-header">
+              <div class="action-icon">☁️</div>
+              <h3>Cloud Providers</h3>
+            </div>
+            <ul class="bullets">
+              <li>Expose per-job carbon intensity and water usage via APIs</li>
+              <li>Provide users with actionable environmental cost data</li>
+              <li>Enable carbon-aware scheduling by default</li>
+              <li>Support standardized reporting formats</li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="action-header">
+              <div class="action-icon">💰</div>
+              <h3>Funding Agencies</h3>
+            </div>
+            <ul class="bullets">
+              <li>Require environmental impact statements in grant proposals</li>
+              <li>Consider efficiency and sustainability as evaluation criteria</li>
+              <li>Support research on measurement and coordination infrastructure</li>
+              <li>Fund development of low-friction reporting tools</li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="action-header">
+              <div class="action-icon">🏢</div>
+              <h3>Open-Source Labs</h3>
+            </div>
+            <ul class="bullets">
+              <li>Lead by example with comprehensive environmental reporting</li>
+              <li>Invest in tooling that reduces reporting friction</li>
+              <li>Participate in developing community standards</li>
+              <li>Share lessons learned and best practices</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top: 40px;">
+          <div class="callout-title">A Path Forward</div>
+          <p>
+            <strong>By 2027, major open-weight model releases should include standardized DIA reports</strong> 
+            covering training emissions, water usage, and documented lineage. This requires no regulatory mandate—only coordination. 
+            The tools exist; the data can be collected; the community has demonstrated its capacity for collective action. 
+            What remains is the decision to act.
+          </p>
+        </div>
+      </div>
+    </section>
+
+      <section id="acknowledgements" class="section">
+        <div class="wrap">
+          <div class="ack-content">
+            <h2>Acknowledgements</h2>
+            <p>
+              Resources used in preparing this research were provided, in part, by the Province of Ontario, 
+              the Government of Canada through CIFAR, and companies sponsoring the Vector Institute.
+            </p>
+            <p class="small muted" style="margin-top: 1.5rem; text-align: center;">
+              For more information about Vector Institute partners, visit 
+              <a href="http://www.vectorinstitute.ai/#partners" target="_blank" rel="noopener">vectorinstitute.ai/#partners</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="citation" class="section">
+        <div class="wrap">
+          <h2>Citation</h2>
+          <p class="muted">
+            Use the BibTeX below to cite this work. Authors and venue details will be updated after de-anonymization.
+          </p>
+          <pre class="bib" id="bibBlock"><code>@misc{beyond-efficiency-2026,
+          title = {Beyond Efficiency: Ecosystem-Level Accounting for Sustainable Open-Source AI},
+          year = {2026},
+  }
+  </code></pre>
+        <div class="fineprint" style="margin-top: 20px;">
+          <p>
+            <strong>Data attribution:</strong> Model training footprint data (Table 1) is compiled from public disclosures 
+            and prior analyses. See paper references for original sources.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <div>
+          <div class="footer-title">Beyond Efficiency</div>
+          <div class="footer-muted">Ecosystem-Level Accounting for Sustainable Open-Source AI</div>
+          <div class="footer-muted" style="margin-top: 8px;">Position Paper • ICML 2026 (Under Review)</div>
+        </div>
+        <div class="footer-links">
+          <a href="#abstract">Abstract</a>
+          <a href="#dia">DIA</a>
+          <a href="#citation">Citation</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Image zoom modal -->
+  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-label="Figure viewer">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-content" role="document">
+      <button class="modal-close" type="button" data-close="1" aria-label="Close">×</button>
+      <img id="modalImg" alt="" />
+      <div class="modal-caption" id="modalCaption"></div>
+    </div>
+  </div>
+
+  <script>
+// Model data from Table 1
+const modelsData = [
+  { model: "GPT-3", year: 2020, params: "175B", open: false, tco2: 552, trees: 22080, water: "2.5-5.6", status: "Est." },
+  { model: "BLOOM⋆", year: 2022, params: "176B", open: true, tco2: 37.6, trees: 1504, water: "0.43", status: "R" },
+  { model: "OPT⋆", year: 2022, params: "175B", open: true, tco2: 75, trees: 3000, water: "0.6-1.3", status: "Est." },
+  { model: "Falcon 180B⋆", year: 2023, params: "180B", open: true, tco2: 1200, trees: 48000, water: "5.0-11.0", status: "Est." },
+  { model: "Llama 2⋆", year: 2023, params: "70B", open: true, tco2: 539, trees: 21560, water: "2.4-5.3", status: "R" },
+  { model: "GPT-4", year: 2023, params: "N/D", open: false, tco2: 11555, trees: 462200, water: "52-185", status: "Est." },
+  { model: "Llama 3⋆", year: 2024, params: "8B/70B", open: true, tco2: 2290, trees: 91600, water: "10.2-22.6", status: "R" },
+  { model: "Llama 3.1⋆", year: 2024, params: "405B", open: true, tco2: 8930, trees: 357200, water: "40-88", status: "Est." },
+  { model: "DeepSeek-V3⋆", year: 2024, params: "671B", open: true, tco2: 545, trees: 21800, water: "1.9-4.3", status: "Est." }
+];
+
+// Parse water values
+function parseWater(waterStr, useMidpoint) {
+  const parts = waterStr.split('-');
+  if (parts.length === 2) {
+    const low = parseFloat(parts[0]);
+    const high = parseFloat(parts[1]);
+    return useMidpoint ? (low + high) / 2 : high;
+  }
+  return parseFloat(waterStr);
+}
+
+// Render table
+function renderTable(data) {
+  const tbody = document.getElementById('modelsTbody');
+  tbody.innerHTML = '';
+  
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${row.model}</strong></td>
+      <td class="num">${row.year}</td>
+      <td>${row.params}</td>
+      <td class="center">${row.open ? '⋆' : '—'}</td>
+      <td class="num">${row.tco2.toLocaleString()}</td>
+      <td class="num">${row.trees.toLocaleString()}</td>
+      <td class="num">${row.water}</td>
+      <td><span class="badge">${row.status}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Initial render
+let currentData = [...modelsData];
+renderTable(currentData);
+
+// Search filter
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  currentData = modelsData.filter(m => 
+    m.model.toLowerCase().includes(query) || 
+    m.params.toLowerCase().includes(query)
+  );
+  if (document.getElementById('openOnly').checked) {
+    currentData = currentData.filter(m => m.open);
+  }
+  renderTable(currentData);
+  renderChart();
+});
+
+// Open-source filter
+document.getElementById('openOnly').addEventListener('change', (e) => {
+  const query = document.getElementById('searchBox').value.toLowerCase();
+  currentData = modelsData.filter(m => {
+    const matchesSearch = m.model.toLowerCase().includes(query) || m.params.toLowerCase().includes(query);
+    return e.target.checked ? (matchesSearch && m.open) : matchesSearch;
+  });
+  renderTable(currentData);
+  renderChart();
+});
+
+// Chart rendering
+const canvas = document.getElementById('scatter');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+function renderChart() {
+  const useMidpoint = document.getElementById('showMidpoints').checked;
+  const scale = document.getElementById('scaleSelect').value;
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Setup
+  const padding = { left: 80, right: 40, top: 40, bottom: 60 };
+  const plotWidth = canvas.width - padding.left - padding.right;
+  const plotHeight = canvas.height - padding.top - padding.bottom;
+  
+  // Data points
+  const points = currentData.map(d => ({
+    ...d,
+    waterNum: parseWater(d.water, useMidpoint),
+    co2: d.tco2
+  }));
+  
+  const maxWater = Math.max(...points.map(p => p.waterNum));
+  const maxCo2 = Math.max(...points.map(p => p.co2));
+  
+  // Scales
+  const xScale = scale === 'log' 
+    ? (v) => padding.left + (Math.log10(v + 1) / Math.log10(maxWater + 1)) * plotWidth
+    : (v) => padding.left + (v / maxWater) * plotWidth;
+    
+  const yScale = scale === 'log'
+    ? (v) => canvas.height - padding.bottom - (Math.log10(v + 1) / Math.log10(maxCo2 + 1)) * plotHeight
+    : (v) => canvas.height - padding.bottom - (v / maxCo2) * plotHeight;
+  
+  // Grid
+  ctx.strokeStyle = '#e4e7ec';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = padding.top + (plotHeight / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(canvas.width - padding.right, y);
+    ctx.stroke();
+  }
+  
+  // Axes
+  ctx.strokeStyle = '#475467';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(padding.left, padding.top);
+  ctx.lineTo(padding.left, canvas.height - padding.bottom);
+  ctx.lineTo(canvas.width - padding.right, canvas.height - padding.bottom);
+  ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = '#475467';
+  ctx.font = '14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Water Consumption (ML)', canvas.width / 2, canvas.height - 15);
+  
+  ctx.save();
+  ctx.translate(20, canvas.height / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Carbon Emissions (tCO₂eq)', 0, 0);
+  ctx.restore();
+  
+  // Points
+  points.forEach(p => {
+    const x = xScale(p.waterNum);
+    const y = yScale(p.co2);
+    
+    ctx.beginPath();
+    ctx.arc(x, y, p.open ? 8 : 6, 0, Math.PI * 2);
+    ctx.fillStyle = p.open ? '#0EA5E9' : '#64748B';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+  
+  // Interactive hover
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    
+    let found = null;
+    for (const p of points) {
+      const x = xScale(p.waterNum);
+      const y = yScale(p.co2);
+      const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2);
+      if (dist < 12) {
+        found = p;
+        break;
+      }
+    }
+    
+    if (found) {
+      tooltip.innerHTML = `<b>${found.model}</b><br/>CO₂: ${found.co2.toLocaleString()} tCO₂eq<br/>Water: ${found.water} ML<br/>Year: ${found.year}`;
+      tooltip.style.left = e.clientX + 15 + 'px';
+      tooltip.style.top = e.clientY + 15 + 'px';
+      tooltip.style.opacity = '1';
+      tooltip.style.transform = 'translateY(0)';
+    } else {
+      tooltip.style.opacity = '0';
+      tooltip.style.transform = 'translateY(-6px)';
+    }
+  };
+  
+  canvas.onmouseleave = () => {
+    tooltip.style.opacity = '0';
+  };
+}
+
+renderChart();
+document.getElementById('showMidpoints').addEventListener('change', renderChart);
+document.getElementById('scaleSelect').addEventListener('change', renderChart);
+
+// BibTeX copy
+document.getElementById('copyBibBtn').addEventListener('click', () => {
+  const bibText = document.getElementById('bibBlock').textContent;
+  navigator.clipboard.writeText(bibText).then(() => {
+    const btn = document.getElementById('copyBibBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy BibTeX', 2000);
+  });
+});
+
+// Image modal
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+const modalCaption = document.getElementById('modalCaption');
+
+document.querySelectorAll('[data-zoom-src]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const src = btn.getAttribute('data-zoom-src');
+    const caption = btn.nextElementSibling?.textContent || '';
+    modalImg.src = src;
+    modalCaption.textContent = caption;
+    modal.setAttribute('aria-hidden', 'false');
+  });
+});
+
+document.querySelectorAll('[data-close]').forEach(el => {
+  el.addEventListener('click', () => {
+    modal.setAttribute('aria-hidden', 'true');
+  });
+});
+  </script>
+</body>
+</html>
