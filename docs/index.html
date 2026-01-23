@@ -61,7 +61,7 @@
 
           <div class="paper-meta">
             <div><span class="k">Authors:</span> Shaina Raza<sup>1</sup>, Iuliia Eyriay<sup>1,2</sup>, Ahmed Y. Radwan<sup>1</sup>, Nate Lesperance<sup>1,2</sup>, Deval Pandya<sup>1</sup>, Sedef Akinli Kocak<sup>1</sup>, Graham W. Taylor<sup>1,2</sup></div>
-            <div><span class="k">Affiliation:</span> <sup>1</sup>Vector Institute, <sup>2</sup>Guelph University</div>
+            <div><span class="k">Affiliation:</span> <sup>1</sup>Vector Institute, <sup>2</sup>University of Guelph</div>
             <div class="paper-links">
               <a href="#" target="_blank" rel="noopener">Paper</a>
               <span class="dot">•</span>
@@ -389,7 +389,7 @@
         </div>
 
         <div class="callout" style="margin-top: 32px;">
-          <div class="callout-title">Implementation Pathway (4 Phases)</div>
+          <div class="callout-title">Implementation Pathway <br/> (4 Phases)</div>
           <div class="phase-grid">
             <div class="phase-item">
               <div class="phase-num">1</div>
@@ -742,8 +742,8 @@ function renderChart() {
   
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Setup
-  const padding = { left: 80, right: 40, top: 40, bottom: 60 };
+  // Setup with more space for labels
+  const padding = { left: 100, right: 140, top: 50, bottom: 80 };
   const plotWidth = canvas.width - padding.left - padding.right;
   const plotHeight = canvas.height - padding.top - padding.bottom;
   
@@ -766,15 +766,50 @@ function renderChart() {
     ? (v) => canvas.height - padding.bottom - (Math.log10(v + 1) / Math.log10(maxCo2 + 1)) * plotHeight
     : (v) => canvas.height - padding.bottom - (v / maxCo2) * plotHeight;
   
-  // Grid
+  // Grid with values
   ctx.strokeStyle = '#e4e7ec';
   ctx.lineWidth = 1;
-  for (let i = 0; i <= 5; i++) {
-    const y = padding.top + (plotHeight / 5) * i;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'right';
+  
+  // Y-axis grid and labels - use fewer, more spread out labels
+  const ySteps = 4;
+  for (let i = 0; i <= ySteps; i++) {
+    const y = padding.top + (plotHeight / ySteps) * i;
     ctx.beginPath();
     ctx.moveTo(padding.left, y);
     ctx.lineTo(canvas.width - padding.right, y);
     ctx.stroke();
+    
+    // Y-axis value labels
+    const value = scale === 'log' 
+      ? Math.round(Math.pow(10, (ySteps - i) * Math.log10(maxCo2 + 1) / ySteps) - 1)
+      : Math.round((ySteps - i) * maxCo2 / ySteps);
+    
+    // Format large numbers nicely
+    const displayValue = value >= 1000 ? (value / 1000).toFixed(0) + 'K' : value.toLocaleString();
+    ctx.fillText(displayValue, padding.left - 12, y + 5);
+  }
+  
+  // X-axis grid and labels - use fewer, more spread out labels
+  ctx.textAlign = 'center';
+  const xSteps = 4;
+  for (let i = 0; i <= xSteps; i++) {
+    const x = padding.left + (plotWidth / xSteps) * i;
+    ctx.beginPath();
+    ctx.moveTo(x, padding.top);
+    ctx.lineTo(x, canvas.height - padding.bottom);
+    ctx.stroke();
+    
+    // X-axis value labels
+    const value = scale === 'log'
+      ? Math.round(Math.pow(10, i * Math.log10(maxWater + 1) / xSteps) - 1)
+      : Math.round(i * maxWater / xSteps);
+    
+    // Format large numbers nicely
+    const displayValue = value >= 1000 ? (value / 1000).toFixed(0) + 'K' : value.toLocaleString();
+    ctx.fillText(displayValue, x, canvas.height - padding.bottom + 30);
   }
   
   // Axes
@@ -786,23 +821,28 @@ function renderChart() {
   ctx.lineTo(canvas.width - padding.right, canvas.height - padding.bottom);
   ctx.stroke();
   
-  // Labels
-  ctx.fillStyle = '#475467';
-  ctx.font = '14px sans-serif';
+  // Axis titles
+  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 15px sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('Water Consumption (ML)', canvas.width / 2, canvas.height - 15);
   
   ctx.save();
-  ctx.translate(20, canvas.height / 2);
+  ctx.translate(25, canvas.height / 2);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText('Carbon Emissions (tCO₂eq)', 0, 0);
   ctx.restore();
   
-  // Points
+  // Points with labels - smart positioning to avoid overlaps
+  const labelPositions = [];
+  const pointsWithLabels = [];
+  
+  // First pass: draw all points and collect their positions
   points.forEach(p => {
     const x = xScale(p.waterNum);
     const y = yScale(p.co2);
     
+    // Draw point
     ctx.beginPath();
     ctx.arc(x, y, p.open ? 8 : 6, 0, Math.PI * 2);
     ctx.fillStyle = p.open ? '#0EA5E9' : '#64748B';
@@ -810,34 +850,138 @@ function renderChart() {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.stroke();
+    
+    pointsWithLabels.push({ point: p, x, y });
   });
   
-  // Interactive hover
+  // Second pass: draw labels with smart positioning
+  pointsWithLabels.forEach(({ point: p, x, y }) => {
+    ctx.font = 'bold 11px sans-serif';
+    const labelWidth = ctx.measureText(p.model).width;
+    
+    // Try different positions with more spacing
+    const spacing = 15;
+    const positions = [
+      { x: x + spacing, y: y + 4, align: 'left' },           // right
+      { x: x - spacing, y: y + 4, align: 'right' },          // left
+      { x: x, y: y - spacing, align: 'center' },             // above
+      { x: x, y: y + spacing + 4, align: 'center' },         // below
+      { x: x + spacing, y: y - 8, align: 'left' },           // right-up
+      { x: x + spacing, y: y + 16, align: 'left' },          // right-down
+      { x: x - spacing, y: y - 8, align: 'right' },          // left-up
+      { x: x - spacing, y: y + 16, align: 'right' },         // left-down
+      { x: x + spacing * 1.5, y: y + 4, align: 'left' },     // far right
+      { x: x - spacing * 1.5, y: y + 4, align: 'right' },    // far left
+      { x: x, y: y - spacing * 1.5, align: 'center' },       // far above
+      { x: x, y: y + spacing * 1.5 + 4, align: 'center' }    // far below
+    ];
+    
+    let bestPos = positions[0];
+    let minOverlap = Infinity;
+    
+    // Find position with least overlap
+    for (const pos of positions) {
+      let overlapScore = 0;
+      
+      // Check against all existing labels
+      for (const existing of labelPositions) {
+        const dx = Math.abs(existing.x - pos.x);
+        const dy = Math.abs(existing.y - pos.y);
+        const minDx = (existing.width + labelWidth) / 2 + 15;
+        const minDy = 20;
+        
+        if (dx < minDx && dy < minDy) {
+          overlapScore += (minDx - dx) + (minDy - dy);
+        }
+      }
+      
+      // Prefer positions that keep labels inside canvas
+      if (pos.x < padding.left + 10 || pos.x > canvas.width - padding.right - 10) {
+        overlapScore += 100;
+      }
+      if (pos.y < padding.top + 10 || pos.y > canvas.height - padding.bottom - 10) {
+        overlapScore += 100;
+      }
+      
+      if (overlapScore < minOverlap) {
+        minOverlap = overlapScore;
+        bestPos = pos;
+      }
+    }
+    
+    const labelX = bestPos.x;
+    const labelY = bestPos.y;
+    const labelAlign = bestPos.align;
+    
+    // Draw connector line if label is far from point
+    const dist = Math.sqrt((labelX - x) ** 2 + (labelY - y) ** 2);
+    if (dist > 20) {
+      ctx.strokeStyle = p.open ? '#0EA5E9' : '#64748B';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(labelX - (labelAlign === 'left' ? 5 : labelAlign === 'right' ? -5 : 0), labelY - 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    
+    labelPositions.push({ x: labelX, y: labelY, width: labelWidth });
+    
+    // Draw label
+    ctx.fillStyle = p.open ? '#0c4a6e' : '#334155';
+    ctx.textAlign = labelAlign;
+    ctx.fillText(p.model, labelX, labelY);
+  });
+  
+  // Interactive hover for additional details - fixed coordinate system
   canvas.onmousemove = (e) => {
     const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
     
     let found = null;
+    let minDist = Infinity;
+    
+    // Find closest point within reasonable distance
     for (const p of points) {
       const x = xScale(p.waterNum);
       const y = yScale(p.co2);
       const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2);
-      if (dist < 12) {
+      
+      // Larger hit radius for easier hovering
+      if (dist < 40 && dist < minDist) {
         found = p;
-        break;
+        minDist = dist;
       }
     }
     
     if (found) {
-      tooltip.innerHTML = `<b>${found.model}</b><br/>CO₂: ${found.co2.toLocaleString()} tCO₂eq<br/>Water: ${found.water} ML<br/>Year: ${found.year}`;
+      const waterEquiv = Math.round(found.waterNum * 2000000); // ML to bottles (500ml each)
+      const treesYears = Math.round(found.trees / 50); // Approximate years for trees to offset
+      
+      tooltip.innerHTML = `
+        <b>${found.model}</b> (${found.year})<br/>
+        <strong>Parameters:</strong> ${found.params}<br/>
+        <strong>Carbon:</strong> ${found.co2.toLocaleString()} tCO₂eq<br/>
+        <strong>Water:</strong> ${found.water} ML (~${waterEquiv.toLocaleString()} 500ml bottles)<br/>
+        <strong>Tree offset:</strong> ${found.trees.toLocaleString()} trees (~${treesYears} years to offset)<br/>
+        <strong>Type:</strong> ${found.open ? 'Open-source ⋆' : 'Proprietary'}
+      `;
       tooltip.style.left = e.clientX + 15 + 'px';
       tooltip.style.top = e.clientY + 15 + 'px';
       tooltip.style.opacity = '1';
       tooltip.style.transform = 'translateY(0)';
+      
+      // Change cursor to pointer when hovering over a point
+      canvas.style.cursor = 'pointer';
     } else {
       tooltip.style.opacity = '0';
       tooltip.style.transform = 'translateY(-6px)';
+      canvas.style.cursor = 'crosshair';
     }
   };
   
