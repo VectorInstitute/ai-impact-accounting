@@ -8,7 +8,7 @@ const DATA = [
   { model:"Falcon 180B⋆", year:2023, params:"180B", open:true, tco2:{min:1200,max:1200,raw:"∼1,200"}, trees:{min:48000,max:48000,raw:"∼48,000"}, water:{min:5.0,max:11.0,raw:"5.0–11.0"}, status:"Est." },
   { model:"Llama 2⋆", year:2023, params:"70B", open:true, tco2:{min:539,max:539,raw:"539"}, trees:{min:21560,max:21560,raw:"21,560"}, water:{min:2.4,max:5.3,raw:"2.4–5.3"}, status:"R" },
   { model:"Mistral 7B⋆", year:2023, params:"7.3B", open:true, tco2:null, trees:null, water:null, status:"N/D" },
-  { model:"GPT-4", year:2023, params:"N/D", open:false, tco2:{min:4240,max:18870,raw:"4,240–18,870"}, trees:{min:169600,max:754800,raw:"169,600–754,800"}, water:{min:52,max:185,raw:"52–185"}, status:"Est." },
+  { model:"GPT-4", year:2023, params:"N/D", open:false, tco2:{min:4240,max:18870,raw:"4,240–18,870"}, trees:{min:169600,max:754800,raw:"169,600–754,800"}, water:{min:76,max:170,raw:"76–170"}, status:"Est." },
   { model:"Llama 3⋆", year:2024, params:"8B / 70B", open:true, tco2:{min:2290,max:2290,raw:"2,290"}, trees:{min:91600,max:91600,raw:"91,600"}, water:{min:10.2,max:22.6,raw:"10.2–22.6"}, status:"R" },
   { model:"Llama 3.1⋆", year:2024, params:"405B", open:true, tco2:{min:8930,max:8930,raw:"8,930"}, trees:{min:357200,max:357200,raw:"357,200"}, water:{min:40,max:88,raw:"40–88"}, status:"Est." },
   { model:"DeepSeek-V3⋆", year:2024, params:"671B", open:true, tco2:{min:545,max:545,raw:"∼545"}, trees:{min:21800,max:21800,raw:"∼21,800"}, water:{min:1.9,max:4.3,raw:"1.9–4.3"}, status:"Est." },
