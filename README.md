@@ -2,7 +2,7 @@
 
 **ICML 2026 Position Paper Track — Spotlight** (top 5% of submissions)
 
-📄 [Paper (arXiv)](https://arxiv.org/abs/2601.21632) · 🌐 [Project Page](https://shainaraza.github.io/ai-impact-accounting/)
+📄 [Paper (arXiv)](https://arxiv.org/abs/2601.21632) · 🌐 [Project Page](https://vectorinstitute.github.io/ai-impact-accounting/)
 
 **Authors:** Shaina Raza, Iuliia Zarubiieva, Ahmed Y. Radwan, Nate Lesperance, Deval Pandya, Sedef Akinli Kocak, Graham W. Taylor
 
