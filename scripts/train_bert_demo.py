@@ -40,7 +40,7 @@ def main() -> None:
     """Fine-tune DistilBERT on SST-2, push weights, and stamp a ``dia_report``."""
     token = _hf_token()
     if not token:
-        print("Run: huggingface-cli login   (or export HF_TOKEN=...)")
+        print("Run: hf auth login   (or export HF_TOKEN=...)")
         sys.exit(1)
 
     print(f"Device: {DEVICE}  |  Base: {BASE}")

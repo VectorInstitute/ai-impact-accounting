@@ -90,7 +90,7 @@ ingest_model("your-username/my-llama-finetune", store)
 res = rollup(store.nodes, "meta-llama/Llama-3-8B")
 ```
 
-**Run the BERT demo against your repos** (after `huggingface-cli login`):
+**Run the BERT demo against your repos** (after `hf auth login`):
 
 ```bash
 REPO=your-username/my-bert-sentiment python scripts/train_bert_demo.py
@@ -156,7 +156,7 @@ python -c "import ai_impact_accounting; print(ai_impact_accounting.__file__)"
 # should print …/ai-impact-accounting/src/ai_impact_accounting/__init__.py
 ```
 
-End-to-end BERT demo (requires `huggingface-cli login` once). By default this
+End-to-end BERT demo (requires `hf auth login` once). By default this
 pushes to the shared demo org `DIA-MVP`; see **Using your own Hugging Face
 namespace** above to use your account instead.
 

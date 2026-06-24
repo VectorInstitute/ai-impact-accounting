@@ -13,7 +13,16 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from .models import METHOD_GPU_HOURS, Interval, Report
+from .models import (
+    CI_IMPUTE_RANGE,
+    METHOD_GPU_HOURS,
+    PUE_DEFAULT,
+    TDP_UTILIZATION,
+    TDP_W,
+    WUE_DEFAULT,
+    Interval,
+    Report,
+)
 
 
 # HF base_model_relation -> our relation vocabulary
@@ -96,7 +105,6 @@ def parse_report(meta: dict) -> tuple[Optional[Report], list[str]]:
     if not isinstance(dia, dict):
         return None, []
 
-    errors: list[str] = []
     scope = dia.get("scope", "incremental")
     if scope != "incremental":
         # Hard reject: cumulative scope breaks subtree summation.
@@ -128,7 +136,7 @@ def parse_report(meta: dict) -> tuple[Optional[Report], list[str]]:
 
     # If footprint is entirely empty but we know the method, leave as zeros but
     # mark quality unavailable; the aggregator can choose to impute.
-    return r, errors
+    return r, []
 
 
 def impute_from_method(r: Report) -> Report:
@@ -150,10 +158,12 @@ def impute_from_method(r: Report) -> Report:
     if r.energy.hi > 0:
         return r
     gpu_h = r.gpu_hours or METHOD_GPU_HOURS.get(r.method or "finetune", 100.0)
-    # energy = gpu_h * Pavg * PUE ; Pavg ~ 400W*0.7, PUE 1.1  -> kWh
-    e = gpu_h * 0.400 * 0.70 * 1.1
+    # energy = gpu_h * Pavg * PUE ; Pavg ~ TDP * utilization (kWh)
+    tdp_kw = TDP_W["A100"] / 1000.0
+    util = sum(TDP_UTILIZATION) / len(TDP_UTILIZATION)
+    e = gpu_h * tdp_kw * util * PUE_DEFAULT
     r.energy = Interval(e, e)
-    r.carbon = Interval(e * 0.10, e * 0.60)  # CI range
-    r.water = Interval(e * 1.8, e * 4.0)  # WUE range
+    r.carbon = Interval(e * CI_IMPUTE_RANGE[0], e * CI_IMPUTE_RANGE[1])
+    r.water = Interval(e * WUE_DEFAULT[0], e * WUE_DEFAULT[1])
     r.quality = {"energy": "imputed", "carbon": "imputed", "water": "imputed"}
     return r

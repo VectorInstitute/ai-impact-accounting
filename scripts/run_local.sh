@@ -18,7 +18,7 @@ export DIA_INGEST_MODEL="${1:-DIA-MVP/my-bert-sentiment}"
 
 if [ -z "${HF_TOKEN:-}" ] && ! python -c "from huggingface_hub import get_token; \
 import sys; sys.exit(0 if get_token() else 1)" 2>/dev/null; then
-  echo "Not logged in. Run: huggingface-cli login   (write token)"
+  echo "Not logged in. Run: hf auth login   (write token)"
   exit 1
 fi
 

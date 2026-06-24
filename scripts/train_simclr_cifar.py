@@ -100,7 +100,7 @@ def nt_xent(z1, z2, temperature):
 def main():
     token = _hf_token()
     if not token:
-        print("Run: huggingface-cli login   (or export HF_TOKEN=...)")
+        print("Run: hf auth login   (or export HF_TOKEN=...)")
         sys.exit(1)
 
     print(f"Device: {DEVICE}  |  {N_TRAIN} imgs x {EPOCHS} epoch(s)  |  batch {BATCH}")

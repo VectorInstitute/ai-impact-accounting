@@ -15,22 +15,25 @@ from ..parse import parse_lineage, parse_report
 from .store import Store
 
 
-def fetch_meta(model_id: str, token: Optional[str] = None) -> dict:
+def fetch_meta(target: str, token: Optional[str] = None) -> dict:
     """Return a model card's front-matter metadata as a plain dict.
 
     Parameters
     ----------
-    model_id : str
-        Hub model repo id.
+    target : str
+        Local model-card path or Hub repo id.
     token : str, optional
-        Hugging Face token; falls back to ``HF_TOKEN``.
+        Hugging Face token for Hub loads; falls back to ``HF_TOKEN``.
 
     Returns
     -------
     dict
         The card metadata.
     """
-    card = ModelCard.load(model_id, token=token or os.getenv("HF_TOKEN"))
+    if os.path.exists(target):
+        card = ModelCard.load(target)
+    else:
+        card = ModelCard.load(target, token=token or os.getenv("HF_TOKEN"))
     return card.data.to_dict() if hasattr(card.data, "to_dict") else dict(card.data)
 
 

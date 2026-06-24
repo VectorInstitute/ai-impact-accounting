@@ -15,6 +15,7 @@ from typing import Any, Optional, Union
 # ---- defaults / constants (from the DIA paper, Table A1/A2) -------------------
 WUE_DEFAULT = (1.8, 4.0)  # L/kWh, combined on-site + off-site
 CI_DEFAULT = 0.40  # kgCO2/kWh, generic grid
+CI_IMPUTE_RANGE = (0.10, 0.60)  # kgCO2/kWh, low/high grid carbon for imputation
 PUE_DEFAULT = 1.1  # hyperscale
 TDP_W = {  # vendor TDP upper bounds
     "V100": 300,

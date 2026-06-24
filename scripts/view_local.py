@@ -26,7 +26,7 @@ def main() -> None:
     """Load accounting state and launch the local Gradio dashboard."""
     token = os.getenv("HF_TOKEN") or get_token()
     if not token:
-        print("Run: huggingface-cli login   (or export HF_TOKEN=...)")
+        print("Run: hf auth login   (or export HF_TOKEN=...)")
         sys.exit(1)
     store = Store(DATASET, token=token)
     print(f"Loaded {len(store.nodes)} node(s) from {store.repo}")

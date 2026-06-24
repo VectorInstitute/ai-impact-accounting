@@ -30,7 +30,7 @@ from .ui import build_ui
 
 HF_TOKEN = os.getenv("HF_TOKEN") or get_token()
 if not HF_TOKEN:
-    print("Run: huggingface-cli login   (or export HF_TOKEN=...)", file=sys.stderr)
+    print("Run: hf auth login   (or export HF_TOKEN=...)", file=sys.stderr)
     sys.exit(1)
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET")
 DATASET = os.environ.get("DIA_DATASET", "dia-state")

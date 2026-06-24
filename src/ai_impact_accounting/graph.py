@@ -95,13 +95,10 @@ def rollup(nodes: dict[str, Node], base: str, impute: bool = False) -> dict:
     base_fp = {"energy": Interval(), "carbon": Interval(), "water": Interval()}
     deriv_fp = {"energy": Interval(), "carbon": Interval(), "water": Interval()}
     carbon_by_quality: dict[str, Interval] = {}  # tier -> carbon subtotal
-    rows, seen = [], set()
+    rows = []
     n_with, n_without = 0, 0
 
-    for mid in members:  # set => each node counted ONCE
-        if mid in seen:
-            continue
-        seen.add(mid)
+    for mid in members:  # set => each node counted once
         node = nodes.get(mid)
         rep: Optional[Report] = node.report if node else None
 

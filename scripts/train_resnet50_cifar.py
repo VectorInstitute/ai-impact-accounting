@@ -44,7 +44,7 @@ def main() -> None:
     """Fine-tune a pretrained ResNet-50 on CIFAR-100 and stamp a ``dia_report``."""
     token = _hf_token()
     if not token:
-        print("Run: huggingface-cli login   (or export HF_TOKEN=...)")
+        print("Run: hf auth login   (or export HF_TOKEN=...)")
         sys.exit(1)
 
     print(f"Device: {DEVICE}  |  Base: {BASE}  |  {IMG}px  |  budget {MAX_MINUTES:.0f} min")

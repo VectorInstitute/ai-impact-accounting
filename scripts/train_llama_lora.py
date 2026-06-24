@@ -45,7 +45,7 @@ def main() -> None:
     """LoRA fine-tune a small Llama-family model and stamp a ``dia_report``."""
     token = _hf_token()
     if not token:
-        print("Run: huggingface-cli login   (or export HF_TOKEN=...)")
+        print("Run: hf auth login   (or export HF_TOKEN=...)")
         sys.exit(1)
 
     print(f"Device: {DEVICE}  |  Base: {BASE}  |  {N_EXAMPLES} ex x {EPOCHS} epoch(s)")

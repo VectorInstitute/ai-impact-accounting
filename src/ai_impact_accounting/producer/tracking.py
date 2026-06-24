@@ -26,11 +26,8 @@ import time
 from contextlib import ContextDecorator
 from typing import Any, Literal, Optional
 
+from ai_impact_accounting.models import CI_DEFAULT, PUE_DEFAULT, TDP_W, WUE_DEFAULT
 
-WUE_DEFAULT = (1.8, 4.0)
-CI_DEFAULT = 0.40
-PUE_DEFAULT = 1.1
-TDP_W = {"V100": 300, "A100": 400, "A100-80GB": 400, "H100": 700, "H100-80GB": 700, "H800": 350}
 APPLE_PACKAGE_W = 40  # M-series sustained package power under ML load (rough)
 CPU_W_PER_CORE = 6  # rough package draw per active core under load
 CPU_W_MIN, CPU_W_MAX = 65, 150  # clamp: a CPU socket is not a 400W datacenter GPU

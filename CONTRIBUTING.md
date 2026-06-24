@@ -28,7 +28,7 @@ Last but not the least, we use type hints in our code which is then checked usin
 ## Secrets and local artifacts
 
 Never commit Hugging Face tokens, API keys, or credential files. Use
-``huggingface-cli login`` or ``HF_TOKEN`` in your environment instead.
+``hf auth login`` or ``HF_TOKEN`` in your environment instead.
 
 Training outputs (``out-*/``, checkpoints, ``powermetrics_log.txt``,
 ``coverage.xml``, ``emissions.csv``) and ``.env`` / ``.huggingface/`` files are

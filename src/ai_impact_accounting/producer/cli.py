@@ -13,25 +13,19 @@ check to validate a model card's ``dia_report`` block.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from importlib import resources
 
 import jsonschema
 import yaml
-from huggingface_hub import ModelCard
+
+from ai_impact_accounting.hub.ingest import fetch_meta
 
 
 def _load_schema() -> dict:
     """Load the packaged ``dia_schema.json`` resource."""
     with resources.files("ai_impact_accounting.schema").joinpath("dia_schema.json").open() as f:
         return json.load(f)
-
-
-def _load_meta(target: str) -> dict:
-    """Load model-card metadata from a local path or Hub repo id."""
-    card = ModelCard.load(target) if os.path.exists(target) else ModelCard.load(target, token=os.getenv("HF_TOKEN"))
-    return card.data.to_dict() if hasattr(card.data, "to_dict") else dict(card.data)
 
 
 def cmd_validate(target: str) -> int:
@@ -47,7 +41,7 @@ def cmd_validate(target: str) -> int:
     int
         ``0`` if valid, ``1`` otherwise.
     """
-    meta = _load_meta(target)
+    meta = fetch_meta(target)
     block = meta.get("dia_report")
     if block is None:
         print(f"FAIL  no dia_report block in {target}")
@@ -78,7 +72,7 @@ def cmd_report(target: str) -> int:
     int
         Always ``0``.
     """
-    meta = _load_meta(target)
+    meta = fetch_meta(target)
     print(yaml.safe_dump(meta.get("dia_report", {}), sort_keys=False))
     return 0
 
