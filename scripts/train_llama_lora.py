@@ -15,7 +15,7 @@ import sys
 
 import torch
 from datasets import load_dataset
-from huggingface_hub import HfFolder
+from huggingface_hub import get_token
 from peft import LoraConfig, get_peft_model
 from transformers import (
     AutoModelForCausalLM,
@@ -38,7 +38,7 @@ DEVICE = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.i
 
 def _hf_token() -> str | None:
     """Return the Hugging Face write token from env or the CLI login cache."""
-    return os.getenv("HF_TOKEN") or HfFolder.get_token()
+    return os.getenv("HF_TOKEN") or get_token()
 
 
 def main() -> None:

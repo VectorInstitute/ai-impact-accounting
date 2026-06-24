@@ -17,27 +17,27 @@ dependencies = [
     "networkx>=3.0",         # lineage DAG + family rollup
     "jsonschema>=4.0",       # `dia validate` against dia_schema.json
     "pyyaml>=6.0",           # emit/inspect the dia_report YAML block
-    "huggingface_hub>=0.27", # read/write model cards, persist state, crawl derivatives
+    "huggingface_hub>=1.2.0,<2.0", # read/write model cards, persist state, crawl derivatives
 ]
 
 [project.optional-dependencies]
 # Measured energy/carbon during a training run. Without it, track() still works
 # and falls back to a hardware-TDP estimate (labelled estimated-from-hardware).
 measure = ["codecarbon>=2.3"]
-# Self-host the Gradio dashboard + Hugging Face webhook Space. huggingface_hub is
-# pinned because newer releases change WebhooksServer routing / drop HfFolder.
+# Self-host the Gradio dashboard + Hugging Face webhook Space.
 dashboard = [
-    "gradio>=4.0,<5",
-    "starlette>=0.40,<1.0",  # gradio 4.x breaks with starlette 1.0+ (Jinja2 TemplateResponse)
+    "gradio>=6.0,<7",
+    "starlette>=1.3.1,<2.0",
+    "pillow>=12.2.0",
     "matplotlib>=3.7",
     "pandas>=2.0",
-    "huggingface_hub==0.27.1",
+    "huggingface_hub>=1.2.0,<2.0",
 ]
 # Dependencies for the runnable training demos under scripts/.
 examples = [
     "torch>=2.0",
     "torchvision>=0.15",
-    "transformers>=4.40",
+    "transformers>=4.53.0",
     "datasets>=2.18",
     "peft>=0.10",
     "sentencepiece>=0.2",

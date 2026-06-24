@@ -13,7 +13,7 @@ import sys
 
 import torch
 from datasets import load_dataset
-from huggingface_hub import HfFolder
+from huggingface_hub import get_token
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -33,7 +33,7 @@ DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 
 def _hf_token() -> str | None:
     """Return the Hugging Face write token from env or the CLI login cache."""
-    return os.getenv("HF_TOKEN") or HfFolder.get_token()
+    return os.getenv("HF_TOKEN") or get_token()
 
 
 def main() -> None:

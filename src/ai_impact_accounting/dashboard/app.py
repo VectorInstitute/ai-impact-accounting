@@ -14,9 +14,7 @@ Required Space secrets:
 - ``DIA_BASES`` -- comma-separated base models to track, e.g. ``meta-llama/Llama-3-8B``
 
 Note: the webhook route is mounted under ``/webhooks`` by ``WebhooksServer``, so the
-external URL is doubled: ``https://<space>.hf.space/webhooks/webhooks/ingest``. This
-module targets the pinned ``huggingface_hub`` from the ``dashboard`` extra; newer
-releases change the ``WebhooksServer`` routing.
+external URL is doubled: ``https://<space>.hf.space/webhooks/webhooks/ingest``.
 """
 
 from __future__ import annotations
@@ -24,13 +22,13 @@ from __future__ import annotations
 import os
 import sys
 
-from huggingface_hub import HfFolder, WebhookPayload, WebhooksServer
+from huggingface_hub import WebhookPayload, WebhooksServer, get_token
 
 from ..hub import Store, ingest_model, start_scheduler
 from .ui import build_ui
 
 
-HF_TOKEN = os.getenv("HF_TOKEN") or HfFolder.get_token()
+HF_TOKEN = os.getenv("HF_TOKEN") or get_token()
 if not HF_TOKEN:
     print("Run: huggingface-cli login   (or export HF_TOKEN=...)", file=sys.stderr)
     sys.exit(1)
@@ -61,7 +59,7 @@ ui = build_ui(store, default_base=ENV_BASES[0] if ENV_BASES else "meta-llama/Lla
 app = WebhooksServer(ui=ui, webhook_secret=WEBHOOK_SECRET)
 
 
-@app.add_webhook("/webhooks/ingest")  # type: ignore[untyped-decorator]
+@app.add_webhook("/webhooks/ingest")
 async def ingest(payload: WebhookPayload) -> dict:
     """Ingest a model on a content-changing push to a model repo.
 

@@ -15,7 +15,7 @@ import sys
 
 import torch
 import torch.nn.functional as F
-from huggingface_hub import HfApi, HfFolder
+from huggingface_hub import HfApi, get_token
 from torch import nn
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms
@@ -36,7 +36,7 @@ DEVICE = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.i
 
 
 def _hf_token():
-    return os.getenv("HF_TOKEN") or HfFolder.get_token()
+    return os.getenv("HF_TOKEN") or get_token()
 
 
 class TwoCrop:

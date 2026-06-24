@@ -16,7 +16,7 @@ import sys
 import time
 
 import torch
-from huggingface_hub import HfApi, HfFolder
+from huggingface_hub import HfApi, get_token
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -37,7 +37,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.i
 
 def _hf_token() -> str | None:
     """Return the Hugging Face write token from env or the CLI login cache."""
-    return os.getenv("HF_TOKEN") or HfFolder.get_token()
+    return os.getenv("HF_TOKEN") or get_token()
 
 
 def main() -> None:

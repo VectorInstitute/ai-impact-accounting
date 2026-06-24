@@ -16,8 +16,8 @@ export DIA_BASES="${DIA_BASES:-distilbert-base-uncased}"
 export WEBHOOK_SECRET="${WEBHOOK_SECRET:-local-dev}"
 export DIA_INGEST_MODEL="${1:-DIA-MVP/my-bert-sentiment}"
 
-if [ -z "${HF_TOKEN:-}" ] && ! python -c "from huggingface_hub import HfFolder; \
-import sys; sys.exit(0 if HfFolder.get_token() else 1)" 2>/dev/null; then
+if [ -z "${HF_TOKEN:-}" ] && ! python -c "from huggingface_hub import get_token; \
+import sys; sys.exit(0 if get_token() else 1)" 2>/dev/null; then
   echo "Not logged in. Run: huggingface-cli login   (write token)"
   exit 1
 fi

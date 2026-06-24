@@ -161,7 +161,7 @@ def build_ui(store: Any, default_base: str = "meta-llama/Llama-3-8B") -> Any:
     gradio.Blocks
         The assembled dashboard app.
     """
-    with gr.Blocks(title="DIA — Data & Impact Accounting", theme=gr.themes.Soft()) as ui:
+    with gr.Blocks(title="DIA — Data & Impact Accounting") as ui:
         gr.Markdown(
             "# \U0001f30d DIA — Data & Impact Accounting\n"
             "Cumulative carbon & water footprint across a model family and its "
