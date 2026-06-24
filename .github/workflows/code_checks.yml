@@ -10,8 +10,12 @@ on:
       - dia-code
     paths:
       - .pre-commit-config.yaml
-      - .github/workflows/code_checks.yml
-      - '**.py'
+      - .github/workflows/**
+      - .gitignore
+      - codecov.yml
+      - scripts/**
+      - src/**
+      - tests/**
       - uv.lock
       - pyproject.toml
       - '**.ipynb'
@@ -21,11 +25,16 @@ on:
       - dia-code
     paths:
       - .pre-commit-config.yaml
-      - .github/workflows/code_checks.yml
-      - '**.py'
+      - .github/workflows/**
+      - .gitignore
+      - codecov.yml
+      - scripts/**
+      - src/**
+      - tests/**
       - uv.lock
       - pyproject.toml
       - '**.ipynb'
+  workflow_dispatch:
 
 jobs:
   run-code-check:
@@ -36,11 +45,10 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v8.2.0
         with:
-          # Install a specific version of uv.
           version: "0.9.11"
           enable-cache: true
 
-      - name: "Set up Python"
+      - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version-file: ".python-version"
@@ -48,7 +56,7 @@ jobs:
       - name: Install the project
         run: uv sync --all-extras --dev
 
-      - name: Install dependencies and check code
+      - name: Run pre-commit
         run: |
           source .venv/bin/activate
           pre-commit run --all-files

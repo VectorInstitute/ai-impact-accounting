@@ -10,13 +10,14 @@ on:
       - dia-code
     paths:
       - .pre-commit-config.yaml
-      - .github/workflows/code_checks.yml
-      - .github/workflows/unit_tests.yml
-      - .github/workflows/integration_tests.yml
-      - '**.py'
-      - '**.ipynb'
+      - .github/workflows/**
+      - scripts/**
+      - src/**
+      - tests/**
       - uv.lock
       - pyproject.toml
+      - codecov.yml
+      - '**.ipynb'
       - '**.rst'
       - '**.md'
   pull_request:
@@ -25,15 +26,17 @@ on:
       - dia-code
     paths:
       - .pre-commit-config.yaml
-      - .github/workflows/code_checks.yml
-      - .github/workflows/unit_tests.yml
-      - .github/workflows/integration_tests.yml
-      - '**.py'
-      - '**.ipynb'
+      - .github/workflows/**
+      - scripts/**
+      - src/**
+      - tests/**
       - uv.lock
       - pyproject.toml
+      - codecov.yml
+      - '**.ipynb'
       - '**.rst'
       - '**.md'
+  workflow_dispatch:
 
 jobs:
   unit-tests:
@@ -44,11 +47,10 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v8.2.0
         with:
-          # Install a specific version of uv.
           version: "0.9.11"
           enable-cache: true
 
-      - name: "Set up Python"
+      - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version-file: ".python-version"
@@ -56,11 +58,9 @@ jobs:
       - name: Install the project
         run: uv sync --all-extras --dev
 
-      - name: Install dependencies and check code
-        run: |
-          uv run pytest -m "not integration_test" --cov src/ai_impact_accounting --cov-report=xml tests
+      - name: Run unit tests
+        run: uv run pytest -m "not integration_test" --cov src/ai_impact_accounting --cov-report=xml tests
 
-      # Uncomment this once this repo is configured on Codecov
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
         with:

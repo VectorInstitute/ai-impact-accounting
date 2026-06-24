@@ -8,15 +8,51 @@ license = "Apache-2.0"
 repository = "https://github.com/VectorInstitute/ai-impact-accounting"
 requires-python = ">=3.12"
 dependencies = [
+    # --- security hardening pins (transitive) ---
     "filelock==3.29.4",
     "requests>=2.33.0", # Pinning version to address vulnerability CVE-2026-25645
     "urllib3==2.7.0",
     "pygments>=2.20.0", # Pinning version to address vulnerability CVE-2026-4539
+    # --- core + producer toolkit ---
+    "networkx>=3.0",         # lineage DAG + family rollup
+    "jsonschema>=4.0",       # `dia validate` against dia_schema.json
+    "pyyaml>=6.0",           # emit/inspect the dia_report YAML block
+    "huggingface_hub>=0.27", # read/write model cards, persist state, crawl derivatives
 ]
+
+[project.optional-dependencies]
+# Measured energy/carbon during a training run. Without it, track() still works
+# and falls back to a hardware-TDP estimate (labelled estimated-from-hardware).
+measure = ["codecarbon>=2.3"]
+# Self-host the Gradio dashboard + Hugging Face webhook Space. huggingface_hub is
+# pinned because newer releases change WebhooksServer routing / drop HfFolder.
+dashboard = [
+    "gradio>=4.0,<5",
+    "starlette>=0.40,<1.0",  # gradio 4.x breaks with starlette 1.0+ (Jinja2 TemplateResponse)
+    "matplotlib>=3.7",
+    "pandas>=2.0",
+    "huggingface_hub==0.27.1",
+]
+# Dependencies for the runnable training demos under scripts/.
+examples = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "transformers>=4.40",
+    "datasets>=2.18",
+    "peft>=0.10",
+    "sentencepiece>=0.2",
+]
+all = ["ai-impact-accounting[measure,dashboard]"]
+
+[project.scripts]
+dia = "ai_impact_accounting.producer.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_impact_accounting"]
 
 [dependency-groups]
 dev = [
@@ -73,9 +109,37 @@ strict_equality = true
 extra_checks = true
 mypy_path = "src"
 
+# Third-party libraries without (complete) type stubs. The DIA logic is fully
+# typed; these are external deps we call through.
+[[tool.mypy.overrides]]
+module = [
+    "codecarbon.*",
+    "pynvml.*",
+    "torch.*",
+    "transformers.*",
+    "peft.*",
+    "datasets.*",
+    "gradio.*",
+    "matplotlib.*",
+    "pandas.*",
+    "networkx.*",
+    "yaml.*",
+    "jsonschema.*",
+]
+ignore_missing_imports = true
+
+# huggingface_hub ships types but doesn't re-export some utils error classes;
+# relax the strict implicit-reexport check just for it.
+[[tool.mypy.overrides]]
+module = ["huggingface_hub.*"]
+ignore_missing_imports = true
+implicit_reexport = true
+
 [tool.ruff]
 include = ["*.py", "pyproject.toml", "*.ipynb"]
-exclude = []
+# Runnable training demos (heavy torch/transformers); not part of the library.
+exclude = ["scripts"]
+force-exclude = true
 line-length = 120
 
 [tool.ruff.format]
@@ -123,6 +187,9 @@ ignore = [
 "__init__.py" = ["E402", "F401", "F403", "F811"]
 # Ignoring undocumented public functions, public init, magic method, and magic numbers in tests folder
 "tests/*" = ["D103", "D105", "D107"]
+# tracking.py lazily imports optional deps (codecarbon, torch, pynvml, yaml,
+# huggingface_hub) inside functions on purpose, so the base install stays light.
+"**/producer/tracking.py" = ["PLC0415"]
 
 
 [tool.ruff.lint.pep8-naming]

@@ -7,16 +7,90 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
+venv/
+env/
 
-# Lint & Test
+# Lint, typecheck, and test artifacts
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+htmlcov/
+.tox/
+.nox/
 
-# Vscode
-.vscode
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# macos
+# macOS
 *.DS_Store
+
+# Docs build
 site/
+
+# Training / demo artifacts (weights, checkpoints, downloaded datasets)
+out-*/
+checkpoint-*/
+checkpoints/
+runs/
+wandb/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.onnx
+*.npz
+
+# CodeCarbon / power measurement outputs
+powermetrics_log.txt
+emissions.csv
+emissions/
+codecarbon*.log
+carbon*.csv
+*.log
+
+# Gradio / local dashboard temp files
+.gradio/
+
+# Secrets and credentials (never commit tokens, keys, or local env files)
+.env
+.env.*
+!.env.example
+.envrc
+.netrc
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+**/secrets/
+token
+token.json
+hf_token
+hf_token.txt
+*_token.txt
+*.secret
+
+# Hugging Face / model-hub local cache (login tokens live under ~/.cache too)
+.huggingface/
+.cache/huggingface/
+**/.cache/huggingface/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local databases / sqlite state
+*.sqlite
+*.sqlite3
+*.db
