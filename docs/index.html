@@ -24,7 +24,7 @@
       <a class="icml-badge" href="https://arxiv.org/abs/2601.21632" target="_blank" rel="noopener">Read Paper →</a>
     </div>
   </div>
-  
+
   <header class="site-header" role="banner">
     <div class="wrap header-inner">
       <div class="brand">
@@ -45,7 +45,7 @@
           <div class="brand-subtitle">Tracking the Footprints</div>
         </div>
       </div>
-  
+
       <nav class="top-nav" aria-label="Primary">
         <a href="#abstract">Abstract</a>
         <a href="#figures">Figures</a>
@@ -56,7 +56,7 @@
       </nav>
     </div>
   </header>
-  
+
   <main id="main" class="site-main">
     <section class="hero">
       <div class="wrap">
@@ -104,8 +104,8 @@
             <div class="card-h">The Rebound Effect</div>
             <div class="card-b">
               <p>
-                Lower marginal costs → increased usage → higher aggregate demand. 
-                <strong>Efficiency improvements can be overwhelmed by scale</strong> without coordination. 
+                Lower marginal costs → increased usage → higher aggregate demand.
+                <strong>Efficiency improvements can be overwhelmed by scale</strong> without coordination.
                 Thousands of derivative models (fine-tunes, LoRA adapters, quantizations) create cumulative impacts that exceed base model training.
               </p>
             </div>
@@ -116,8 +116,8 @@
           <div>
             <div class="callout-title">Position Statement</div>
             <p>
-              Efficiency gains are critical, but reducing AI's aggregate environmental impact also requires <strong>coordination infrastructure</strong>. 
-              Open-source ecosystems need ecosystem-level carbon accounting to enable measurement, disclosure, and shared targets 
+              Efficiency gains are critical, but reducing AI's aggregate environmental impact also requires <strong>coordination infrastructure</strong>.
+              Open-source ecosystems need ecosystem-level carbon accounting to enable measurement, disclosure, and shared targets
               that make emissions visible, assign responsibility, and prevent the tragedy of the commons.
             </p>
           </div>
@@ -129,9 +129,9 @@
       <div class="wrap">
         <h2>Abstract</h2>
         <p class="lead">
-          The open-source Artificial Intelligence (AI) ecosystem has grown explosively, with Hugging Face now hosting 
-          over 2 million models. While this growth democratizes AI, it also introduces a <strong>coordination gap</strong>. 
-          The downstream derivatives incur energy use, water consumption, and emissions that remain largely unobserved 
+          The open-source Artificial Intelligence (AI) ecosystem has grown explosively, with Hugging Face now hosting
+          over 2 million models. While this growth democratizes AI, it also introduces a <strong>coordination gap</strong>.
+          The downstream derivatives incur energy use, water consumption, and emissions that remain largely unobserved
           and inconsistently disclosed, limiting collective oversight and masking cumulative impact.
         </p>
         <div class="two-col">
@@ -139,9 +139,9 @@
             <div class="card-h">The Problem</div>
             <div class="card-b">
               <p>
-                While quantization, pruning, and efficient fine-tuning help make individual models more efficient, 
-                cheaper training and inference can also lead to more experimentation and deployment, which may 
-                outweigh these gains through <strong>rebound effects</strong>. A single foundation model like Meta Llama 
+                While quantization, pruning, and efficient fine-tuning help make individual models more efficient,
+                cheaper training and inference can also lead to more experimentation and deployment, which may
+                outweigh these gains through <strong>rebound effects</strong>. A single foundation model like Meta Llama
                 can spawn hundreds of derivatives within months, each consuming additional compute.
               </p>
             </div>
@@ -150,8 +150,8 @@
             <div class="card-h">Our Proposal: DIA</div>
             <div class="card-b">
               <p>
-                We propose <strong>Data and Impact Accounting (DIA)</strong>, a lightweight coordination mechanism 
-                that provides ecosystem-level visibility into carbon and water footprints without restricting 
+                We propose <strong>Data and Impact Accounting (DIA)</strong>, a lightweight coordination mechanism
+                that provides ecosystem-level visibility into carbon and water footprints without restricting
                 open-source development. DIA combines standardized reporting, automated integration, and public aggregation dashboards.
               </p>
             </div>
@@ -160,9 +160,9 @@
         <div class="callout" style="margin-top: 24px;">
           <div class="callout-title">Key Insight: Tragedy of the Commons</div>
           <p>
-            This dynamic represents the tragedy of the commons, where individually rational actions—such as 
-            fine-tuning models for specific use cases—can collectively increase total energy and water use. 
-            Here, the commons are <strong>the atmosphere and freshwater resources</strong>. The open-source ecosystem 
+            This dynamic represents the tragedy of the commons, where individually rational actions—such as
+            fine-tuning models for specific use cases—can collectively increase total energy and water use.
+            Here, the commons are <strong>the atmosphere and freshwater resources</strong>. The open-source ecosystem
             currently lacks governance mechanisms to coordinate responsible resource use.
           </p>
         </div>
@@ -183,9 +183,9 @@
               </div>
             </button>
             <figcaption>
-              <strong>Figure 1.</strong> The hidden environmental reality of the AI ecosystem, illustrating: 
-              (A) Localized water stress across the United States with data center facilities competing for water in stressed basins, 
-              (B) Estimated order-of-magnitude comparison of training-related carbon and water footprints for closed vs. open models, 
+              <strong>Figure 1.</strong> The hidden environmental reality of the AI ecosystem, illustrating:
+              (A) Localized water stress across the United States with data center facilities competing for water in stressed basins,
+              (B) Estimated order-of-magnitude comparison of training-related carbon and water footprints for closed vs. open models,
             </figcaption>
           </figure>
           <figure class="figure-card">
@@ -195,10 +195,10 @@
               </div>
             </button>
             <figcaption>
-              <strong>Figure 2.</strong> Overview of Data and Impact Accounting (DIA). 
-              Top: Current state showing invisible footprint—base model training may be reported, but derivative artifacts 
-              (fine-tunes, LoRA adapters, quantizations, merges) are typically untracked, making aggregate ecosystem impact unobservable. 
-              Bottom: Proposed DIA system introducing a low-friction visibility layer with (1) standardized impact reporting in model metadata, 
+              <strong>Figure 2.</strong> Overview of Data and Impact Accounting (DIA).
+              Top: Current state showing invisible footprint—base model training may be reported, but derivative artifacts
+              (fine-tunes, LoRA adapters, quantizations, merges) are typically untracked, making aggregate ecosystem impact unobservable.
+              Bottom: Proposed DIA system introducing a low-friction visibility layer with (1) standardized impact reporting in model metadata,
               (2) automated tracking via existing tools, and (3) ecosystem-level aggregation through public dashboards.
             </figcaption>
           </figure>
@@ -206,9 +206,9 @@
         <div class="callout">
           <div class="callout-title">Critical Context: Derivative Proliferation</div>
           <p>
-            Meta reports that pretraining Llama 3 (8B and 70B combined) emitted approximately <strong>2,290 tCO₂eq</strong>. 
-            However, research documents <strong>146+ derivatives for a single model family</strong>. Even if most derivatives 
-            are cheaper individually, the aggregate emissions across hundreds can exceed base model training by multiples. 
+            Meta reports that pretraining Llama 3 (8B and 70B combined) emitted approximately <strong>2,290 tCO₂eq</strong>.
+            However, research documents <strong>146+ derivatives for a single model family</strong>. Even if most derivatives
+            are cheaper individually, the aggregate emissions across hundreds can exceed base model training by multiples.
             Precise estimation is currently impossible because derivative compute is rarely disclosed—this motivates DIA.
           </p>
         </div>
@@ -219,8 +219,8 @@
       <div class="wrap">
         <h2>Model Training Footprints (2020-2024)</h2>
         <p class="lead">
-          Training emissions and water consumption of selected GenAI models. 
-          Models marked with ⋆ are open-source. Tree equivalent assumes 25 kg CO₂/tree/year. 
+          Training emissions and water consumption of selected GenAI models.
+          Models marked with ⋆ are open-source. Tree equivalent assumes 25 kg CO₂/tree/year.
           Water in megalitres (ML; 1 ML = 10⁶ L).
         </p>
         <div class="controls">
@@ -269,7 +269,7 @@
           <div class="viz-head">
             <h3>Carbon vs Water (Training Phase)</h3>
             <p class="muted">
-              Each point represents a model from the table. Hover for details. 
+              Each point represents a model from the table. Hover for details.
               Axes use logarithmic scale by default to show order-of-magnitude differences.
             </p>
           </div>
@@ -280,15 +280,15 @@
           <summary>📊 Data Notes & Methodology</summary>
           <div class="notes-body">
             <ul class="bullets">
-              <li><strong>Water values:</strong> Estimated using WUE<sub>total</sub> (Water Usage Effectiveness) ranges of 1.8-4.0 L/kWh, 
+              <li><strong>Water values:</strong> Estimated using WUE<sub>total</sub> (Water Usage Effectiveness) ranges of 1.8-4.0 L/kWh,
               combining on-site cooling and off-site electricity generation water <em>consumption</em> (water not returned locally).</li>
-              <li><strong>Reported vs Estimated:</strong> "R" indicates values disclosed by model creators; 
+              <li><strong>Reported vs Estimated:</strong> "R" indicates values disclosed by model creators;
               "Est." uses GPU-hours, TDP, PUE, and carbon intensity assumptions (see paper Appendix A, Equations 1-3).</li>
-              <li><strong>Training phase only:</strong> This table covers training phase emissions and water use. The paper emphasizes that 
+              <li><strong>Training phase only:</strong> This table covers training phase emissions and water use. The paper emphasizes that
               <em>inference and derivative proliferation can dominate lifecycle impact</em>—these downstream costs are largely untracked.</li>
-              <li><strong>Upper bounds:</strong> TDP-based estimates provide upper bounds; actual power draw typically ranges from 60-80% of TDP 
+              <li><strong>Upper bounds:</strong> TDP-based estimates provide upper bounds; actual power draw typically ranges from 60-80% of TDP
               depending on utilization patterns during training.</li>
-              <li><strong>GPT-4 range:</strong> Based on IEA's 42.4 GWh estimate with carbon intensity 0.1-0.445 kgCO₂/kWh and WUE 1.2-4.4 L/kWh 
+              <li><strong>GPT-4 range:</strong> Based on IEA's 42.4 GWh estimate with carbon intensity 0.1-0.445 kgCO₂/kWh and WUE 1.2-4.4 L/kWh
               depending on cooling and grid source. These are third-party estimates, not audited disclosures.</li>
             </ul>
           </div>
@@ -301,7 +301,7 @@
         <p class="lead">
           A lightweight, non-regulatory transparency infrastructure for ecosystem-level sustainability coordination
         </p>
-        
+
         <div class="dia-components">
           <div class="card card-component">
             <div class="card-icon">📋</div>
@@ -319,7 +319,7 @@
               </ul>
             </div>
           </div>
-          
+
           <div class="card card-component">
             <div class="card-icon">🔧</div>
             <div class="card-h">2. Low-Friction Instrumentation</div>
@@ -335,7 +335,7 @@
               </ul>
             </div>
           </div>
-          
+
           <div class="card card-component">
             <div class="card-icon">📊</div>
             <div class="card-h">3. Ecosystem-Level Aggregation</div>
@@ -352,7 +352,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="two-col" style="margin-top: 32px;">
           <div class="card">
             <div class="card-h">Design Principles</div>
@@ -365,7 +365,7 @@
               </ul>
             </div>
           </div>
-          
+
           <div class="card">
             <div class="card-h">What DIA is NOT</div>
             <div class="card-b">
@@ -378,7 +378,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="callout" style="margin-top: 32px;">
           <div class="callout" style="margin-top: 32px;">
             <div class="callout-title">Implementation Pathway <br>(4 Phases)</div>
@@ -386,28 +386,28 @@
               <div class="phase-item">
                 <div class="phase-num">1</div>
                 <div>
-                  <strong>Norm-setting:</strong> Major open-source labs adopt standardized reporting for flagship releases; 
+                  <strong>Norm-setting:</strong> Major open-source labs adopt standardized reporting for flagship releases;
                   conferences encourage emissions reporting in submissions (reproducibility/ethics checklists)
                 </div>
               </div>
               <div class="phase-item">
                 <div class="phase-num">2</div>
                 <div>
-                  <strong>Friction reduction:</strong> Common training stacks (PyTorch, JAX, Transformers) expose optional emissions tracking by default; 
+                  <strong>Friction reduction:</strong> Common training stacks (PyTorch, JAX, Transformers) expose optional emissions tracking by default;
                   cloud providers surface location-adjusted carbon and water information in job summaries
                 </div>
               </div>
               <div class="phase-item">
                 <div class="phase-num">3</div>
                 <div>
-                  <strong>Ecosystem visibility:</strong> Model hubs and community dashboards aggregate and display reported data; 
+                  <strong>Ecosystem visibility:</strong> Model hubs and community dashboards aggregate and display reported data;
                   researchers can query footprint estimates for model families and track ecosystem trends
                 </div>
               </div>
               <div class="phase-item">
                 <div class="phase-num">4</div>
                 <div>
-                  <strong>Accountability:</strong> Non-binding badges or "impact labels" on model pages; 
+                  <strong>Accountability:</strong> Non-binding badges or "impact labels" on model pages;
                   standardized citations for impact statements; benchmarking supporting voluntary targets and progress tracking
                 </div>
               </div>
@@ -420,7 +420,7 @@
       <div class="wrap">
         <h2>Methodology: Estimating Environmental Footprint</h2>
         <p class="muted">
-          When direct measurements are unavailable, the paper estimates training electricity from GPU-hours and hardware power, 
+          When direct measurements are unavailable, the paper estimates training electricity from GPU-hours and hardware power,
           then derives CO₂ emissions and water consumption following established ML carbon accounting methodology.
         </p>
         <div class="formula-section">
@@ -430,8 +430,8 @@
               <code>E<sub>train</sub> = (H<sub>GPU</sub> × P<sub>avg</sub> × PUE) / 1000</code>
             </div>
             <div class="formula-desc">
-              H<sub>GPU</sub> = aggregate GPU-hours across all devices | 
-              P<sub>avg</sub> = average GPU power draw (W) | 
+              H<sub>GPU</sub> = aggregate GPU-hours across all devices |
+              P<sub>avg</sub> = average GPU power draw (W) |
               PUE = power usage effectiveness (typical hyperscale: 1.1-1.2)
             </div>
             <div class="formula-note">
@@ -457,7 +457,7 @@
               Typical range: 1.8-4.0 L/kWh | Report in megalitres: W<sup>(ML)</sup> = W<sup>(L)</sup>/10⁶
             </div>
             <div class="formula-note">
-              <strong>Critical distinction:</strong> Water <em>consumption</em> (evaporated/not returned) vs. water <em>withdrawal</em> (taken from source). 
+              <strong>Critical distinction:</strong> Water <em>consumption</em> (evaporated/not returned) vs. water <em>withdrawal</em> (taken from source).
               Consumption drives local scarcity impacts.
             </div>
           </div>
@@ -467,13 +467,13 @@
             <div class="card-h">The Water Dimension: A Hidden Cost</div>
             <div class="card-b">
               <p>
-                Beyond carbon emissions, AI consumes substantial amounts of water for <strong>evaporative cooling in data centers</strong> 
-                and indirectly through electricity generation. Unlike carbon, water impacts are <strong>highly localized</strong> 
+                Beyond carbon emissions, AI consumes substantial amounts of water for <strong>evaporative cooling in data centers</strong>
+                and indirectly through electricity generation. Unlike carbon, water impacts are <strong>highly localized</strong>
                 and depend on basin-level scarcity.
               </p>
               <p class="fineprint">
-                <strong>Scale:</strong> Mid-sized data center: ~300,000 gallons/day (≈1,000 households); 
-                hyperscale facilities: up to 5 million gallons/day. 
+                <strong>Scale:</strong> Mid-sized data center: ~300,000 gallons/day (≈1,000 households);
+                hyperscale facilities: up to 5 million gallons/day.
                 <strong>Risk:</strong> MSCI analysis found 1 in 4 data-center assets may face increased water scarcity by 2050.
               </p>
             </div>
@@ -482,12 +482,12 @@
             <div class="card-h">Open vs Closed Ecosystem Dynamics</div>
             <div class="card-b">
               <p>
-                <strong>Closed models</strong> (e.g., GPT-4): Trained and served centrally via API; inference scales with demand 
+                <strong>Closed models</strong> (e.g., GPT-4): Trained and served centrally via API; inference scales with demand
                 but remains centrally metered in provider data centers. Organizational boundaries enable internal accountability.
               </p>
               <p>
-                <strong>Open models</strong> (e.g., Llama 3): Trained once, then branch into many derivatives (fine-tunes, quantizations, 
-                adapters, merges) produced by independent users. This <em>diffuses environmental impacts across a distributed ecosystem</em>, 
+                <strong>Open models</strong> (e.g., Llama 3): Trained once, then branch into many derivatives (fine-tunes, quantizations,
+                adapters, merges) produced by independent users. This <em>diffuses environmental impacts across a distributed ecosystem</em>,
                 making aggregate footprint harder to quantify and enabling the tragedy of the commons.
               </p>
             </div>
@@ -582,14 +582,14 @@
           <div>
             <div class="callout-title">A Path Forward</div>
             <p>
-              <strong>We propose that by 2027, major open-weight model releases include standardized DIA reports</strong> 
-              covering training emissions, water usage, and documented lineage. Achieving this requires no regulatory mandate—only coordination. 
-              The tools exist; the data can be collected; the community has demonstrated its capacity for collective action on challenges 
+              <strong>We propose that by 2027, major open-weight model releases include standardized DIA reports</strong>
+              covering training emissions, water usage, and documented lineage. Achieving this requires no regulatory mandate—only coordination.
+              The tools exist; the data can be collected; the community has demonstrated its capacity for collective action on challenges
               like model cards, dataset documentation, and reproducibility standards.
             </p>
             <p style="margin-top: 12px;">
-              Earth does not distinguish between emissions from open and closed-source models, between base models and derivatives, 
-              or between training and inference. The infrastructure we build today will determine whether open-source AI develops 
+              Earth does not distinguish between emissions from open and closed-source models, between base models and derivatives,
+              or between training and inference. The infrastructure we build today will determine whether open-source AI develops
               responsibly or experiences uncoordinated growth. <strong>What remains is the decision to act.</strong>
             </p>
           </div>
@@ -602,16 +602,16 @@
         <div class="ack-content">
           <h2>Acknowledgements</h2>
           <p>
-            Resources used in preparing this research were provided, in part, by the Province of Ontario, 
+            Resources used in preparing this research were provided, in part, by the Province of Ontario,
             the Government of Canada through CIFAR, and companies sponsoring the Vector Institute.
           </p>
           <p>
-            GWT acknowledges support from the Natural Sciences and Engineering Research Council (NSERC), 
-            the Canada Research Chairs program, and the Canadian Institute for Advanced Research (CIFAR) 
+            GWT acknowledges support from the Natural Sciences and Engineering Research Council (NSERC),
+            the Canada Research Chairs program, and the Canadian Institute for Advanced Research (CIFAR)
             Canada CIFAR AI Chairs program.
           </p>
           <p class="small muted" style="margin-top: 1.5rem; text-align: center;">
-            For more information about Vector Institute partners, visit 
+            For more information about Vector Institute partners, visit
             <a href="http://www.vectorinstitute.ai/#partners" target="_blank" rel="noopener">vectorinstitute.ai/#partners</a>
           </p>
         </div>
@@ -631,8 +631,8 @@
       }</code></pre>
         <div class="fineprint" style="margin-top: 20px;">
           <p>
-            <strong>Data attribution:</strong> Model training footprint data (Table 1) is compiled from public disclosures, 
-            published papers, and prior analyses following established ML carbon accounting methodology. 
+            <strong>Data attribution:</strong> Model training footprint data (Table 1) is compiled from public disclosures,
+            published papers, and prior analyses following established ML carbon accounting methodology.
             See paper Section 2.3 and Appendix A for detailed estimation procedures and references for original sources.
           </p>
         </div>

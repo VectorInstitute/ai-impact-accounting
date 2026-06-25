@@ -1,0 +1,135 @@
+"""Persistence layer for accounting state.
+
+Hugging Face Space filesystems are ephemeral, so the source of truth is a HF
+*Dataset* repo holding ``state.json``. That also makes the accounting data itself
+open and auditable. State is held in memory for fast reads and committed back to
+the dataset on each upsert. For high write volume you would batch commits; for a
+single-family demonstrator, commit-per-event is fine.
+"""
+
+from __future__ import annotations
+
+import datetime
+import json
+import os
+import threading
+from datetime import UTC
+from typing import Optional
+
+from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub.utils import EntryNotFoundError, RepositoryNotFoundError
+
+from ..models import Node, Report
+
+
+STATE_FILE = "state.json"
+
+
+class Store:
+    """In-memory accounting state backed by a Hugging Face dataset repo.
+
+    Parameters
+    ----------
+    dataset_repo : str
+        Dataset repo id; a bare name is expanded to ``<user>/<name>``.
+    token : str, optional
+        Hugging Face write token; falls back to ``HF_TOKEN``.
+    """
+
+    def __init__(self, dataset_repo: str, token: Optional[str] = None) -> None:
+        """Resolve the repo, ensure it exists, and load existing state."""
+        self.token = token or os.getenv("HF_TOKEN")
+        self.api = HfApi(token=self.token)
+        self.repo = self._normalize_repo(dataset_repo)
+        self._lock = threading.Lock()
+        self.nodes: dict[str, Node] = {}
+        self._ensure_repo()
+        self.load()
+
+    # ---- repo lifecycle ------------------------------------------------------
+    def _normalize_repo(self, dataset_repo: str) -> str:
+        """Expand a bare ``name`` to ``<user>/name`` (HF repo ids need a namespace)."""
+        if "/" in dataset_repo:
+            return dataset_repo
+        user = self.api.whoami()["name"]
+        return f"{user}/{dataset_repo}"
+
+    def _ensure_repo(self) -> None:
+        try:
+            self.api.repo_info(self.repo, repo_type="dataset")
+        except RepositoryNotFoundError:
+            self.api.create_repo(self.repo, repo_type="dataset", private=False, exist_ok=True)
+
+    def load(self) -> None:
+        """Load ``state.json`` from the dataset repo into :attr:`nodes`."""
+        try:
+            path = hf_hub_download(self.repo, STATE_FILE, repo_type="dataset", token=self.token)
+            with open(path) as f:
+                raw = json.load(f)
+        except (EntryNotFoundError, FileNotFoundError, RepositoryNotFoundError):
+            raw = {"nodes": {}}
+        nodes = {}
+        for mid, d in raw.get("nodes", {}).items():
+            rep = Report.from_dict(d["report"]) if d.get("report") else None
+            nodes[mid] = Node(
+                model_id=mid,
+                report=rep,
+                lineage=d.get("lineage", []),
+                updated_at=d.get("updated_at"),
+            )
+        self.nodes = nodes
+
+    def _serialize(self) -> dict:
+        return {
+            "nodes": {
+                mid: {
+                    "report": n.report.to_dict() if n.report else None,
+                    "lineage": n.lineage,
+                    "updated_at": n.updated_at,
+                }
+                for mid, n in self.nodes.items()
+            }
+        }
+
+    def save(self) -> None:
+        """Commit the in-memory state back to the dataset repo."""
+        data = json.dumps(self._serialize(), indent=2).encode()
+        self.api.upload_file(
+            path_or_fileobj=data,
+            path_in_repo=STATE_FILE,
+            repo_id=self.repo,
+            repo_type="dataset",
+            commit_message=f"DIA state update {datetime.datetime.now(tz=UTC).isoformat()}",
+        )
+
+    # ---- mutations -----------------------------------------------------------
+    def upsert(self, node: Node, persist: bool = True) -> None:
+        """Insert or replace a single node.
+
+        Parameters
+        ----------
+        node : Node
+            The node to store.
+        persist : bool, optional
+            Commit to the dataset repo immediately. Defaults to ``True``.
+        """
+        with self._lock:
+            node.updated_at = datetime.datetime.now(tz=UTC).isoformat()
+            self.nodes[node.model_id] = node
+            if persist:
+                self.save()
+
+    def upsert_many(self, nodes: list[Node]) -> None:
+        """Insert or replace several nodes and commit once.
+
+        Parameters
+        ----------
+        nodes : list of Node
+            The nodes to store.
+        """
+        with self._lock:
+            ts = datetime.datetime.now(tz=UTC).isoformat()
+            for n in nodes:
+                n.updated_at = ts
+                self.nodes[n.model_id] = n
+            self.save()

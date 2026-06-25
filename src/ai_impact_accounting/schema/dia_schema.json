@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DIA Report v0.1",
+  "type": "object",
+  "required": ["scope", "footprint"],
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": ["incremental"],
+      "description": "MUST be incremental. A node reports ONLY its own delta, never ancestors'. Aggregation sums the subtree. Cumulative scope would double-count shared ancestors."
+    },
+    "lineage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["model"],
+        "properties": {
+          "model": {"type": "string"},
+          "relation": {
+            "type": "string",
+            "enum": ["finetune", "lora", "qlora", "quantized", "merge", "distill", "fork", "adapter"]
+          }
+        }
+      }
+    },
+    "compute": {
+      "type": "object",
+      "properties": {
+        "hardware": {
+          "type": "object",
+          "properties": {
+            "gpu": {"type": "string"},
+            "count": {"type": "integer", "minimum": 1}
+          }
+        },
+        "duration_gpu_hours": {"type": "number", "minimum": 0}
+      }
+    },
+    "footprint": {
+      "type": "object",
+      "properties": {
+        "energy_kwh":     {"$ref": "#/definitions/metric"},
+        "carbon_kgco2eq": {"$ref": "#/definitions/metric"},
+        "water_liters":   {"$ref": "#/definitions/metric"}
+      }
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "region": {"type": "string"},
+        "carbon_intensity": {"type": "number"},
+        "wue_l_per_kwh": {"$ref": "#/definitions/scalar_or_interval"}
+      }
+    },
+    "tool": {"type": "string"}
+  },
+  "definitions": {
+    "scalar_or_interval": {
+      "oneOf": [
+        {"type": "number"},
+        {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
+      ]
+    },
+    "metric": {
+      "type": "object",
+      "required": ["value"],
+      "properties": {
+        "value": {"$ref": "#/definitions/scalar_or_interval"},
+        "quality": {
+          "type": "string",
+          "enum": ["measured", "estimated-from-region", "estimated-from-default-wue",
+                   "estimated-from-hardware", "imputed", "unavailable"],
+          "description": "Per-field provenance. Lets the aggregator weight/filter honestly instead of summing measured and default numbers as equal."
+        }
+      }
+    }
+  }
+}
