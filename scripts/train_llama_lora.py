@@ -101,7 +101,7 @@ def main() -> None:
     trainer = Trainer(model=model, args=args, train_dataset=ds, data_collator=collator)
 
     # The only DIA-specific block:
-    with track(base_model=BASE, relation="lora", region="local-mac") as t:
+    with track(base_model=BASE, relation="lora") as t:  # region auto-detected from DIA_REGION/AWS_REGION
         trainer.train()
 
     print(t.checklist_line())

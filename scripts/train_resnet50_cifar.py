@@ -60,7 +60,10 @@ def main() -> None:
         ]
     )
     ds = CIFAR100(root=os.path.join(OUT, "data"), train=True, download=True, transform=train_tf)
-    loader = DataLoader(ds, batch_size=BATCH, shuffle=True, num_workers=4, drop_last=True)
+    workers = int(os.getenv("WORKERS", "4"))
+    loader = DataLoader(
+        ds, batch_size=BATCH, shuffle=True, num_workers=workers, persistent_workers=workers > 0, drop_last=True
+    )
 
     model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
     model.fc = nn.Linear(model.fc.in_features, 100)  # CIFAR-100 head

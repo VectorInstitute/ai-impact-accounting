@@ -33,13 +33,20 @@ name = "ai-impact-accounting"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "accelerate" },
+    { name = "datasets" },
     { name = "filelock" },
+    { name = "gradio" },
     { name = "huggingface-hub" },
     { name = "jsonschema" },
+    { name = "matplotlib" },
     { name = "networkx" },
     { name = "pygments" },
     { name = "pyyaml" },
     { name = "requests" },
+    { name = "torch" },
+    { name = "torchvision" },
+    { name = "transformers" },
     { name = "urllib3" },
 ]
 
@@ -103,14 +110,18 @@ docs = [
 
 [package.metadata]
 requires-dist = [
+    { name = "accelerate", specifier = ">=1.14.0" },
     { name = "ai-impact-accounting", extras = ["measure", "dashboard"], marker = "extra == 'all'" },
     { name = "codecarbon", marker = "extra == 'measure'", specifier = ">=2.3" },
+    { name = "datasets", specifier = ">=5.0.0" },
     { name = "datasets", marker = "extra == 'examples'", specifier = ">=2.18" },
     { name = "filelock", specifier = "==3.29.4" },
+    { name = "gradio", specifier = ">=6.19.0" },
     { name = "gradio", marker = "extra == 'dashboard'", specifier = ">=6.0,<7" },
     { name = "huggingface-hub", specifier = ">=1.2.0,<2.0" },
     { name = "huggingface-hub", marker = "extra == 'dashboard'", specifier = ">=1.2.0,<2.0" },
     { name = "jsonschema", specifier = ">=4.0" },
+    { name = "matplotlib", specifier = ">=3.11.0" },
     { name = "matplotlib", marker = "extra == 'dashboard'", specifier = ">=3.7" },
     { name = "networkx", specifier = ">=3.0" },
     { name = "pandas", marker = "extra == 'dashboard'", specifier = ">=2.0" },
@@ -121,8 +132,11 @@ requires-dist = [
     { name = "requests", specifier = ">=2.33.0" },
     { name = "sentencepiece", marker = "extra == 'examples'", specifier = ">=0.2" },
     { name = "starlette", marker = "extra == 'dashboard'", specifier = ">=1.3.1,<2.0" },
+    { name = "torch", specifier = ">=2.12.1" },
     { name = "torch", marker = "extra == 'examples'", specifier = ">=2.0" },
+    { name = "torchvision", specifier = ">=0.27.1" },
     { name = "torchvision", marker = "extra == 'examples'", specifier = ">=0.15" },
+    { name = "transformers", specifier = ">=5.12.1" },
     { name = "transformers", marker = "extra == 'examples'", specifier = ">=4.53.0" },
     { name = "urllib3", specifier = "==2.7.0" },
 ]
