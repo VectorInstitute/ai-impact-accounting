@@ -19,8 +19,15 @@ CI_IMPUTE_RANGE = (0.10, 0.60)  # kgCO2/kWh, low/high grid carbon for imputation
 PUE_DEFAULT = 1.1  # hyperscale
 TDP_W = {  # vendor TDP upper bounds
     "V100": 300,
+    "V100-32GB": 300,
     "A100": 400,
     "A100-80GB": 400,
+    "A40": 300,
+    "A30": 165,
+    "A10": 150,
+    "L40": 300,
+    "L40S": 300,
+    "T4": 70,
     "H100": 700,
     "H100-80GB": 700,
     "H800": 350,

@@ -25,12 +25,16 @@ dependencies = [
     "gradio>=6.19.0",
     "matplotlib>=3.11.0",
     "accelerate>=1.14.0",
+    "peft>=0.19.1",
 ]
 
 [project.optional-dependencies]
 # Measured energy/carbon during a training run. Without it, track() still works
 # and falls back to a hardware-TDP estimate (labelled estimated-from-hardware).
-measure = ["codecarbon>=2.3"]
+measure = [
+    "codecarbon>=2.3",
+    "nvidia-ml-py>=13.610.43",
+]
 # Self-host the Gradio dashboard + Hugging Face webhook Space.
 dashboard = [
     "gradio>=6.0,<7",

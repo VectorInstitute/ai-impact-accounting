@@ -41,6 +41,7 @@ dependencies = [
     { name = "jsonschema" },
     { name = "matplotlib" },
     { name = "networkx" },
+    { name = "peft" },
     { name = "pygments" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -56,6 +57,7 @@ all = [
     { name = "gradio" },
     { name = "huggingface-hub" },
     { name = "matplotlib" },
+    { name = "nvidia-ml-py" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "starlette" },
@@ -78,6 +80,7 @@ examples = [
 ]
 measure = [
     { name = "codecarbon" },
+    { name = "nvidia-ml-py" },
 ]
 
 [package.dev-dependencies]
@@ -124,7 +127,9 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.11.0" },
     { name = "matplotlib", marker = "extra == 'dashboard'", specifier = ">=3.7" },
     { name = "networkx", specifier = ">=3.0" },
+    { name = "nvidia-ml-py", marker = "extra == 'measure'", specifier = ">=13.610.43" },
     { name = "pandas", marker = "extra == 'dashboard'", specifier = ">=2.0" },
+    { name = "peft", specifier = ">=0.19.1" },
     { name = "peft", marker = "extra == 'examples'", specifier = ">=0.10" },
     { name = "pillow", marker = "extra == 'dashboard'", specifier = ">=12.2.0" },
     { name = "pygments", specifier = ">=2.20.0" },
