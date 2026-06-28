@@ -34,28 +34,7 @@ DIA is a lightweight, voluntary transparency layer with three components:
 
 DIA is non-regulatory. It does not restrict who can train or release models. The goal is visibility into trends and relative impacts, not auditing individual projects.
 
-## The `ai_impact_accounting` toolkit
-
-This repo ships DIA as an installable Python package implementing all three
-components above. It has two audiences: model authors who want to **report** a
-footprint (`core` + `producer`), and operators who want to **collect and
-visualize** footprints across the ecosystem (`hub` + `dashboard`).
-
-### Who uses what
-
-| Role | Install | What you do | Where data lives |
-|---|---|---|---|
-| **Model author** | `pip install ai-impact-accounting` (+ `[measure]` optional) | Wrap training with `track()`, then `t.push("you/your-model")` | A `dia_report` block on **your model card** |
-| **Operator** | `pip install "ai-impact-accounting[dashboard]"` | Ingest cards into a `Store`, run rollup, host the dashboard | A HF **dataset** repo you own (e.g. `you/dia-state`) |
-
-Model authors do **not** need the dashboard. Once you push a report, anyone can
-read it from the model card or validate it with `dia validate`.
-
-Operators are optional: labs, orgs, or community maintainers who want a family
-rollup view across many derivatives. They configure their own state repo and
-base models - not a shared demo org.
-
-### Using your own Hugging Face namespace
+### Using Hugging Face namespace
 
 The runnable demos under `scripts/` default to the Vector Institute's demo org
 (**`DIA-MVP`**) so the paper demo works out of the box. The **library itself
