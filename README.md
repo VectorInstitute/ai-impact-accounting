@@ -34,6 +34,10 @@ DIA is a lightweight, voluntary transparency layer with three components:
 
 DIA is non-regulatory. It does not restrict who can train or release models. The goal is visibility into trends and relative impacts, not auditing individual projects.
 
+### Lab workflow
+
+See **[LAB.md](LAB.md)** for A100 / A40 / CPU training, ingest, and the Gradio dashboard.
+
 ## The `ai_impact_accounting` toolkit
 
 This repo ships DIA as an installable Python package implementing all three
