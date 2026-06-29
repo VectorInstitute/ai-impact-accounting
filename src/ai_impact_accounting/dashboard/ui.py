@@ -146,6 +146,23 @@ def render(store: Any, base: str, impute: bool, row_filter: str = "All") -> tupl
     return _summary_md(res) + note, plot, df
 
 
+def _base_choices(store: Any) -> list[str]:
+    """Collect every queryable id from the store for the base-model dropdown.
+
+    Includes each tracked model id plus every parent referenced in lineage, so a
+    user can roll up a foundation base (e.g. ``distilbert-base-uncased``) or a
+    from-scratch root (e.g. a SimCLR repo id) without typing it exactly.
+    """
+    choices: set[str] = set()
+    for mid, node in store.nodes.items():
+        choices.add(mid)
+        for parent in getattr(node, "lineage", []) or []:
+            pm = parent.get("model")
+            if pm:
+                choices.add(pm)
+    return sorted(choices)
+
+
 def build_ui(store: Any, default_base: str = "meta-llama/Llama-3-8B") -> Any:
     """Build the Gradio dashboard.
 
@@ -168,8 +185,18 @@ def build_ui(store: Any, default_base: str = "meta-llama/Llama-3-8B") -> Any:
             "derivatives. Push a model whose card carries a `dia_report` block and "
             "it appears here automatically."
         )
+        base_options = _base_choices(store)
+        if default_base and default_base not in base_options:
+            base_options = [default_base, *base_options]
         with gr.Row():
-            base_in = gr.Textbox(label="Base model", value=default_base, scale=4)
+            base_in = gr.Dropdown(
+                label="Base model",
+                choices=base_options,
+                value=default_base,
+                allow_custom_value=True,
+                info="Pick a model already in the dataset, or type any base/parent id to roll up.",
+                scale=4,
+            )
             impute_in = gr.Checkbox(label="Impute missing nodes (labelled)", value=False)
             row_filter_in = gr.Radio(
                 choices=["All", "Reporting only", "Carbon > 0 only"],
@@ -188,7 +215,7 @@ def build_ui(store: Any, default_base: str = "meta-llama/Llama-3-8B") -> Any:
 
         inputs = [base_in, impute_in, row_filter_in]
         go.click(fn, inputs, [summary, plot, table])
-        base_in.submit(fn, inputs, [summary, plot, table])
+        base_in.change(fn, inputs, [summary, plot, table])
         row_filter_in.change(fn, inputs, [summary, plot, table])
         impute_in.change(fn, inputs, [summary, plot, table])
         ui.load(fn, inputs, [summary, plot, table])
