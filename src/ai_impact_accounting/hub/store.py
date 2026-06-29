@@ -27,6 +27,15 @@ from huggingface_hub.utils import EntryNotFoundError, RepositoryNotFoundError
 from ..models import Node, Report
 
 
+try:
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    _HAS_PYARROW = True
+except ImportError:  # pragma: no cover - exercised only in the base install
+    _HAS_PYARROW = False
+
+
 STATE_FILE = "state.json"
 PARQUET_FILE = "nodes.parquet"
 CSV_FILE = "nodes.csv"
@@ -96,20 +105,17 @@ def flatten_nodes(nodes: dict[str, Node]) -> list[dict[str, Any]]:
 
 def _encode_flat_export(rows: list[dict[str, Any]]) -> tuple[str, bytes]:
     """Serialize flat rows to Parquet, falling back to CSV without pyarrow."""
-    try:
-        import pyarrow as pa
-        import pyarrow.parquet as pq
+    if _HAS_PYARROW:
+        pbuf = io.BytesIO()
+        pq.write_table(pa.Table.from_pylist(rows), pbuf)  # type: ignore[no-untyped-call]
+        return PARQUET_FILE, pbuf.getvalue()
 
-        buf = io.BytesIO()
-        pq.write_table(pa.Table.from_pylist(rows), buf)
-        return PARQUET_FILE, buf.getvalue()
-    except ImportError:
-        buf = io.StringIO()
-        writer = csv.DictWriter(buf, fieldnames=_FLAT_COLUMNS, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow({col: row.get(col) for col in _FLAT_COLUMNS})
-        return CSV_FILE, buf.getvalue().encode()
+    sbuf = io.StringIO()
+    writer = csv.DictWriter(sbuf, fieldnames=_FLAT_COLUMNS, extrasaction="ignore")
+    writer.writeheader()
+    for row in rows:
+        writer.writerow({col: row.get(col) for col in _FLAT_COLUMNS})
+    return CSV_FILE, sbuf.getvalue().encode()
 
 
 class Store:

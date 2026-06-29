@@ -215,6 +215,10 @@ convention = "numpy"
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 88
 
+# `setp` is matplotlib's pyplot.setp(), not a typo of "step".
+[tool.typos.default.extend-words]
+setp = "setp"
+
 [tool.pytest.ini_options]
 markers = [
     "integration_test: marks tests as integration tests",
