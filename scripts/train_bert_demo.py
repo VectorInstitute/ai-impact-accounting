@@ -44,7 +44,7 @@ def main() -> None:
         sys.exit(1)
 
     print(f"Device: {DEVICE}  |  Base: {BASE}")
-    ds = load_dataset("glue", "sst2", split="train[:8000]")
+    ds = load_dataset("nyu-mll/glue", "sst2", split="train[:8000]")
     ds = ds.train_test_split(test_size=0.2, seed=42)
 
     tok = AutoTokenizer.from_pretrained(BASE, token=token)
@@ -68,7 +68,7 @@ def main() -> None:
 
     trainer = Trainer(model=model, args=args, train_dataset=ds["train"], eval_dataset=ds["test"])
 
-    with track(base_model=BASE, relation="finetune", region="local-mac") as t:
+    with track(base_model=BASE, relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
         trainer.train()
 
     print(t.checklist_line())

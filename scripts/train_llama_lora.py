@@ -1,9 +1,27 @@
 """LoRA fine-tune of a small Llama-family LLM, instrumented with DIA ``track()``.
 
-Defaults to TinyLlama-1.1B so it runs on a Mac (MPS) or CPU. To train a real
-Llama-3-8B instead, run on a CUDA GPU and set:
+Defaults to TinyLlama-1.1B so it runs on a Mac (MPS) or CPU. Override the base
+model and push target with ``BASE`` and ``REPO`` (no code changes needed). Meta
+Llama checkpoints are gated — accept the license on Hugging Face and use a token
+with access before running.
 
-    BASE=meta-llama/Llama-3.1-8B  REPO=DIA-MVP/llama31-8b-lora  python train_llama_lora.py
+Examples (CUDA GPU recommended for real Llama runs):
+
+    # Llama 3.2 3B — good default on a single A100
+    BASE=meta-llama/Llama-3.2-3B-Instruct \\
+    REPO=DIA-MVP/llama32-3b-lora \\
+    N_EXAMPLES=5000 EPOCHS=1 \\
+    python scripts/train_llama_lora.py
+
+    # Llama 3.1 8B — larger / higher-quality derivative
+    BASE=meta-llama/Llama-3.1-8B-Instruct \\
+    REPO=DIA-MVP/llama31-8b-lora \\
+    python scripts/train_llama_lora.py
+
+After training, ingest and view in the dashboard:
+
+    DIA_BASES=meta-llama/Llama-3.2-3B-Instruct \\
+    ./scripts/run_local.sh DIA-MVP/llama32-3b-lora
 
 The point of this file: DIA instrumentation is model-agnostic. The only
 DIA-specific lines are ``with track(...)`` and ``t.push(...)``; everything else is
@@ -101,7 +119,7 @@ def main() -> None:
     trainer = Trainer(model=model, args=args, train_dataset=ds, data_collator=collator)
 
     # The only DIA-specific block:
-    with track(base_model=BASE, relation="lora", region="local-mac") as t:
+    with track(base_model=BASE, relation="lora") as t:  # region auto-detected from DIA_REGION/AWS_REGION
         trainer.train()
 
     print(t.checklist_line())

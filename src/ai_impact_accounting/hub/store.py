@@ -5,24 +5,111 @@ Hugging Face Space filesystems are ephemeral, so the source of truth is a HF
 open and auditable. State is held in memory for fast reads and committed back to
 the dataset on each upsert. For high write volume you would batch commits; for a
 single-family demonstrator, commit-per-event is fine.
+
+Each save also writes a flat ``nodes.parquet`` (or ``nodes.csv`` when pyarrow is
+unavailable) so Hugging Face's Dataset Viewer can render a browsable table.
 """
 
 from __future__ import annotations
 
+import csv
 import datetime
+import io
 import json
 import os
 import threading
 from datetime import UTC
-from typing import Optional
+from typing import Any, Optional
 
-from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub import CommitOperationAdd, HfApi, hf_hub_download
 from huggingface_hub.utils import EntryNotFoundError, RepositoryNotFoundError
 
 from ..models import Node, Report
 
 
 STATE_FILE = "state.json"
+PARQUET_FILE = "nodes.parquet"
+CSV_FILE = "nodes.csv"
+
+_FLAT_COLUMNS = (
+    "model_id",
+    "has_report",
+    "parent_models",
+    "relation",
+    "scope",
+    "energy_kwh_lo",
+    "energy_kwh_hi",
+    "carbon_kgco2eq_lo",
+    "carbon_kgco2eq_hi",
+    "water_liters_lo",
+    "water_liters_hi",
+    "energy_quality",
+    "carbon_quality",
+    "water_quality",
+    "gpu",
+    "gpu_count",
+    "gpu_hours",
+    "region",
+    "tool",
+    "method",
+    "updated_at",
+)
+
+
+def flatten_nodes(nodes: dict[str, Node]) -> list[dict[str, Any]]:
+    """Return one flat row per tracked model for tabular export."""
+    rows: list[dict[str, Any]] = []
+    for mid in sorted(nodes):
+        n = nodes[mid]
+        row: dict[str, Any] = {
+            "model_id": mid,
+            "has_report": n.has_report,
+            "parent_models": ",".join(e["model"] for e in n.lineage),
+            "relation": ",".join(e.get("relation", "") for e in n.lineage),
+            "updated_at": n.updated_at,
+        }
+        if n.report:
+            r = n.report
+            row.update(
+                {
+                    "scope": r.scope,
+                    "energy_kwh_lo": r.energy.lo,
+                    "energy_kwh_hi": r.energy.hi,
+                    "carbon_kgco2eq_lo": r.carbon.lo,
+                    "carbon_kgco2eq_hi": r.carbon.hi,
+                    "water_liters_lo": r.water.lo,
+                    "water_liters_hi": r.water.hi,
+                    "energy_quality": r.quality.get("energy"),
+                    "carbon_quality": r.quality.get("carbon"),
+                    "water_quality": r.quality.get("water"),
+                    "gpu": r.gpu,
+                    "gpu_count": r.gpu_count,
+                    "gpu_hours": r.gpu_hours,
+                    "region": r.region,
+                    "tool": r.tool,
+                    "method": r.method,
+                }
+            )
+        rows.append(row)
+    return rows
+
+
+def _encode_flat_export(rows: list[dict[str, Any]]) -> tuple[str, bytes]:
+    """Serialize flat rows to Parquet, falling back to CSV without pyarrow."""
+    try:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        buf = io.BytesIO()
+        pq.write_table(pa.Table.from_pylist(rows), buf)
+        return PARQUET_FILE, buf.getvalue()
+    except ImportError:
+        buf = io.StringIO()
+        writer = csv.DictWriter(buf, fieldnames=_FLAT_COLUMNS, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({col: row.get(col) for col in _FLAT_COLUMNS})
+        return CSV_FILE, buf.getvalue().encode()
 
 
 class Store:
@@ -93,13 +180,20 @@ class Store:
 
     def save(self) -> None:
         """Commit the in-memory state back to the dataset repo."""
-        data = json.dumps(self._serialize(), indent=2).encode()
-        self.api.upload_file(
-            path_or_fileobj=data,
-            path_in_repo=STATE_FILE,
+        msg = f"DIA state update {datetime.datetime.now(tz=UTC).isoformat()}"
+        flat_path, flat_bytes = _encode_flat_export(flatten_nodes(self.nodes))
+        ops = [
+            CommitOperationAdd(
+                path_in_repo=STATE_FILE,
+                path_or_fileobj=json.dumps(self._serialize(), indent=2).encode(),
+            ),
+            CommitOperationAdd(path_in_repo=flat_path, path_or_fileobj=flat_bytes),
+        ]
+        self.api.create_commit(
             repo_id=self.repo,
             repo_type="dataset",
-            commit_message=f"DIA state update {datetime.datetime.now(tz=UTC).isoformat()}",
+            operations=ops,
+            commit_message=msg,
         )
 
     # ---- mutations -----------------------------------------------------------

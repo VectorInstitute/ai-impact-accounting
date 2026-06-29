@@ -1,9 +1,9 @@
 """Producer-side instrumentation.
 
 Wrap your training loop with :class:`track`; on exit it measures energy/carbon
-(CodeCarbon if available, else a hardware-TDP estimate), derives water from a WUE
-range, and emits a ``dia_report`` block you can inject into a model card before
-``push_to_hub``.
+(CodeCarbon if available, else NVML power sampling, else a hardware-TDP estimate),
+derives water from a WUE range, and emits a ``dia_report`` block you can inject
+into a model card before ``push_to_hub``.
 
 .. code-block:: python
 
@@ -22,6 +22,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+import threading
 import time
 from contextlib import ContextDecorator
 from typing import Any, Literal, Optional
@@ -32,6 +33,8 @@ from ai_impact_accounting.models import CI_DEFAULT, PUE_DEFAULT, TDP_W, WUE_DEFA
 APPLE_PACKAGE_W = 40  # M-series sustained package power under ML load (rough)
 CPU_W_PER_CORE = 6  # rough package draw per active core under load
 CPU_W_MIN, CPU_W_MAX = 65, 150  # clamp: a CPU socket is not a 400W datacenter GPU
+GPU_TDP_UTILIZATION = 0.70  # fraction of rated TDP assumed under load (TDP-estimate tier only)
+NVML_SAMPLE_INTERVAL_S = 1.0
 
 
 def _detect_cpu_cores() -> int:
@@ -66,6 +69,20 @@ def _detect_gpu() -> tuple[str, int]:
     return f"cpu-{_detect_cpu_cores()}core", 1
 
 
+def _nvml_power_limit_w() -> Optional[int]:
+    """Return the NVML power-management cap for GPU 0 in watts, or ``None``."""
+    try:
+        import pynvml
+
+        pynvml.nvmlInit()
+        handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+        limit_mw = pynvml.nvmlDeviceGetPowerManagementLimit(handle)
+        pynvml.nvmlShutdown()
+        return int(limit_mw // 1000)
+    except Exception:
+        return None
+
+
 def _tdp_for(name: str) -> int:
     n = name.replace("-", "").replace(" ", "").lower()
     if "apple" in n or "mps" in n:  # laptop, not a 400W datacenter GPU
@@ -77,6 +94,9 @@ def _tdp_for(name: str) -> int:
     for k, v in TDP_W.items():
         if k.replace("-", "").lower() in n:
             return v
+    limit_w = _nvml_power_limit_w()
+    if limit_w is not None:
+        return limit_w
     return 400
 
 
@@ -85,13 +105,58 @@ def _detect_region() -> str:
     return os.getenv("DIA_REGION") or os.getenv("AWS_REGION") or "unknown"
 
 
+def _detect_ci() -> float:
+    """Return grid carbon intensity from env, else the generic default.
+
+    TODO: live grid-intensity API lookup and a region->CI table keyed on
+    :func:`_detect_region`.
+    """
+    raw = os.getenv("DIA_CI")
+    if raw is not None:
+        return float(raw)
+    return CI_DEFAULT
+
+
+def _detect_pue() -> float:
+    """Return PUE from env, else the hyperscale default."""
+    raw = os.getenv("DIA_PUE")
+    if raw is not None:
+        return float(raw)
+    return PUE_DEFAULT
+
+
+def _detect_wue() -> tuple[float, float]:
+    """Return WUE range from env (``"lo,hi"`` or scalar), else the paper default."""
+    raw = os.getenv("DIA_WUE")
+    if raw is not None:
+        parts = [p.strip() for p in raw.split(",")]
+        if len(parts) >= 2:
+            return (float(parts[0]), float(parts[1]))
+        val = float(parts[0])
+        return (val, val)
+    return WUE_DEFAULT
+
+
+def _gpu_utilization_factor() -> float:
+    """Return the TDP-estimate utilization factor, overridable via ``DIA_GPU_UTIL``."""
+    raw = os.getenv("DIA_GPU_UTIL")
+    if raw is not None:
+        return float(raw)
+    return GPU_TDP_UTILIZATION
+
+
 def _codecarbon_supported() -> bool:
     """Return whether CodeCarbon should run on this host.
 
     On macOS, CodeCarbon invokes ``sudo powermetrics``, which prompts for a
     password and usually returns zero on Apple Silicon. Skip it and use the TDP
     estimate path instead.
+
+    Set ``CODECARBON_DISABLED=1`` to force the NVML / TDP fallback (e.g. when
+    verifying the NVML measured path).
     """
+    if os.getenv("CODECARBON_DISABLED", "").lower() in ("1", "true", "yes"):
+        return False
     if sys.platform == "darwin":
         return False
     try:
@@ -99,6 +164,70 @@ def _codecarbon_supported() -> bool:
     except ImportError:
         return False
     return True
+
+
+class _NvmlPowerSampler:
+    """Background sampler that integrates NVML power readings across all GPUs."""
+
+    def __init__(self, interval_s: float = NVML_SAMPLE_INTERVAL_S) -> None:
+        self._interval_s = interval_s
+        self._stop = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+        self._samples: list[tuple[float, list[float]]] = []
+        self._nvml: Any = None
+        self._handles: list[Any] = []
+
+    def start(self) -> bool:
+        """Start sampling if CUDA and NVML are available."""
+        try:
+            import pynvml
+            import torch
+
+            if not torch.cuda.is_available():
+                return False
+            pynvml.nvmlInit()
+            count = pynvml.nvmlDeviceGetCount()
+            if count <= 0:
+                pynvml.nvmlShutdown()
+                return False
+            self._nvml = pynvml
+            self._handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(count)]
+            self._thread = threading.Thread(target=self._run, daemon=True)
+            self._thread.start()
+            return True
+        except Exception:
+            return False
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            try:
+                powers = [self._nvml.nvmlDeviceGetPowerUsage(h) / 1000.0 for h in self._handles]
+                self._samples.append((time.time(), powers))
+            except Exception:
+                pass
+            self._stop.wait(self._interval_s)
+
+    def stop(self) -> float:
+        """Stop sampling and return integrated device energy in kWh (before PUE)."""
+        if self._thread is None:
+            return 0.0
+        self._stop.set()
+        self._thread.join(timeout=self._interval_s + 2.0)
+        try:
+            if self._nvml is not None:
+                self._nvml.nvmlShutdown()
+        except Exception:
+            pass
+        if len(self._samples) < 2:
+            return 0.0
+        total_ws = 0.0
+        for i in range(1, len(self._samples)):
+            t0, p0 = self._samples[i - 1]
+            t1, p1 = self._samples[i]
+            dt = t1 - t0
+            total_w = sum((a + b) / 2.0 for a, b in zip(p0, p1, strict=True))
+            total_ws += total_w * dt
+        return total_ws / 3_600_000.0  # W·s -> kWh
 
 
 class track(ContextDecorator):  # noqa: N801  (public API: `with track(...)`)
@@ -126,29 +255,33 @@ class track(ContextDecorator):  # noqa: N801  (public API: `with track(...)`)
         base_model: str,
         relation: str = "finetune",
         region: Optional[str] = None,
-        wue: tuple[float, float] = WUE_DEFAULT,
-        carbon_intensity: float = CI_DEFAULT,
-        pue: float = PUE_DEFAULT,
+        wue: Optional[tuple[float, float]] = None,
+        carbon_intensity: Optional[float] = None,
+        pue: Optional[float] = None,
     ) -> None:
         """Configure the tracker and auto-detect hardware/region."""
         self.base_model = base_model
         self.relation = relation
         self.region = region or _detect_region()
-        self.wue = tuple(wue)
-        self.ci = carbon_intensity
-        self.pue = pue
+        self._ci_user_supplied = carbon_intensity is not None or os.getenv("DIA_CI") is not None
+        self._wue_user_supplied = wue is not None or os.getenv("DIA_WUE") is not None
+        self.ci = carbon_intensity if carbon_intensity is not None else _detect_ci()
+        self.pue = pue if pue is not None else _detect_pue()
+        self.wue: tuple[float, float] = wue if wue is not None else _detect_wue()
         self.gpu, self.gpu_count = _detect_gpu()
         self.is_cpu = self.gpu.lower().startswith("cpu")
         self._tracker: Optional[Any] = None
+        self._nvml_sampler: Optional[_NvmlPowerSampler] = None
         self._t0: Optional[float] = None
         self.energy_kwh: Optional[float] = None
         self.carbon_kg: Optional[float] = None
         self.gpu_hours: float = 0.0
         self.water_l: tuple[float, float] = (0.0, 0.0)
         self.quality: dict[str, str] = {}
+        self._tool = "dia-track-estimate"
 
     def __enter__(self) -> "track":
-        """Start the clock (and CodeCarbon when supported on this host)."""
+        """Start the clock, plus CodeCarbon and NVML sampling when available."""
         self._t0 = time.time()
         if _codecarbon_supported():
             try:
@@ -158,40 +291,70 @@ class track(ContextDecorator):  # noqa: N801  (public API: `with track(...)`)
                 self._tracker.start()
             except Exception:
                 self._tracker = None
+        # Always run the NVML sampler so we can fall back to it if CodeCarbon
+        # measures nothing (returns ~0), rather than jumping to the TDP estimate.
+        sampler = _NvmlPowerSampler()
+        if sampler.start():
+            self._nvml_sampler = sampler
         return self
+
+    def _carbon_quality_for_measured_energy(self) -> str:
+        """Carbon tier when device energy is measured but carbon is derived from CI."""
+        return "measured" if self._ci_user_supplied else "estimated-from-region"
 
     def __exit__(self, *exc: object) -> Literal[False]:
         """Stop measuring and finalize energy/carbon/water with quality tiers."""
         wall_h = (time.time() - (self._t0 or time.time())) / 3600.0
         gpu_hours = round(wall_h * (self.gpu_count or 1), 4)
 
+        # Always stop the NVML sampler (so its thread never leaks) and keep its
+        # integrated energy as a fallback in case CodeCarbon measured nothing.
+        nvml_kwh = 0.0
+        if self._nvml_sampler is not None:
+            try:
+                nvml_kwh = self._nvml_sampler.stop()
+            except Exception:
+                nvml_kwh = 0.0
+
         if self._tracker is not None:
             try:
                 self.carbon_kg = float(self._tracker.stop() or 0.0)  # kgCO2
                 data = self._tracker.final_emissions_data
                 self.energy_kwh = float(getattr(data, "energy_consumed", 0.0) or 0.0)
-                self.quality = {"energy": "measured", "carbon": "measured"}
+                self.quality = {
+                    "energy": "measured",
+                    "carbon": self._carbon_quality_for_measured_energy(),
+                }
+                self._tool = "codecarbon"
             except Exception:
                 self._tracker = None
 
         # CodeCarbon can't read power on Apple Silicon / many laptops and returns
-        # ~0. Don't launder a zero as "measured" -- fall through to the estimate.
-        if (self.energy_kwh or 0.0) <= 0.0:
-            self._tracker = None
+        # ~0. Don't launder a zero as "measured" -- fall back to the NVML reading.
+        if (self.energy_kwh or 0.0) <= 0.0 and nvml_kwh > 0.0:
+            self.energy_kwh = nvml_kwh * self.pue
+            self.carbon_kg = self.energy_kwh * self.ci
+            self.quality = {
+                "energy": "measured",
+                "carbon": self._carbon_quality_for_measured_energy(),
+            }
+            self._tool = "nvml"
 
-        if self._tracker is None:  # TDP estimate
+        if (self.energy_kwh or 0.0) <= 0.0:  # TDP estimate
             tdp = _tdp_for(self.gpu)
-            # CPU per-core figure already reflects under-load draw; the 0.70
-            # utilization factor only applies to a GPU's rated TDP.
-            pavg = tdp if self.is_cpu else tdp * 0.70
+            # CPU per-core figure already reflects under-load draw; the utilization
+            # factor only applies to a GPU's rated TDP.
+            util = _gpu_utilization_factor()
+            pavg = tdp if self.is_cpu else tdp * util
             self.energy_kwh = gpu_hours * pavg * self.pue / 1000.0
             self.carbon_kg = self.energy_kwh * self.ci
             self.quality = {"energy": "estimated-from-hardware", "carbon": "estimated-from-region"}
+            self._tool = "dia-track-estimate"
 
         self.gpu_hours = gpu_hours
         energy = self.energy_kwh or 0.0
         self.water_l = (energy * self.wue[0], energy * self.wue[1])
-        self.quality["water"] = "estimated-from-default-wue"
+        self.quality["water"] = "estimated-from-region" if self._wue_user_supplied else "estimated-from-default-wue"
         return False
 
     # ---- output --------------------------------------------------------------
@@ -226,7 +389,7 @@ class track(ContextDecorator):  # noqa: N801  (public API: `with track(...)`)
                     "carbon_intensity": self.ci,
                     "wue_l_per_kwh": list(self.wue),
                 },
-                "tool": "codecarbon" if self.quality["energy"] == "measured" else "dia-track-estimate",
+                "tool": self._tool,
             },
         }
 

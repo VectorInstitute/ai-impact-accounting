@@ -108,14 +108,17 @@ def main():
     ds = CIFAR10(root=os.path.join(OUT, "data"), train=True, download=True, transform=TwoCrop(_augment()))
     if N_TRAIN < len(ds):
         ds = Subset(ds, range(N_TRAIN))
-    loader = DataLoader(ds, batch_size=BATCH, shuffle=True, num_workers=2, drop_last=True)
+    workers = int(os.getenv("WORKERS", "2"))
+    loader = DataLoader(
+        ds, batch_size=BATCH, shuffle=True, num_workers=workers, persistent_workers=workers > 0, drop_last=True
+    )
 
     model = SimCLR(PROJ_DIM).to(DEVICE)
     opt = torch.optim.Adam(model.parameters(), lr=3e-4, weight_decay=1e-6)
 
     # The only DIA-specific block: wrap the raw training loop. region/wue/CI can be
     # passed explicitly; here we let track() auto-detect the hardware.
-    with track(base_model="scratch", relation="finetune", region="local") as t:
+    with track(base_model="scratch", relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
         model.train()
         for epoch in range(EPOCHS):
             running = 0.0
