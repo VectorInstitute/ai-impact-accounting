@@ -43,24 +43,17 @@ dashboard. Lab runs use dataset **`DIA-MVP/dia-state-lab-2026`** (not the public
 
 ## The `ai_impact_accounting` toolkit
 
-This repo ships DIA as an installable Python package implementing all three
-components above. It has two audiences: model authors who want to **report** a
-footprint (`core` + `producer`), and operators who want to **collect and
-visualize** footprints across the ecosystem (`hub` + `dashboard`).
+This repo ships DIA as a Python package (`track`, `Store`, ingest, rollup, dashboard).
 
-### Who uses what
+**What we actually run:** clone this repo, install with **`uv sync`** (see **Local
+development** below), then **[LAB.md](LAB.md)** — `scripts/train_*.py` →
+`scripts/ingest_all.py` → `scripts/view_local.py`. Same checkout, same shell,
+shared **`DIA-MVP`** repos on Hugging Face. There is no separate PyPI “author vs
+operator” setup in the lab workflow.
 
-| Role | Install | What you do | Where data lives |
-|---|---|---|---|
-| **Model author** | `pip install ai-impact-accounting` (+ `[measure]` optional) | Wrap training with `track()`, then `t.push("you/your-model")` | A `dia_report` block on **your model card** |
-| **Operator** | `pip install "ai-impact-accounting[dashboard]"` | Ingest cards into a `Store`, run rollup, host the dashboard | A HF **dataset** repo you own (e.g. `you/dia-state`) |
-
-Model authors do **not** need the dashboard. Once you push a report, anyone can
-read it from the model card or validate it with `dia validate`.
-
-Operators are optional: labs, orgs, or community maintainers who want a family
-rollup view across many derivatives. They configure their own state repo and
-base models - not a shared demo org.
+Forks can use their own HF namespace (see **Using your own Hugging Face namespace**).
+Lab hardware runs use **`DIA-MVP/dia-state-lab-2026`**, not the public
+`DIA-MVP/dia-state` crawl table.
 
 ### Using your own Hugging Face namespace
 
@@ -117,6 +110,10 @@ export DIA_BASES=distilbert-base-uncased
 | `WEBHOOK_SECRET` | random string | Auto-ingest on model push |
 
 ### Install
+
+For **this repo**, use **Local development** (`uv sync`) — that is what the lab
+and `scripts/` demos use. The PyPI one-liner below is for installing a published
+wheel elsewhere, not how we run the hardware batch:
 
 ```bash
 pip install ai-impact-accounting
