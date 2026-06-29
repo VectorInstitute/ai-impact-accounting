@@ -131,6 +131,20 @@ python scripts/view_local.py
 SimCLR and DDPM train from scratch — the dashboard base is the **model repo id**,
 not a Hugging Face foundation checkpoint.
 
+### How the rollup works
+
+You pick a **base** model; the dashboard rolls up the base plus all its descendants:
+
+1. **Sum incremental footprints** — each model logs only its own training delta;
+   the family total is the subtree sum.
+2. **Dedupe the DAG** — a merged/shared model is counted once.
+3. **Coverage, not a bare total** — shows *% disclosed*; totals are a lower bound.
+4. **Provenance kept separate** — `measured` vs `estimated` vs `imputed`.
+
+Chart: base-vs-derivatives when the base disclosed a report; otherwise a
+per-model breakdown (an undisclosed foundation base is *unknown*, not zero).
+The same explanation is in the dashboard under **"How the footprint is computed."**
+
 ---
 
 ## Local checkpoints (gitignored)
