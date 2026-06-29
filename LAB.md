@@ -113,18 +113,23 @@ on the dataset page.
 On a login node, after ingest:
 
 ```bash
-export DIA_BASES=distilbert-base-uncased   # or other base — see table below
+export DIA_DATASET=DIA-MVP/dia-state-lab-2026   # required — default is dia-state
+export DIA_BASES=distilbert-base-uncased          # pick a row from the table below
 python scripts/view_local.py
 ```
 
 | Family | Base model in UI |
 |--------|------------------|
 | BERT | `distilbert-base-uncased` |
-| Llama 3.2 | `meta-llama/Llama-3.2-3B-Instruct` |
-| Qwen | `Qwen/Qwen2.5-7B` |
+| TinyLlama LoRA | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
+| Llama 3.2 LoRA | `meta-llama/Llama-3.2-3B-Instruct` |
+| Qwen LoRA | `Qwen/Qwen2.5-7B` |
 | ResNet | `microsoft/resnet-50` |
-| SimCLR | `DIA-MVP/cifar10-simclr-a100` |
-| DDPM | `DIA-MVP/mnist-ddpm-a100` |
+| SimCLR | your SimCLR repo id (e.g. `DIA-MVP/cifar10-simclr-a100` or `…-a40`) |
+| DDPM | your DDPM repo id (e.g. `DIA-MVP/mnist-ddpm-a100` or `…-cpu`) |
+
+SimCLR and DDPM train from scratch — the dashboard base is the **model repo id**,
+not a Hugging Face foundation checkpoint.
 
 ---
 
@@ -136,7 +141,10 @@ python scripts/view_local.py
 
 ## Reset lab
 
-`python scripts/reset_lab.py --dry-run` then `--yes --local` deletes `*-a100` repos,
-`dia-state-lab-2026`, and local `out-*`. Re-train before ingesting again.
+`python scripts/reset_lab.py --dry-run` then `--yes --local` deletes **A100 model
+repos only** (`MODELS_A100` in `ingest_all.py`), the whole lab dataset
+(`dia-state-lab-2026`, including any A40/CPU rows already ingested), and local
+`out-*`. **A40 and CPU model repos are not deleted.** Re-train and re-ingest all
+hardware tiers you need.
 
 Does not touch public `DIA-MVP/dia-state` unless you pass `--include-legacy`.

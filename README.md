@@ -36,7 +36,10 @@ DIA is non-regulatory. It does not restrict who can train or release models. The
 
 ### Lab workflow
 
-See **[LAB.md](LAB.md)** for A100 / A40 / CPU training, ingest, and the Gradio dashboard.
+See **[LAB.md](LAB.md)** for A100 / A40 / CPU training, batch ingest, and the Gradio
+dashboard. Lab runs use dataset **`DIA-MVP/dia-state-lab-2026`** (not the public
+`DIA-MVP/dia-state` crawl); set `export DIA_DATASET=...` before ingest or
+`view_local.py`.
 
 ## The `ai_impact_accounting` toolkit
 
