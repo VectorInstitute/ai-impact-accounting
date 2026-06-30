@@ -241,8 +241,11 @@ The `scripts/` demos each exercise a different training regime, so you can see
 |---|---|---|
 | `train_bert_demo.py` | DistilBERT SST-2 fine-tune (HF `Trainer`) | a `finetune` derivative |
 | `train_llama_lora.py` | TinyLlama / Llama LoRA (PEFT) | a small `lora` derivative |
+| `train_qwen_lora.py` | Qwen2.5-7B LoRA in bf16 (single A100-80GB) | a real-scale `lora` run with measured energy/carbon |
 | `train_resnet50_cifar.py` | Full fine-tune of pretrained ResNet-50 on CIFAR-100 (time-budgeted) | a high-energy `finetune` derivative; ~30-60 min on an M-series Mac |
 | `train_simclr_cifar.py` | SimCLR self-supervised pretrain on CIFAR-10 | `track()` around a raw PyTorch loop; a from-scratch family root |
+| `train_ddpm_mnist.py` | Denoising diffusion model on MNIST (time-budgeted) | a generative paradigm; a from-scratch family root |
+| `distill_sst2.py` | Knowledge distillation, teacher → student | a `distill` derivative with a real teacher→student lineage |
 | `view_local.py` / `run_local.sh` | — | ingest a model + launch the dashboard locally |
 
 ### Correctness rules (the parts that are easy to get wrong)
