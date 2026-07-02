@@ -77,6 +77,11 @@ dia report   out-bert/README.md
 To show the run in the dashboard, ingest the local card (or push to a model repo
 first, then ingest that repo id). See **Ingest** and **Gradio** below.
 
+**PyPI-only installs:** the wheel does not include `scripts/` or `dia_finalize.py`.
+See **[README.md — Using DIA from PyPI](README.md#using-dia-from-pypi)** for
+`pip install`, a minimal `track()` example, and the interrupt/finalize pattern to
+copy into your own trainer.
+
 ---
 
 ## A100 (7 models)
