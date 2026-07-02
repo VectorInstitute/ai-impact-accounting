@@ -15,6 +15,10 @@ import os
 import sys
 import time
 
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import torch
 from huggingface_hub import HfApi, get_token
 from torch import nn
@@ -24,6 +28,8 @@ from torchvision.datasets import CIFAR100
 from torchvision.models import ResNet50_Weights, resnet50
 
 from ai_impact_accounting import track
+
+from dia_finalize import exit_from_finalize, finalize_run
 
 
 BASE = os.getenv("BASE", "microsoft/resnet-50")  # the pretrained parent (lineage)
@@ -72,43 +78,53 @@ def main() -> None:
     opt = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
     loss_fn = nn.CrossEntropyLoss()
 
-    # The only DIA-specific block: wrap the training loop. The wall-clock budget
-    # (not a fixed epoch count) is what determines the energy this run reports.
-    with track(base_model=BASE, relation="finetune") as t:
-        model.train()
-        deadline = time.time() + MAX_MINUTES * 60
-        epoch = 0
-        while time.time() < deadline:
-            epoch += 1
-            running, seen = 0.0, 0
-            for x, y in loader:
-                if time.time() >= deadline:
-                    break
-                x, y = x.to(DEVICE), y.to(DEVICE)
-                loss = loss_fn(model(x), y)
-                opt.zero_grad()
-                loss.backward()
-                opt.step()
-                running += loss.item() * x.size(0)
-                seen += x.size(0)
-            print(f"  epoch {epoch}  train loss {running / max(seen, 1):.4f}")
-
-    print(t.checklist_line())
-
-    os.makedirs(OUT, exist_ok=True)
     ckpt = os.path.join(OUT, "resnet50_cifar100.pt")
-    torch.save(model.state_dict(), ckpt)
+    interrupted = False
+    with track(base_model=BASE, relation="finetune") as t:
+        try:
+            model.train()
+            deadline = time.time() + MAX_MINUTES * 60
+            epoch = 0
+            while time.time() < deadline:
+                epoch += 1
+                running, seen = 0.0, 0
+                for x, y in loader:
+                    if time.time() >= deadline:
+                        break
+                    x, y = x.to(DEVICE), y.to(DEVICE)
+                    loss = loss_fn(model(x), y)
+                    opt.zero_grad()
+                    loss.backward()
+                    opt.step()
+                    running += loss.item() * x.size(0)
+                    seen += x.size(0)
+                print(f"  epoch {epoch}  train loss {running / max(seen, 1):.4f}")
+        except KeyboardInterrupt:
+            interrupted = True
 
-    api = HfApi(token=token)
-    api.create_repo(REPO, exist_ok=True)
-    print(f"Pushing weights to {REPO} ...")
-    api.upload_file(path_or_fileobj=ckpt, path_in_repo="resnet50_cifar100.pt", repo_id=REPO)
+    def _save() -> None:
+        os.makedirs(OUT, exist_ok=True)
+        torch.save(model.state_dict(), ckpt)
 
-    print(f"Pushing DIA report to {REPO} card ...")
-    t.push(REPO, token=token)
+    def _push() -> None:
+        api = HfApi(token=token)
+        api.create_repo(REPO, exist_ok=True)
+        print(f"Pushing weights to {REPO} ...")
+        api.upload_file(path_or_fileobj=ckpt, path_in_repo="resnet50_cifar100.pt", repo_id=REPO)
+        print(f"Pushing DIA report to {REPO} card ...")
+        t.push(REPO, token=token)
 
-    print("Done. Check:", f"https://huggingface.co/{REPO}")
-    print(f"Dashboard base model: {BASE}")
+    code = finalize_run(
+        t,
+        out_dir=OUT,
+        repo=REPO,
+        token=token,
+        base_model=BASE,
+        interrupted=interrupted,
+        save_fn=_save,
+        push_fn=_push,
+    )
+    exit_from_finalize(code)
 
 
 if __name__ == "__main__":

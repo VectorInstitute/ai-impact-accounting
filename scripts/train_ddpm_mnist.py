@@ -15,6 +15,10 @@ import os
 import sys
 import time
 
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import torch
 from huggingface_hub import HfApi, get_token
 from torch import nn
@@ -23,6 +27,8 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 
 from ai_impact_accounting import track
+
+from dia_finalize import exit_from_finalize, finalize_run
 
 
 REPO = os.getenv("REPO", "DIA-MVP/mnist-ddpm")
@@ -110,45 +116,57 @@ def main() -> None:
     model = Denoiser(CH).to(DEVICE)
     opt = torch.optim.Adam(model.parameters(), lr=2e-4)
 
-    # The only DIA-specific block: wrap the training loop.
-    with track(base_model="scratch", relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
-        model.train()
-        deadline = time.time() + MAX_MINUTES * 60
-        epoch = 0
-        while time.time() < deadline:
-            epoch += 1
-            running, seen = 0.0, 0
-            for x, _ in loader:
-                if time.time() >= deadline:
-                    break
-                x = x.to(DEVICE)
-                ts = torch.randint(0, TIMESTEPS, (x.size(0),), device=DEVICE)
-                noise = torch.randn_like(x)
-                x_t = sqrt_acp[ts][:, None, None, None] * x + sqrt_one_minus_acp[ts][:, None, None, None] * noise
-                loss = nn.functional.mse_loss(model(x_t, ts), noise)
-                opt.zero_grad()
-                loss.backward()
-                opt.step()
-                running += loss.item() * x.size(0)
-                seen += x.size(0)
-            print(f"  epoch {epoch}  noise-MSE {running / max(seen, 1):.4f}")
-
-    print(t.checklist_line())
-
-    os.makedirs(OUT, exist_ok=True)
     ckpt = os.path.join(OUT, "mnist_ddpm.pt")
-    torch.save(model.state_dict(), ckpt)
+    interrupted = False
+    with track(base_model="scratch", relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
+        try:
+            model.train()
+            deadline = time.time() + MAX_MINUTES * 60
+            epoch = 0
+            while time.time() < deadline:
+                epoch += 1
+                running, seen = 0.0, 0
+                for x, _ in loader:
+                    if time.time() >= deadline:
+                        break
+                    x = x.to(DEVICE)
+                    ts = torch.randint(0, TIMESTEPS, (x.size(0),), device=DEVICE)
+                    noise = torch.randn_like(x)
+                    x_t = sqrt_acp[ts][:, None, None, None] * x + sqrt_one_minus_acp[ts][:, None, None, None] * noise
+                    loss = nn.functional.mse_loss(model(x_t, ts), noise)
+                    opt.zero_grad()
+                    loss.backward()
+                    opt.step()
+                    running += loss.item() * x.size(0)
+                    seen += x.size(0)
+                print(f"  epoch {epoch}  noise-MSE {running / max(seen, 1):.4f}")
+        except KeyboardInterrupt:
+            interrupted = True
 
-    api = HfApi(token=token)
-    api.create_repo(REPO, exist_ok=True)
-    print(f"Pushing weights to {REPO} ...")
-    api.upload_file(path_or_fileobj=ckpt, path_in_repo="mnist_ddpm.pt", repo_id=REPO)
+    def _save() -> None:
+        os.makedirs(OUT, exist_ok=True)
+        torch.save(model.state_dict(), ckpt)
 
-    print(f"Pushing DIA report to {REPO} card ...")
-    t.push(REPO, token=token)
+    def _push() -> None:
+        api = HfApi(token=token)
+        api.create_repo(REPO, exist_ok=True)
+        print(f"Pushing weights to {REPO} ...")
+        api.upload_file(path_or_fileobj=ckpt, path_in_repo="mnist_ddpm.pt", repo_id=REPO)
+        print(f"Pushing DIA report to {REPO} card ...")
+        t.push(REPO, token=token)
 
-    print("Done. Check:", f"https://huggingface.co/{REPO}")
-    print(f"Dashboard base model: {REPO}")
+    code = finalize_run(
+        t,
+        out_dir=OUT,
+        repo=REPO,
+        token=token,
+        base_model="scratch",
+        interrupted=interrupted,
+        dashboard_hint=REPO,
+        save_fn=_save,
+        push_fn=_push,
+    )
+    exit_from_finalize(code)
 
 
 if __name__ == "__main__":

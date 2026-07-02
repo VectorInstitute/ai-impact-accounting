@@ -17,6 +17,10 @@ carbon number is real, not the generic default. Requires the ``examples`` extra.
 import os
 import sys
 
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import torch
 from datasets import load_dataset
 from huggingface_hub import get_token
@@ -30,6 +34,8 @@ from transformers import (
 )
 
 from ai_impact_accounting import track
+
+from dia_finalize import exit_from_finalize, finalize_run
 
 
 BASE = os.getenv("BASE", "Qwen/Qwen2.5-7B")
@@ -116,24 +122,31 @@ def main() -> None:
 
     trainer = Trainer(model=model, args=args, train_dataset=ds, data_collator=collator)
 
-    # The only DIA-specific block. region/CI come from DIA_REGION/DIA_CI env.
+    interrupted = False
     with track(base_model=BASE, relation="lora") as t:
-        trainer.train()
+        try:
+            trainer.train()
+        except KeyboardInterrupt:
+            interrupted = True
 
-    print(t.checklist_line())
+    def _push() -> None:
+        print(f"Pushing LoRA adapter to {REPO} ...")
+        trainer.model.push_to_hub(REPO, token=token, commit_message="Qwen2.5-7B LoRA demo")
+        tok.push_to_hub(REPO, token=token)
+        print(f"Pushing DIA report to {REPO} card ...")
+        t.push(REPO, token=token)
 
-    trainer.model.save_pretrained(OUT)
-    tok.save_pretrained(OUT)
-
-    print(f"Pushing LoRA adapter to {REPO} ...")
-    trainer.model.push_to_hub(REPO, token=token, commit_message="Qwen2.5-7B LoRA demo")
-    tok.push_to_hub(REPO, token=token)
-
-    print(f"Pushing DIA report to {REPO} card ...")
-    t.push(REPO, token=token)
-
-    print("Done. Check:", f"https://huggingface.co/{REPO}")
-    print(f"Dashboard base model: {BASE}")
+    code = finalize_run(
+        t,
+        out_dir=OUT,
+        repo=REPO,
+        token=token,
+        base_model=BASE,
+        interrupted=interrupted,
+        save_fn=lambda: (trainer.model.save_pretrained(OUT), tok.save_pretrained(OUT)),
+        push_fn=_push,
+    )
+    exit_from_finalize(code)
 
 
 if __name__ == "__main__":
