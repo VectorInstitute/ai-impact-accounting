@@ -41,6 +41,47 @@ Energy and GPU-hours are comparable across sites; **carbon and water** scale wit
 grid. Use **your own HF namespace** and `REPO=` names — do not push into `DIA-MVP/*`
 unless you have write access. Slurm/`srun` flags depend on your HPC, not ours.
 
+### Interrupts and local-only runs
+
+All training scripts under `scripts/` share `dia_finalize.py`. If you press
+**Ctrl+C** (or the job hits a time limit), the script still saves local weights,
+writes a `dia_report` into `out-*/README.md`, and prints `dia validate …` so
+you can check the card. Partial runs exit with code **130**.
+
+**Local-only (no Hub push):**
+
+```bash
+DIA_LOCAL=1 REPO=my-local-run python scripts/train_bert_demo.py
+```
+
+**Push later, but skip push for this run:**
+
+```bash
+DIA_NO_PUSH=1 REPO=DIA-MVP/my-bert-sentiment-cpu python scripts/train_bert_demo.py
+```
+
+| Variable | Effect |
+|----------|--------|
+| `DIA_LOCAL=1` | Save under `out-*/`, write `dia_report`, skip Hub push |
+| `DIA_NO_PUSH=1` | Same skip-push behaviour; `REPO` is still used as the dashboard hint |
+| (no token) | Local save only; push is skipped with a clear message |
+| Hub push error | Local artifacts kept; a warning is printed |
+
+After a local run, validate and inspect the report:
+
+```bash
+dia validate out-bert/README.md
+dia report   out-bert/README.md
+```
+
+To show the run in the dashboard, ingest the local card (or push to a model repo
+first, then ingest that repo id). See **Ingest** and **Gradio** below.
+
+**PyPI-only installs:** the wheel does not include `scripts/` or `dia_finalize.py`.
+See **[README.md — Using DIA from PyPI](README.md#using-dia-from-pypi)** for
+`pip install`, a minimal `track()` example, and the interrupt/finalize pattern to
+copy into your own trainer.
+
 ---
 
 ## A100 (7 models)

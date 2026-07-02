@@ -11,6 +11,10 @@ The only DIA-specific lines are ``with track(...)`` and ``t.push(...)``.
 import os
 import sys
 
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import torch
 from datasets import load_dataset
 from huggingface_hub import get_token
@@ -22,6 +26,8 @@ from transformers import (
 )
 
 from ai_impact_accounting import track
+
+from dia_finalize import exit_from_finalize, finalize_run
 
 
 # distilbert: smaller/faster on Mac. For full BERT use "google-bert/bert-base-uncased"
@@ -68,22 +74,30 @@ def main() -> None:
 
     trainer = Trainer(model=model, args=args, train_dataset=ds["train"], eval_dataset=ds["test"])
 
+    interrupted = False
     with track(base_model=BASE, relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
-        trainer.train()
+        try:
+            trainer.train()
+        except KeyboardInterrupt:
+            interrupted = True
 
-    print(t.checklist_line())
+    def _push() -> None:
+        print(f"Pushing weights to {REPO} ...")
+        trainer.model.push_to_hub(REPO, token=token, commit_message="DistilBERT SST-2 demo fine-tune")
+        print(f"Pushing DIA report to {REPO} card ...")
+        t.push(REPO, token=token)
 
-    trainer.save_model(OUT)
-    tok.save_pretrained(OUT)
-
-    print(f"Pushing weights to {REPO} ...")
-    trainer.model.push_to_hub(REPO, token=token, commit_message="DistilBERT SST-2 demo fine-tune")
-
-    print(f"Pushing DIA report to {REPO} card ...")
-    t.push(REPO, token=token)
-
-    print("Done. Check:", f"https://huggingface.co/{REPO}")
-    print(f"Dashboard base model: {BASE}")
+    code = finalize_run(
+        t,
+        out_dir=OUT,
+        repo=REPO,
+        token=token,
+        base_model=BASE,
+        interrupted=interrupted,
+        save_fn=lambda: (trainer.save_model(OUT), tok.save_pretrained(OUT)),
+        push_fn=_push,
+    )
+    exit_from_finalize(code)
 
 
 if __name__ == "__main__":

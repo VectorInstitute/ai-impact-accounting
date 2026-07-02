@@ -13,6 +13,10 @@ Defaults run on CPU or Apple Silicon in a few minutes; override via env, e.g.
 import os
 import sys
 
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import torch
 import torch.nn.functional as F
 from huggingface_hub import HfApi, get_token
@@ -23,6 +27,8 @@ from torchvision.datasets import CIFAR10
 from torchvision.models import resnet18
 
 from ai_impact_accounting import track
+
+from dia_finalize import exit_from_finalize, finalize_run
 
 
 REPO = os.getenv("REPO", "DIA-MVP/cifar10-simclr-resnet18")
@@ -116,39 +122,48 @@ def main():
     model = SimCLR(PROJ_DIM).to(DEVICE)
     opt = torch.optim.Adam(model.parameters(), lr=3e-4, weight_decay=1e-6)
 
-    # The only DIA-specific block: wrap the raw training loop. region/wue/CI can be
-    # passed explicitly; here we let track() auto-detect the hardware.
-    with track(base_model="scratch", relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
-        model.train()
-        for epoch in range(EPOCHS):
-            running = 0.0
-            for (v1, v2), _ in loader:
-                v1, v2 = v1.to(DEVICE), v2.to(DEVICE)
-                loss = nt_xent(model(v1), model(v2), TEMP)
-                opt.zero_grad()
-                loss.backward()
-                opt.step()
-                running += loss.item()
-            print(f"  epoch {epoch + 1}/{EPOCHS}  contrastive loss {running / len(loader):.4f}")
-
-    print(t.checklist_line())
-
-    # Save just the encoder backbone -- that's the reusable artifact derivatives
-    # (linear probes, finetunes) will build on.
-    os.makedirs(OUT, exist_ok=True)
     ckpt = os.path.join(OUT, "simclr_resnet18_encoder.pt")
-    torch.save(model.encoder.state_dict(), ckpt)
+    interrupted = False
+    with track(base_model="scratch", relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
+        try:
+            model.train()
+            for epoch in range(EPOCHS):
+                running = 0.0
+                for (v1, v2), _ in loader:
+                    v1, v2 = v1.to(DEVICE), v2.to(DEVICE)
+                    loss = nt_xent(model(v1), model(v2), TEMP)
+                    opt.zero_grad()
+                    loss.backward()
+                    opt.step()
+                    running += loss.item()
+                print(f"  epoch {epoch + 1}/{EPOCHS}  contrastive loss {running / len(loader):.4f}")
+        except KeyboardInterrupt:
+            interrupted = True
 
-    api = HfApi(token=token)
-    api.create_repo(REPO, exist_ok=True)
-    print(f"Pushing encoder weights to {REPO} ...")
-    api.upload_file(path_or_fileobj=ckpt, path_in_repo="simclr_resnet18_encoder.pt", repo_id=REPO)
+    def _save() -> None:
+        os.makedirs(OUT, exist_ok=True)
+        torch.save(model.encoder.state_dict(), ckpt)
 
-    print(f"Pushing DIA report to {REPO} card ...")
-    t.push(REPO, token=token)
+    def _push() -> None:
+        api = HfApi(token=token)
+        api.create_repo(REPO, exist_ok=True)
+        print(f"Pushing encoder weights to {REPO} ...")
+        api.upload_file(path_or_fileobj=ckpt, path_in_repo="simclr_resnet18_encoder.pt", repo_id=REPO)
+        print(f"Pushing DIA report to {REPO} card ...")
+        t.push(REPO, token=token)
 
-    print("Done. Check:", f"https://huggingface.co/{REPO}")
-    print(f"Dashboard base model: {REPO}  (query this id to roll up its derivatives)")
+    code = finalize_run(
+        t,
+        out_dir=OUT,
+        repo=REPO,
+        token=token,
+        base_model="scratch",
+        interrupted=interrupted,
+        dashboard_hint=f"{REPO}  (query this id to roll up its derivatives)",
+        save_fn=_save,
+        push_fn=_push,
+    )
+    exit_from_finalize(code)
 
 
 if __name__ == "__main__":
