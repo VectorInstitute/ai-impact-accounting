@@ -11,11 +11,10 @@ directly. Requires the ``dashboard`` extra:
 import os
 import sys
 
-import gradio as gr
 from huggingface_hub import get_token
 
 from ai_impact_accounting import Store
-from ai_impact_accounting.dashboard import build_ui
+from ai_impact_accounting.dashboard import build_ui, dia_launch_kwargs
 
 
 DATASET = os.environ.get("DIA_DATASET", "DIA-MVP/dia-state")
@@ -61,7 +60,7 @@ def main() -> None:
     # you can show the dashboard to others. Set DIA_SHARE=0 to keep it local-only.
     share = os.environ.get("DIA_SHARE", "1") != "0"
     build_ui(store, default_base=DEFAULT_BASE).launch(
-        share=share, server_port=PORT, theme=gr.themes.Soft()
+        share=share, server_port=PORT, **dia_launch_kwargs()
     )
 
 
