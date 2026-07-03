@@ -6,6 +6,7 @@ server and no write token required, so anyone can view it.
 
 import os
 
+from ai_impact_accounting.dashboard.theme import dia_launch_kwargs
 from ai_impact_accounting.dashboard.ui import build_ui
 from ai_impact_accounting.hub.store import Store
 
@@ -19,4 +20,4 @@ demo = build_ui(store, default_base=DEFAULT_BASE)
 demo.queue()
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch(server_name="0.0.0.0", server_port=7860, **dia_launch_kwargs())

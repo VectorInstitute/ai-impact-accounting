@@ -25,6 +25,7 @@ import sys
 from huggingface_hub import WebhookPayload, WebhooksServer, get_token
 
 from ..hub import Store, ingest_model, start_scheduler
+from .theme import dia_launch_kwargs
 from .ui import build_ui
 
 
@@ -88,4 +89,4 @@ async def ingest(payload: WebhookPayload) -> dict:
 if __name__ == "__main__":
     # nightly backfill of derivatives we don't get webhooks for
     start_scheduler(store, tracked_bases, token=HF_TOKEN, interval_s=24 * 3600)
-    app.launch()
+    app.launch(**dia_launch_kwargs())
