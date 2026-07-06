@@ -1,6 +1,8 @@
 huggingface_hub>=1.2.0,<2.0
-pandas>=2.0
-matplotlib>=3.7
 networkx>=3.0
 pyyaml>=6.0
-pyarrow>=14.0
+pandas>=2.0
+plotly>=6.0
+fastapi>=0.115
+uvicorn[standard]>=0.30
+starlette>=0.37

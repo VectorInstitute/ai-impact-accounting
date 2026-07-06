@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIA — Data &amp; Impact Accounting</title>
+  <link rel="stylesheet" href="/app.css" />
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>DIA — Data &amp; Impact Accounting</h1>
+      <p class="tagline">Cumulative carbon &amp; water footprint across model families and derivatives.</p>
+    </div>
+    <p id="dataset-meta" class="dataset-meta"></p>
+  </header>
+
+  <section class="controls">
+    <label>
+      Base model
+      <select id="base-select"></select>
+    </label>
+    <label>
+      Compare with
+      <select id="compare-select">
+        <option value="">— none —</option>
+      </select>
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" id="impute" /> Impute missing nodes
+    </label>
+    <label>
+      Table rows
+      <select id="row-filter">
+        <option value="all">All</option>
+        <option value="reporting">Reporting only</option>
+        <option value="nonzero">Carbon &gt; 0 only</option>
+      </select>
+    </label>
+    <label>
+      Graph scope
+      <select id="graph-view">
+        <option value="all">Full dataset</option>
+        <option value="family">Selected family</option>
+      </select>
+    </label>
+    <button type="button" id="refresh-btn" class="secondary">↻ Refresh data</button>
+    <button type="button" id="hub-check-btn" class="secondary">Check base on Hub</button>
+    <button type="button" id="apply-btn" class="primary">View family footprint</button>
+  </section>
+
+  <section id="hub-panel" class="hub-panel hidden">
+    <div class="hub-panel-head">
+      <h2>Base model on Hugging Face</h2>
+      <button type="button" id="hub-panel-close" class="secondary" aria-label="Close">×</button>
+    </div>
+    <p id="hub-model-link"></p>
+    <div id="hub-result"></div>
+    <div class="hub-actions">
+      <button type="button" id="hub-ingest-btn" class="primary hidden">Ingest into dataset</button>
+    </div>
+  </section>
+
+  <section class="graph-panel">
+    <div class="graph-toolbar">
+      <span id="graph-title">Impact lineage graph</span>
+      <div class="graph-actions">
+        <button type="button" id="zoom-in-btn" class="secondary" title="Zoom in">+</button>
+        <button type="button" id="zoom-out-btn" class="secondary" title="Zoom out">−</button>
+        <button type="button" id="zoom-fit-btn" class="secondary" title="Fit to view">Fit</button>
+        <button type="button" id="focus-family-btn" class="secondary" disabled>Focus family</button>
+        <button type="button" id="reset-graph-btn" class="secondary" disabled>← Full graph</button>
+      </div>
+    </div>
+    <div class="graph-body">
+      <aside class="graph-legend" id="graph-legend">
+        <h3>Legend</h3>
+        <p class="legend-heading">Node · disclosure quality</p>
+        <ul id="legend-nodes" class="legend-list"></ul>
+        <p class="legend-heading">Edge · lineage relation</p>
+        <ul id="legend-edges" class="legend-list"></ul>
+        <p class="legend-note">Hover a node to dim the rest and show its full name. Click to lock the view.</p>
+      </aside>
+      <div class="graph-main">
+        <div id="graph" class="graph-canvas"></div>
+        <div id="graph-hover-label" class="graph-hover-label hidden" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="graph-hint">
+      <strong>Hover</strong> a node to highlight its connections (rest of graph dims).
+      <strong>Click</strong> to lock that view and open details.
+      Use <strong>Focus family</strong> to roll up KPIs for that subtree.
+    </p>
+  </section>
+
+  <aside id="node-pane" class="node-pane hidden">
+    <div class="pane-head">
+      <h2 id="pane-name">Node</h2>
+      <button type="button" id="pane-close" aria-label="Close">×</button>
+    </div>
+    <div id="pane-data" class="pane-data"></div>
+    <h3>Connections</h3>
+    <ul id="pane-links"></ul>
+  </aside>
+
+  <section id="kpi-row" class="kpi-row"></section>
+
+  <section class="charts-row">
+    <div class="chart-box">
+      <canvas id="bar-chart"></canvas>
+    </div>
+    <div id="summary" class="summary"></div>
+  </section>
+
+  <section id="compare-section" class="compare hidden"></section>
+
+  <section class="table-section">
+    <div class="table-head">
+      <h2>Per-model footprints</h2>
+      <a id="csv-link" class="secondary btn-link" href="#">Export CSV</a>
+    </div>
+    <div class="table-wrap">
+      <table id="footprint-table">
+        <thead>
+          <tr>
+            <th>Model</th><th>Role</th><th>Method</th>
+            <th>Carbon</th><th>Water</th><th>Energy</th>
+            <th>Quality</th><th>GPU</th><th>Region</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="table-note" class="table-note"></p>
+  </section>
+
+  <section id="hardware" class="hardware"></section>
+
+  <details class="methodology">
+    <summary>How the footprint is computed</summary>
+    <p>
+      Given a base model, we build the lineage DAG (parent → child) and take the base plus all
+      descendants as the <em>family</em>. Each model reports only its incremental training delta;
+      the family total sums the subtree with deduplication for merged nodes.
+      Coverage shows what fraction disclosed a <code>dia_report</code> — totals are a lower bound when reports are missing.
+    </p>
+    <p>
+      Graph interaction inspired by
+      <a href="https://huggingface.co/spaces/Eliahu/Model-Atlas" target="_blank" rel="noopener">Model Atlas</a>
+      (Horwitz et al., 2025); footprint data is DIA-only.
+    </p>
+  </details>
+
+  <div id="error-banner" class="error-banner hidden"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

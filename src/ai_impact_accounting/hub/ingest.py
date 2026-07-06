@@ -15,6 +15,17 @@ from ..parse import parse_lineage, parse_report
 from .store import Store
 
 
+def fetch_model_card(target: str, token: Optional[str] = None) -> tuple[dict, str]:
+    """Return model-card metadata and README/markdown body."""
+    if os.path.exists(target):
+        card = ModelCard.load(target)
+    else:
+        card = ModelCard.load(target, token=token or os.getenv("HF_TOKEN"))
+    meta = card.data.to_dict() if hasattr(card.data, "to_dict") else dict(card.data)
+    text = card.text or ""
+    return meta, text
+
+
 def fetch_meta(target: str, token: Optional[str] = None) -> dict:
     """Return a model card's front-matter metadata as a plain dict.
 
@@ -30,11 +41,8 @@ def fetch_meta(target: str, token: Optional[str] = None) -> dict:
     dict
         The card metadata.
     """
-    if os.path.exists(target):
-        card = ModelCard.load(target)
-    else:
-        card = ModelCard.load(target, token=token or os.getenv("HF_TOKEN"))
-    return card.data.to_dict() if hasattr(card.data, "to_dict") else dict(card.data)
+    meta, _ = fetch_model_card(target, token)
+    return meta
 
 
 def ingest_model(

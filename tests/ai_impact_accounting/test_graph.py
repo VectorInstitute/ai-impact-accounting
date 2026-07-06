@@ -1,6 +1,7 @@
 """Tests for the lineage DAG rollup: incremental subtree sum, DAG dedup, coverage."""
 
 from ai_impact_accounting import Node, Report, rollup
+from ai_impact_accounting.graph import build_graph
 from ai_impact_accounting.models import Interval
 
 
@@ -73,3 +74,15 @@ def test_impute_fills_missing_and_labels_imputed():
     res = rollup(nodes, "B", impute=True)
     assert res["deriv_footprint"]["carbon"].hi > 0  # imputed prior added
     assert "imputed" in res["carbon_by_quality"]
+
+
+def test_build_graph_keeps_scratch_placeholder():
+    nodes = {
+        "root-model": _node("root-model", carbon=1.0, parents=["scratch"]),
+        "child": _node("child", carbon=2.0, parents=["root-model"]),
+    }
+    g = build_graph(nodes)
+    assert "scratch" in g.nodes
+    assert g.has_edge("scratch", "root-model")
+    assert g.has_edge("root-model", "child")
+    assert g.in_degree("scratch") == 0
