@@ -14,6 +14,10 @@ Runs on Apple Silicon (MPS) or CPU. Requires the ``examples`` extra.
 import os
 import sys
 
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import torch
 from datasets import load_dataset
 from huggingface_hub import get_token
@@ -21,6 +25,8 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from ai_impact_accounting import track
+
+from dia_finalize import exit_from_finalize, finalize_run
 
 
 TEACHER = os.getenv("TEACHER", "distilbert-base-uncased-finetuned-sst-2-english")
@@ -64,42 +70,48 @@ def main() -> None:
     ce = torch.nn.CrossEntropyLoss()
     kl = torch.nn.KLDivLoss(reduction="batchmean")
 
-    # The only DIA-specific block: relation="distill" records the teacher as parent.
+    interrupted = False
     with track(base_model=TEACHER, relation="distill") as t:
-        student.train()
-        for epoch in range(EPOCHS):
-            running, seen = 0.0, 0
-            for enc, labels in loader:
-                with torch.no_grad():
-                    teacher_logits = teacher(**enc).logits
-                student_logits = student(**enc).logits
-                # Soft-target KL (temperature-scaled) + hard-label cross-entropy.
-                soft = kl(
-                    torch.log_softmax(student_logits / TEMP, dim=-1),
-                    torch.softmax(teacher_logits / TEMP, dim=-1),
-                ) * (TEMP * TEMP)
-                loss = ALPHA * ce(student_logits, labels) + (1 - ALPHA) * soft
-                opt.zero_grad()
-                loss.backward()
-                opt.step()
-                running += loss.item() * labels.size(0)
-                seen += labels.size(0)
-            print(f"  epoch {epoch + 1}/{EPOCHS}  distill loss {running / max(seen, 1):.4f}")
+        try:
+            student.train()
+            for epoch in range(EPOCHS):
+                running, seen = 0.0, 0
+                for enc, labels in loader:
+                    with torch.no_grad():
+                        teacher_logits = teacher(**enc).logits
+                    student_logits = student(**enc).logits
+                    soft = kl(
+                        torch.log_softmax(student_logits / TEMP, dim=-1),
+                        torch.softmax(teacher_logits / TEMP, dim=-1),
+                    ) * (TEMP * TEMP)
+                    loss = ALPHA * ce(student_logits, labels) + (1 - ALPHA) * soft
+                    opt.zero_grad()
+                    loss.backward()
+                    opt.step()
+                    running += loss.item() * labels.size(0)
+                    seen += labels.size(0)
+                print(f"  epoch {epoch + 1}/{EPOCHS}  distill loss {running / max(seen, 1):.4f}")
+        except KeyboardInterrupt:
+            interrupted = True
 
-    print(t.checklist_line())
+    def _push() -> None:
+        print(f"Pushing student to {REPO} ...")
+        student.push_to_hub(REPO, token=token, commit_message="BERT-tiny SST-2 distilled from teacher")
+        tok.push_to_hub(REPO, token=token)
+        print(f"Pushing DIA report to {REPO} card ...")
+        t.push(REPO, token=token)
 
-    student.save_pretrained(OUT)
-    tok.save_pretrained(OUT)
-
-    print(f"Pushing student to {REPO} ...")
-    student.push_to_hub(REPO, token=token, commit_message="BERT-tiny SST-2 distilled from teacher")
-    tok.push_to_hub(REPO, token=token)
-
-    print(f"Pushing DIA report to {REPO} card ...")
-    t.push(REPO, token=token)
-
-    print("Done. Check:", f"https://huggingface.co/{REPO}")
-    print(f"Dashboard base model: {TEACHER}")
+    code = finalize_run(
+        t,
+        out_dir=OUT,
+        repo=REPO,
+        token=token,
+        base_model=TEACHER,
+        interrupted=interrupted,
+        save_fn=lambda: (student.save_pretrained(OUT), tok.save_pretrained(OUT)),
+        push_fn=_push,
+    )
+    exit_from_finalize(code)
 
 
 if __name__ == "__main__":

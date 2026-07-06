@@ -34,6 +34,79 @@ DIA is a lightweight, voluntary transparency layer with three components:
 
 DIA is non-regulatory. It does not restrict who can train or release models. The goal is visibility into trends and relative impacts, not auditing individual projects.
 
+## Using DIA from PyPI
+
+Install the library (Python 3.12+):
+
+```bash
+pip install ai-impact-accounting
+
+# optional extras
+pip install "ai-impact-accounting[measure]"    # CodeCarbon / NVML when available
+pip install "ai-impact-accounting[dashboard]"  # local Gradio viewer
+```
+
+The wheel ships `ai_impact_accounting` and the `dia` CLI. Runnable training demos
+live under `scripts/` in this repo — clone the repo to run those, or wire DIA into
+your own trainer as below.
+
+### Instrument a training run
+
+```python
+from ai_impact_accounting import track
+
+with track(base_model="distilbert-base-uncased", relation="finetune") as t:
+    trainer.train()
+
+t.write("out/README.md")              # local model card + dia_report
+t.push("your-org/your-model")         # update the Hub card (needs HF token)
+```
+
+Set grid context before training (optional but recommended):
+
+```bash
+export DIA_REGION=ca-on
+export DIA_CI=0.03
+```
+
+### Ctrl+C and partial runs (PyPI-only integrators)
+
+`track()` samples energy for the whole `with` block and finalizes metrics on exit.
+It does **not** save your weights or write a card unless you call `t.write()` /
+`t.push()` yourself. On **Ctrl+C**, use the same pattern as `scripts/dia_finalize.py`:
+
+```python
+interrupted = False
+with track(base_model="...", relation="finetune") as t:
+    try:
+        trainer.train()
+    except KeyboardInterrupt:
+        interrupted = True
+
+trainer.save_model("out/")
+t.write("out/README.md")
+if not interrupted:
+    t.push("your-org/your-model")
+```
+
+For local-only runs (no Hub push): `export DIA_LOCAL=1` is honoured if you copy
+the helpers from `scripts/dia_finalize.py`, or simply skip `t.push()`.
+
+### CLI
+
+```bash
+dia validate path/to/README.md    # or a Hub repo id
+dia report   path/to/README.md
+```
+
+### Repo demos vs the installed package
+
+| | PyPI install | This repo (`scripts/`) |
+|---|--------------|-------------------------|
+| `track()`, `dia`, `Store`, ingest | yes | yes (editable install) |
+| Training demos + `dia_finalize.py` | no — clone repo | yes |
+| Full lab (A100/A40/CPU, ingest, dashboard) | see **[LAB.md](LAB.md)** | **[LAB.md](LAB.md)** |
+
 ### Lab workflow
 
 See **[LAB.md](LAB.md)** for setup, A100 / A40 / CPU training, ingest, and the Gradio dashboard.
