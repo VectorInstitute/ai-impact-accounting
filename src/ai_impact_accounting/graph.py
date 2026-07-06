@@ -79,6 +79,8 @@ def rollup(nodes: dict[str, Node], base: str, impute: bool = False) -> dict:
     impute : bool, optional
         When ``True``, nodes with no report are filled from compute priors and
         labelled ``imputed``; when ``False`` they are listed but contribute zero.
+        Not exposed in the dashboard UI yet (reserved for future exploration;
+        enable via ``?impute=1`` on the API).
 
     Returns
     -------

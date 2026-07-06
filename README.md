@@ -43,7 +43,7 @@ pip install ai-impact-accounting
 
 # optional extras
 pip install "ai-impact-accounting[measure]"    # CodeCarbon / NVML when available
-pip install "ai-impact-accounting[dashboard]"  # local Gradio viewer
+pip install "ai-impact-accounting[dashboard]"  # local FastAPI web dashboard
 ```
 
 The wheel ships `ai_impact_accounting` and the `dia` CLI. Runnable training demos
@@ -109,11 +109,11 @@ dia report   path/to/README.md
 
 ### Lab workflow
 
-See **[LAB.md](LAB.md)** for setup, A100 / A40 / CPU training, ingest, and the Gradio dashboard.
+See **[LAB.md](LAB.md)** for setup, A100 / A40 / CPU training, ingest, and the web dashboard (local or [HF Space](https://huggingface.co/spaces/DIA-MVP/dia-dashboard)).
 
 ## Project Page
 
-The `docs/` folder contains the companion website (`index.html`, `style.css`, `main.js`) with an interactive model footprint table, carbon vs. water scatter plot, and DIA overview. It is a static site with no build step required and is published as the [project page](https://vectorinstitute.github.io/ai-impact-accounting/).
+The `docs/` folder contains the companion website (`index.html`, `style.css`, `main.js`) with an interactive model footprint table, carbon vs. water scatter plot, DIA overview, and an embedded read-only dashboard (`?embed=1`). It is a static site with no build step required and is published as the [project page](https://vectorinstitute.github.io/ai-impact-accounting/).
 
 ## Acknowledgements
 

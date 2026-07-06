@@ -10,11 +10,12 @@ import sys
 
 from huggingface_hub import get_token
 
-from ai_impact_accounting import Store
+from ai_impact_accounting import LocalStore, Store
 from ai_impact_accounting.dashboard.server import serve
 
 
-DATASET = os.environ.get("DIA_DATASET", "DIA-MVP/dia-state")
+DATASET = os.environ.get("DIA_DATASET", "DIA-MVP/dia-state-lab-2026")
+STATE_FILE = os.environ.get("DIA_STATE_FILE", "").strip()
 DEFAULT_BASE = os.environ.get("DIA_BASES", "distilbert-base-uncased").split(",")[0].strip()
 PORT = int(os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", "7860")))
 HOST = os.environ.get("HOST", "0.0.0.0")
@@ -44,13 +45,28 @@ def main() -> None:
     """Load accounting state and launch the web dashboard."""
     token = os.getenv("HF_TOKEN") or get_token()
     if not token:
-        print("Run: hf auth login   (or export HF_TOKEN=...)")
-        sys.exit(1)
+        print("No HF_TOKEN — read-only mode (public datasets only).")
     _force_free_port(PORT)
-    store = Store(DATASET, token=token)
+    try:
+        if STATE_FILE:
+            store = LocalStore(STATE_FILE)
+            if DEFAULT_BASE == "distilbert-base-uncased" and store.nodes:
+                synth_bases = [m for m in store.nodes if m.endswith("/base-model")]
+                if synth_bases:
+                    default_base = synth_bases[0]
+                else:
+                    default_base = next(iter(store.nodes))
+            else:
+                default_base = DEFAULT_BASE
+        else:
+            store = Store(DATASET, token=token)
+            default_base = DEFAULT_BASE
+    except (ValueError, FileNotFoundError) as exc:
+        print(exc, file=sys.stderr)
+        sys.exit(1)
     print(f"Loaded {len(store.nodes)} node(s) from {store.repo}")
     print(f"DIA dashboard at http://127.0.0.1:{PORT}")
-    serve(store, host=HOST, port=PORT, default_base=DEFAULT_BASE)
+    serve(store, host=HOST, port=PORT, default_base=default_base)
 
 
 if __name__ == "__main__":

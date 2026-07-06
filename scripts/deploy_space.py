@@ -31,7 +31,7 @@ def main() -> int:
         print(f"https://huggingface.co/spaces/{SPACE}")
         return 0
 
-    api.create_repo(SPACE, repo_type="space", space_sdk="gradio", exist_ok=True)
+    api.create_repo(SPACE, repo_type="space", space_sdk="docker", exist_ok=True)
     # Vendor the package (skip caches).
     api.upload_folder(
         folder_path="src/ai_impact_accounting",

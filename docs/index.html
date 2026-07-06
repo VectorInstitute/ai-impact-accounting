@@ -51,6 +51,7 @@
         <a href="#figures">Figures</a>
         <a href="#table">Model Table</a>
         <a href="#dia">DIA Proposal</a>
+        <a href="#dashboard">Dashboard</a>
         <a href="#acknowledgements">Acknowledgements</a>
         <a href="#citation">Citation</a>
       </nav>
@@ -352,6 +353,26 @@
               </ul>
             </div>
           </div>
+        </div>
+
+        <div id="dashboard" class="dashboard-embed-wrap" style="margin-top: 40px;">
+          <h3 style="margin-bottom: 8px;">Interactive footprint dashboard</h3>
+          <p class="muted" style="margin-bottom: 16px;">
+            Explore model families, lineage graphs, and cumulative kgCO₂eq / water / energy rollups.
+            Publisher disclosures on model cards are shown separately from ingested <code>dia_report</code> totals.
+          </p>
+          <div class="dashboard-embed">
+            <iframe
+              src="https://huggingface.co/spaces/DIA-MVP/dia-dashboard?embed=1"
+              title="DIA footprint dashboard"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allow="fullscreen"
+            ></iframe>
+          </div>
+          <p class="fineprint" style="margin-top: 12px;">
+            <a href="https://huggingface.co/spaces/DIA-MVP/dia-dashboard" target="_blank" rel="noopener">Open dashboard full screen ↗</a>
+          </p>
         </div>
 
         <div class="two-col" style="margin-top: 32px;">

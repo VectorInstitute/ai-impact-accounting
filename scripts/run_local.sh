@@ -11,7 +11,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-export DIA_DATASET="${DIA_DATASET:-DIA-MVP/dia-state}"
+export DIA_DATASET="${DIA_DATASET:-DIA-MVP/dia-state-lab-2026}"
 export DIA_BASES="${DIA_BASES:-distilbert-base-uncased}"
 export WEBHOOK_SECRET="${WEBHOOK_SECRET:-local-dev}"
 export DIA_INGEST_MODEL="${1:-DIA-MVP/my-bert-sentiment}"

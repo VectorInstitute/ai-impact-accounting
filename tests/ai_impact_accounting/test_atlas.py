@@ -1,6 +1,8 @@
 """Tests for the impact lineage graph payload and figure."""
 
-from ai_impact_accounting import Node, Report
+from pathlib import Path
+
+from ai_impact_accounting import LocalStore, Node, Report
 from ai_impact_accounting.dashboard.atlas import graph_payload, impact_graph_figure
 from ai_impact_accounting.models import Interval
 
@@ -60,6 +62,19 @@ def test_layered_layout_spreads_left_to_right():
     payload = graph_payload(nodes, "B", view="family")
     by_id = {n["id"]: n for n in payload["nodes"]}
     assert by_id["D1"]["x"] > by_id["B"]["x"]
+
+
+def test_large_tree_spreads_in_both_axes():
+    """Busy depth levels use a grid so 100-node trees are not one vertical column."""
+    path = Path(__file__).resolve().parents[1] / "fixtures" / "synth-100-state.json"
+    store = LocalStore(path)
+    payload = graph_payload(store.nodes, "SYNTH-LAB/base-model", view="family")
+    xs = [n["x"] for n in payload["nodes"]]
+    ys = [n["y"] for n in payload["nodes"]]
+    assert max(xs) - min(xs) > 120
+    assert max(ys) - min(ys) > 120
+    rounded = {(round(x, -1), round(y, -1)) for x, y in zip(xs, ys)}
+    assert len(rounded) >= 40
 
 
 def test_merge_family_has_single_merge_node():

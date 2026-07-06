@@ -150,7 +150,22 @@ class Store:
     def _ensure_repo(self) -> None:
         try:
             self.api.repo_info(self.repo, repo_type="dataset")
+            return
         except RepositoryNotFoundError:
+            owner, _, _name = self.repo.partition("/")
+            if not owner:
+                raise
+            try:
+                user = self.api.whoami()["name"]
+            except Exception:
+                user = None
+            if user != owner:
+                raise ValueError(
+                    f"Dataset '{self.repo}' was not found on the Hub. "
+                    "For the public lab demo use "
+                    "DIA_DATASET=DIA-MVP/dia-state-lab-2026 "
+                    "(see LAB.md). Auto-create only works under your own HF username."
+                ) from None
             self.api.create_repo(self.repo, repo_type="dataset", private=False, exist_ok=True)
 
     def load(self) -> None:

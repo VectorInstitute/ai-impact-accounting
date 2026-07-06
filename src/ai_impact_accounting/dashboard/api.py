@@ -386,6 +386,9 @@ def graph_vis_payload(
             "fixed": {"x": True, "y": True},
             "quality_key": qkey,
             "title": title,
+            "role": n.get("role", ""),
+            "water": n.get("water", "—"),
+            "quality": quality,
             "carbon": carbon_display,
             "card_disclosure": disc,
             "color": {
@@ -436,24 +439,47 @@ def graph_vis_payload(
 def kpi_cards(res: dict, *, base_card: dict[str, Any] | None = None) -> list[dict[str, str]]:
     """Top KPI card values for the dashboard header row."""
     cov = res["coverage"] * 100
-    cards = [
-        {
-            "label": "Coverage",
-            "value": f"{cov:.0f}%",
-            "sub": f"{res['n_with_report']}/{res['n_models']} models",
-        },
-        {
-            "label": "Family size",
-            "value": str(res["n_models"]),
-            "sub": "models in subtree",
-        },
-    ]
+    cards: list[dict[str, str]] = []
+
+    if res["n_with_report"] >= 2:
+        t = res["total_footprint"]
+        ratio = res["deriv_over_base_ratio"]
+        ratio_txt = f"{ratio[0]:.1f}–{ratio[1]:.1f}×" if ratio else "n/a"
+        cards.extend(
+            [
+                {
+                    "label": "Family carbon",
+                    "value": f"{t['carbon']['fmt']} kg",
+                    "sub": "disclosed subtotal",
+                    "primary": "true",
+                },
+                {"label": "Water", "value": t["water"]["fmt"], "sub": "litres"},
+                {"label": "Energy", "value": t["energy"]["fmt"], "sub": "kWh"},
+                {"label": "Derivatives vs base", "value": ratio_txt, "sub": "carbon ratio"},
+            ]
+        )
+
+    cards.extend(
+        [
+            {
+                "label": "Coverage",
+                "value": f"{cov:.0f}%",
+                "sub": f"{res['n_with_report']}/{res['n_models']} with footprint data",
+            },
+            {
+                "label": "Family size",
+                "value": str(res["n_models"]),
+                "sub": "models in subtree",
+            },
+        ]
+    )
+
     if base_card:
         cards.append(
             {
-                "label": "Base carbon (card)",
+                "label": "Base pretraining (card)",
                 "value": base_card["carbon"],
-                "sub": f"{base_card.get('variant', 'publisher')} · pretraining · kgCO₂eq",
+                "sub": f"{base_card.get('variant', 'publisher')} · not in rollup",
             }
         )
         if base_card.get("gpu_hours"):
@@ -464,20 +490,6 @@ def kpi_cards(res: dict, *, base_card: dict[str, Any] | None = None) -> list[dic
                     "sub": base_card.get("hardware") or "from model card",
                 }
             )
-    if res["n_with_report"] < 2:
-        return cards
-
-    t = res["total_footprint"]
-    ratio = res["deriv_over_base_ratio"]
-    ratio_txt = f"{ratio[0]:.1f}–{ratio[1]:.1f}×" if ratio else "n/a"
-    cards.extend(
-        [
-            {"label": "Carbon", "value": t["carbon"]["fmt"], "sub": "kgCO₂eq disclosed subtotal"},
-            {"label": "Water", "value": t["water"]["fmt"], "sub": "litres"},
-            {"label": "Energy", "value": t["energy"]["fmt"], "sub": "kWh"},
-            {"label": "Derivatives vs base", "value": ratio_txt, "sub": "carbon ratio"},
-        ]
-    )
     return cards
 
 

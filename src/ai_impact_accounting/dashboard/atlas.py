@@ -7,6 +7,7 @@ the ingested dataset; optional family scope highlights one base subtree.
 from __future__ import annotations
 
 import json
+import math
 from collections import deque
 from typing import Any, Literal, Optional
 
@@ -135,11 +136,21 @@ def _layered_layout_component(
         levels.setdefault(level, []).append(node)
 
     pos: dict[str, tuple[float, float]] = {}
+    max_level = max(len(members) for members in levels.values())
+    y_step = min(y_gap, max(40.0, 720.0 / max(max_level, 1)))
+    x_step = x_gap * 0.45
+
     for level in sorted(levels):
         members = sorted(levels[level])
         n = len(members)
+        cols = 1 if n <= 8 else max(1, math.ceil(math.sqrt(n * 1.35)))
+        rows = math.ceil(n / cols)
         for i, node in enumerate(members):
-            pos[node] = (level * x_gap, (i - (n - 1) / 2.0) * y_gap)
+            row = i // cols
+            col = i % cols
+            x = level * x_gap + col * x_step
+            y = (row - (rows - 1) / 2.0) * y_step
+            pos[node] = (x, y)
     return pos
 
 
@@ -218,7 +229,12 @@ def graph_payload(
             "coverage": 0.0,
         }
 
-    pos = _layered_layout(sub)
+    n_nodes = len(sub.nodes)
+    pos = _layered_layout(
+        sub,
+        x_gap=200.0 + min(n_nodes, 120) * 1.2,
+        y_gap=72.0 + min(n_nodes, 80) * 0.35,
+    )
 
     out_nodes = []
     for mid in sub.nodes():

@@ -113,7 +113,7 @@ def test_dashboard_kpi_includes_base_card_disclosure(mock_disc):
     assert out["ok"] is True
     assert out["rollup"]["base_card_disclosure"]["carbon"] == "133,000 kgCO₂eq"
     labels = [c["label"] for c in out["kpi"]]
-    assert "Base carbon (card)" in labels
+    assert "Base pretraining (card)" in labels
 
 
 def test_kpi_cards_base_card_when_few_dia_reports():
@@ -121,4 +121,4 @@ def test_kpi_cards_base_card_when_few_dia_reports():
                  "meta-llama/Llama-3.2-3B-Instruct")
     rollup_json = _rollup_json(res, base_card={"carbon": "133,000 kgCO₂eq", "gpu_hours": "460k", "variant": "Llama 3.2 3B"})
     cards = kpi_cards(rollup_json, base_card=rollup_json["base_card_disclosure"])
-    assert any(c["label"] == "Base carbon (card)" for c in cards)
+    assert any(c["label"] == "Base pretraining (card)" for c in cards)

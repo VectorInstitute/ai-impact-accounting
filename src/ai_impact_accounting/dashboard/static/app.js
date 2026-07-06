@@ -8,8 +8,217 @@ let hoverActive = false;
 let hoveredNodeId = null;
 let barChart = null;
 let defaultBase = "";
+let lastRollup = null;
+let tableRowsByModel = {};
+let lastTableRows = [];
+let lastTableRollup = null;
+let tableSortKey = "carbon";
+let tableSortDir = "desc";
+let tableSearchQuery = "";
+let appliedControlsSnapshot = "";
+let loadDebounceTimer = null;
+let graphColorBy = "quality";
+let graphLegendData = null;
+
+const ROLE_NODE_COLORS = {
+  base: "#1e6a8a",
+  derivative: "#3d9a40",
+  "lineage parent": "#d4cfc4",
+  placeholder: "#94a3b8",
+  "in dataset": "#cbd5e1",
+  default: "#cbd5e1",
+};
+
+const ROLE_LEGEND_NODES = [
+  { label: "Base model", color: "#1e6a8a" },
+  { label: "Derivative", color: "#3d9a40" },
+  { label: "Lineage parent only", color: "#d4cfc4" },
+  { label: "From scratch (placeholder)", color: "#94a3b8" },
+  { label: "In dataset (no report)", color: "#cbd5e1" },
+];
+
+const GRAPH_ZOOM_MIN_RATIO = 0.55;
+const GRAPH_ZOOM_MAX_RATIO = 3;
+const GRAPH_ZOOM_ABSOLUTE_MIN = 0.12;
+const GRAPH_ZOOM_ABSOLUTE_MAX = 2.5;
+let graphFitScale = 1;
+let graphZoomAnchor = null;
 
 const $ = (id) => document.getElementById(id);
+
+function isEmbedMode() {
+  return new URLSearchParams(window.location.search).get("embed") === "1";
+}
+
+function readUrlState() {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    base: p.get("base") || "",
+    compare: p.get("compare") || "",
+    impute: p.get("impute") === "1",
+    rowFilter: p.get("row_filter") || "all",
+    graphView: p.get("graph_view") || "all",
+  };
+}
+
+function applyEmbedMode() {
+  if (isEmbedMode()) document.body.classList.add("embed-mode");
+  syncTopbarHeight();
+}
+
+function syncTopbarHeight() {
+  const topbar = document.querySelector(".topbar");
+  const height = topbar && !isEmbedMode() && topbar.offsetParent !== null
+    ? topbar.getBoundingClientRect().height
+    : 0;
+  document.documentElement.style.setProperty("--topbar-height", `${height}px`);
+}
+
+function syncUrlState() {
+  const p = queryParams();
+  if (isEmbedMode()) p.set("embed", "1");
+  const qs = p.toString();
+  const next = qs ? `?${qs}` : window.location.pathname;
+  if (`${window.location.pathname}${window.location.search}` !== next) {
+    history.replaceState(null, "", next);
+  }
+}
+
+function applyControlsFromUrl(state) {
+  if (!state) return;
+  if (state.rowFilter) $("row-filter").value = state.rowFilter;
+  if (state.graphView) $("graph-view").value = state.graphView;
+}
+
+// Method-based imputation is wired through the API (`?impute=1`) for future exploration;
+// the dashboard UI does not expose it yet — totals default to reported footprints only.
+function isImputeEnabled() {
+  return new URLSearchParams(window.location.search).get("impute") === "1";
+}
+
+function controlsSignature() {
+  return JSON.stringify({
+    base: $("base-select").value,
+    compare: $("compare-select").value,
+    impute: isImputeEnabled(),
+    rowFilter: $("row-filter").value,
+    graphView: $("graph-view").value,
+  });
+}
+
+function updateStaleControlsHint() {
+  const stale = appliedControlsSnapshot && controlsSignature() !== appliedControlsSnapshot;
+  $("controls-stale-hint").classList.toggle("hidden", !stale);
+  $("apply-btn").classList.toggle("needs-apply", stale);
+}
+
+function markControlsApplied() {
+  appliedControlsSnapshot = controlsSignature();
+  updateStaleControlsHint();
+}
+
+function setDashboardLoading(loading) {
+  document.body.classList.toggle("is-loading", loading);
+  $("loading-indicator").classList.toggle("hidden", !loading);
+  $("main").setAttribute("aria-busy", loading ? "true" : "false");
+  $("apply-btn").disabled = loading;
+}
+
+function scheduleLoadDashboard() {
+  clearTimeout(loadDebounceTimer);
+  updateStaleControlsHint();
+  loadDebounceTimer = setTimeout(() => loadDashboard(), 400);
+}
+
+function parseNumericField(value) {
+  if (value == null || value === "—") return -1;
+  const m = String(value).replace(/,/g, "").match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : -1;
+}
+
+function compareTableRows(a, b, key) {
+  if (key === "carbon") return (a.carbon_hi ?? 0) - (b.carbon_hi ?? 0);
+  if (key === "water" || key === "energy") {
+    return parseNumericField(a[key]) - parseNumericField(b[key]);
+  }
+  const av = String(a[key] ?? "").toLowerCase();
+  const bv = String(b[key] ?? "").toLowerCase();
+  return av.localeCompare(bv);
+}
+
+function updateTableSortHeaders() {
+  $("footprint-table").querySelectorAll("th.sortable").forEach((th) => {
+    const key = th.getAttribute("data-sort");
+    th.classList.remove("sort-asc", "sort-desc");
+    if (key === tableSortKey) {
+      th.classList.add(tableSortDir === "asc" ? "sort-asc" : "sort-desc");
+      th.setAttribute("aria-sort", tableSortDir === "asc" ? "ascending" : "descending");
+    } else {
+      th.setAttribute("aria-sort", "none");
+    }
+  });
+}
+
+function renderTableBody(rows) {
+  const tbody = $("footprint-table").querySelector("tbody");
+  tableRowsByModel = {};
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">No models match this filter.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows
+    .map((r) => {
+      tableRowsByModel[r.model] = r;
+      const qk = r.quality_key || "none";
+      return `<tr class="q-${qk}" data-model="${r.model}">` +
+        `<td>${r.model_url
+          ? `<a href="${r.model_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${r.model}</a>`
+          : r.model}</td>` +
+        `<td>${r.role}</td><td>${r.method || "—"}</td>` +
+        `<td>${r.carbon}</td><td>${r.water}</td><td>${r.energy}</td>` +
+        `<td>${r.quality}</td><td>${r.gpu}</td><td>${r.region}</td></tr>`;
+    })
+    .join("");
+  tbody.querySelectorAll("tr[data-model]").forEach((tr) => {
+    tr.addEventListener("click", () => focusGraphNode(tr.getAttribute("data-model")));
+  });
+}
+
+function applyTableView() {
+  let rows = [...lastTableRows];
+  const q = tableSearchQuery.trim().toLowerCase();
+  if (q) {
+    rows = rows.filter((r) =>
+      [r.model, r.role, r.method, r.quality, r.gpu, r.region].join(" ").toLowerCase().includes(q)
+    );
+  }
+  rows.sort((a, b) => {
+    const cmp = compareTableRows(a, b, tableSortKey);
+    return tableSortDir === "asc" ? cmp : -cmp;
+  });
+  updateTableSortHeaders();
+  renderTableBody(rows);
+  const rollup = lastTableRollup || { n_models: 0, n_with_report: 0 };
+  const disclosed = rollup.n_models ? ((rollup.n_with_report / rollup.n_models) * 100).toFixed(1) : "0";
+  const filterNote = q ? ` (search: "${tableSearchQuery.trim()}")` : "";
+  $("table-note").textContent =
+    `Showing ${rows.length} of ${lastTableRows.length} models${filterNote} — ${disclosed}% disclosed. Click a row to focus that node in the graph.`;
+}
+
+function updateKpiFootnote(rollup) {
+  const el = $("kpi-footnote");
+  if (!rollup?.base_card_disclosure) {
+    el.classList.add("hidden");
+    el.innerHTML = "";
+    return;
+  }
+  const d = rollup.base_card_disclosure;
+  el.classList.remove("hidden");
+  el.innerHTML =
+    `Family KPI totals sum <code>dia_report</code> footprints only. Publisher pretraining on the base model card` +
+    ` (${d.carbon}${d.gpu_hours ? ` · ${d.gpu_hours} GPU h` : ""}) appears in the summary and node pane` +
+    ` but is <strong>not</strong> included in rollup totals unless ingested as a report.`;
+}
 
 function showError(msg) {
   const el = $("error-banner");
@@ -21,7 +230,7 @@ function showError(msg) {
 function queryParams() {
   const base = $("base-select").value;
   const compare = $("compare-select").value;
-  const impute = $("impute").checked ? "1" : "0";
+  const impute = isImputeEnabled() ? "1" : "0";
   const rowFilter = $("row-filter").value;
   const graphView = $("graph-view").value;
   const p = new URLSearchParams({ base, impute, row_filter: rowFilter, graph_view: graphView });
@@ -48,15 +257,16 @@ function fillSelect(el, choices, value) {
   else if (choices.length) el.value = choices[0];
 }
 
-async function loadMeta() {
+async function loadMeta(urlState) {
   const meta = await fetchJson("/api/meta");
   defaultBase = meta.default_base || "";
   $("dataset-meta").innerHTML =
     `<strong>Dataset:</strong> <a href="${meta.dataset_url}" target="_blank" rel="noopener">${meta.dataset}</a>` +
-    ` · <strong>${meta.n_nodes}</strong> node(s) · <strong>${meta.n_with_report}</strong> with <code>dia_report</code>`;
+    ` · <strong>${meta.n_nodes}</strong> model(s) · <strong>${meta.n_with_report}</strong> with footprint data`;
 
   const bases = await fetchJson("/api/bases");
-  fillSelect($("base-select"), bases.bases, bases.default_base);
+  const preferredBase = urlState?.base || bases.default_base;
+  fillSelect($("base-select"), bases.bases, preferredBase);
   const cmp = $("compare-select");
   cmp.innerHTML = '<option value="">— none —</option>';
   for (const b of bases.bases) {
@@ -65,69 +275,124 @@ async function loadMeta() {
     opt.textContent = b;
     cmp.appendChild(opt);
   }
+  if (urlState?.compare && bases.bases.includes(urlState.compare)) {
+    cmp.value = urlState.compare;
+  }
+}
+
+function qualityChipClass(quality) {
+  const q = (quality || "").toLowerCase();
+  if (q === "measured") return "measured";
+  if (q === "imputed") return "imputed";
+  if (q === "disclosed-on-card") return "disclosed-on-card";
+  if (q.startsWith("estimated")) return "estimated";
+  return "";
 }
 
 function renderKpi(cards) {
   $("kpi-row").innerHTML = cards
     .map(
       (c) =>
-        `<div class="kpi"><div class="kpi-label">${c.label}</div>` +
+        `<div class="kpi${c.primary ? " kpi-primary" : ""}">` +
+        `<div class="kpi-label">${c.label}</div>` +
         `<div class="kpi-value">${c.value}</div>` +
         `<div class="kpi-sub">${c.sub || ""}</div></div>`
     )
     .join("");
 }
 
+function renderConfidenceBanner(rollup) {
+  const el = $("confidence-banner");
+  if (!rollup || rollup.n_models <= 1) {
+    el.classList.add("hidden");
+    el.innerHTML = "";
+    return;
+  }
+  const cov = rollup.coverage * 100;
+  const missing = rollup.n_without_report;
+  if (missing === 0 && cov >= 99) {
+    el.classList.add("hidden");
+    el.innerHTML = "";
+    return;
+  }
+  el.classList.remove("hidden");
+  if (missing > 0 && cov < 60) {
+    el.innerHTML =
+      `<strong>Lower-bound estimate.</strong> Only ${rollup.n_with_report} of ${rollup.n_models} models ` +
+      `in this family disclosed footprint data (${cov.toFixed(0)}% coverage). ` +
+      `Totals omit <strong>${missing}</strong> model(s) — ` +
+      `<a href="#" id="banner-hub-link">check the base on Hub</a> to ingest reports.`;
+    const link = $("banner-hub-link");
+    if (link) {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        checkBaseOnHub();
+      });
+    }
+    return;
+  }
+  if (missing > 0) {
+    el.innerHTML =
+      `<strong>Partial coverage (${cov.toFixed(0)}%).</strong> ` +
+      `${missing} model(s) have no footprint data yet — family totals may increase as more models report.`;
+    return;
+  }
+  el.classList.add("hidden");
+  el.innerHTML = "";
+}
+
+function renderFamilyHeading(_rollup) {
+  /* family name is already in the base-model selector */
+}
+
 function renderSummary(rollup) {
   const cov = (rollup.coverage * 100).toFixed(0);
-  const flag = rollup.coverage < 0.6 ? " ⚠️ lower bound" : "";
-  let html = `<h3>${rollup.base}</h3>` +
-    `<p><strong>Models in family:</strong> ${rollup.n_models} ` +
-    `(${rollup.n_with_report} with DIA report, ${rollup.n_without_report} missing)</p>` +
-    `<p><strong>Coverage:</strong> ${cov}%${flag}</p>`;
+  let html = "";
   if (rollup.n_with_report >= 2) {
     const t = rollup.total_footprint;
     const ratio = rollup.deriv_over_base_ratio;
     const ratioTxt = ratio ? `${ratio[0].toFixed(1)}–${ratio[1].toFixed(1)}× base` : "n/a";
     html +=
+      `<p><strong>Models with data:</strong> ${rollup.n_with_report} / ${rollup.n_models} (${cov}%)</p>` +
       `<table><tbody>` +
       `<tr><td>Carbon</td><td>${t.carbon.fmt} kgCO₂eq</td></tr>` +
       `<tr><td>Water</td><td>${t.water.fmt} L</td></tr>` +
       `<tr><td>Energy</td><td>${t.energy.fmt} kWh</td></tr>` +
       `</tbody></table>` +
       `<p><strong>Derivative footprint vs base:</strong> ${ratioTxt}</p>`;
+  } else {
+    html += `<p><strong>Models in family:</strong> ${rollup.n_models} ` +
+      `(${rollup.n_with_report} with footprint data)</p>` +
+      `<p><strong>Coverage:</strong> ${cov}%</p>`;
   }
   if (rollup.base_card_disclosure) {
     const d = rollup.base_card_disclosure;
     html +=
-      `<p><strong>Base publisher disclosure:</strong> ${d.carbon}` +
+      `<p class="publisher-note"><strong>Publisher pretraining estimate:</strong> ${d.carbon}` +
       (d.gpu_hours ? ` · ${d.gpu_hours} GPU h` : "") +
       (d.hardware ? ` · ${d.hardware}` : "") +
-      ` <span class="hub-status-warn">(model card — not in DIA rollup)</span></p>`;
+      ` <span class="hub-status-warn">(model card only — not in family rollup)</span></p>`;
   }
-  $("summary").innerHTML = html;
+  $("summary").innerHTML = `<h2 class="section-label">Family summary</h2>` + html;
 }
 
 function renderTable(rows, shown, total, rollup) {
-  const tbody = $("footprint-table").querySelector("tbody");
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">No models match this filter.</td></tr>';
-  } else {
-    tbody.innerHTML = rows
-      .map((r) => {
-        const qk = r.quality_key || "none";
-        return `<tr class="q-${qk}">` +
-          `<td>${r.model_url
-            ? `<a href="${r.model_url}" target="_blank" rel="noopener">${r.model}</a>`
-            : r.model}</td>` +
-          `<td>${r.role}</td><td>${r.method || "—"}</td>` +
-          `<td>${r.carbon}</td><td>${r.water}</td><td>${r.energy}</td>` +
-          `<td>${r.quality}</td><td>${r.gpu}</td><td>${r.region}</td></tr>`;
-      })
-      .join("");
-  }
-  const disclosed = rollup.n_models ? ((rollup.n_with_report / rollup.n_models) * 100).toFixed(1) : "0";
-  $("table-note").textContent = `Showing ${shown} of ${total} models — ${disclosed}% disclosed.`;
+  lastTableRows = rows;
+  lastTableRollup = rollup;
+  applyTableView();
+}
+
+function focusGraphNode(modelId) {
+  if (!modelId || !network) return;
+  const node = fullGraph.nodes.find((n) => n.id === modelId);
+  if (!node) return;
+  selectedNodeId = modelId;
+  graphFocused = true;
+  network.setData(buildNetworkData(fullGraph, modelId));
+  scheduleFit();
+  showNodePane(modelId);
+  updateGraphToolbarState();
+  document.querySelector(".graph-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function renderHardware(items) {
@@ -156,15 +421,17 @@ function renderCompare(cmp) {
 }
 
 function renderBarChart(spec) {
+  const row = $("charts-row");
   const canvas = $("bar-chart");
   if (barChart) {
     barChart.destroy();
     barChart = null;
   }
   if (!spec) {
-    canvas.parentElement.innerHTML = '<p class="empty">No carbon data to chart.</p><canvas id="bar-chart"></canvas>';
+    row.classList.add("hidden");
     return;
   }
+  row.classList.remove("hidden");
   barChart = new Chart(canvas, {
     type: "bar",
     data: {
@@ -179,8 +446,10 @@ function renderBarChart(spec) {
     },
     options: {
       responsive: true,
-      plugins: { title: { display: true, text: spec.title } },
-      scales: { y: { title: { display: true, text: "Training CO₂ (kgCO₂eq)" } } },
+      maintainAspectRatio: true,
+      aspectRatio: 2.2,
+      plugins: { title: { display: false }, legend: { display: false } },
+      scales: { y: { title: { display: true, text: "kgCO₂eq" } } },
     },
   });
 }
@@ -188,19 +457,61 @@ function renderBarChart(spec) {
 const LABEL_LIMIT = 18;
 
 function renderLegend(legend) {
+  graphLegendData = legend;
+  renderLegendForMode();
+}
+
+function renderLegendForMode() {
+  const legend = graphLegendData;
   if (!legend) return;
-  $("legend-nodes").innerHTML = (legend.nodes || [])
-    .map(
+  const heading = $("legend-node-heading");
+  if (graphColorBy === "role") {
+    heading.textContent = "Node · lineage role";
+    $("legend-nodes").innerHTML = ROLE_LEGEND_NODES.map(
       (item) =>
         `<li><span class="legend-swatch" style="background:${item.color}"></span>${item.label}</li>`
-    )
-    .join("");
+    ).join("");
+  } else {
+    heading.textContent = "Node · data quality";
+    $("legend-nodes").innerHTML = (legend.nodes || [])
+      .map(
+        (item) =>
+          `<li><span class="legend-swatch" style="background:${item.color}"></span>${item.label}</li>`
+      )
+      .join("");
+  }
   $("legend-edges").innerHTML = (legend.edges || [])
     .map(
       (item) =>
         `<li><span class="legend-swatch edge" style="background:${item.color}"></span>${item.label}</li>`
     )
     .join("");
+}
+
+function nodeColorForMode(n) {
+  if (graphColorBy !== "role") {
+    if (n.color) {
+      return typeof n.color === "string"
+        ? { background: n.color, border: n.color, highlight: { background: n.color, border: "#1e6a8a" } }
+        : { ...n.color };
+    }
+    return { background: "#cbd5e1", border: "#94a3b8", highlight: { background: "#cbd5e1", border: "#1e6a8a" } };
+  }
+  const role = (n.role || "").toLowerCase();
+  const bg = ROLE_NODE_COLORS[role] || ROLE_NODE_COLORS.default;
+  return {
+    background: bg,
+    border: n.is_placeholder ? "#64748b" : "#555",
+    highlight: { background: bg, border: "#1e6a8a" },
+  };
+}
+
+function refreshGraphColors() {
+  if (!network) return;
+  const focus = graphFocused ? selectedNodeId : null;
+  network.setData(buildNetworkData(fullGraph, focus));
+  scheduleFit();
+  renderLegendForMode();
 }
 
 function applyLabelVisibility(nodes, show) {
@@ -210,7 +521,25 @@ function applyLabelVisibility(nodes, show) {
   }));
 }
 
-function normalizeGraphPositions(nodes, targetSpan = 500) {
+function graphTargetSpan(nodeCount) {
+  if (nodeCount <= 20) return 500;
+  if (nodeCount <= 50) return 900;
+  return Math.min(3200, 600 + nodeCount * 18);
+}
+
+function graphNodeSize(nodeCount, baseSize = 22) {
+  if (nodeCount > 70) return 10;
+  if (nodeCount > 35) return 14;
+  if (nodeCount > 20) return 18;
+  return baseSize;
+}
+
+function syncGraphViewport(nodeCount) {
+  const height = nodeCount > 70 ? 520 : nodeCount > 35 ? 440 : 360;
+  document.documentElement.style.setProperty("--graph-height", `${height}px`);
+}
+
+function normalizeGraphPositions(nodes, targetSpan) {
   if (!nodes.length) return nodes;
   const xs = nodes.map((n) => n.x ?? 0);
   const ys = nodes.map((n) => n.y ?? 0);
@@ -220,7 +549,8 @@ function normalizeGraphPositions(nodes, targetSpan = 500) {
   const maxY = Math.max(...ys);
   const spanX = Math.max(maxX - minX, 1);
   const spanY = Math.max(maxY - minY, 1);
-  const scale = targetSpan / Math.max(spanX, spanY);
+  const span = targetSpan ?? graphTargetSpan(nodes.length);
+  const scale = span / Math.max(spanX, spanY);
   const cx = (minX + maxX) / 2;
   const cy = (minY + maxY) / 2;
   return nodes.map((n) => ({
@@ -245,8 +575,8 @@ function egoNetwork(nodeId) {
 
 function storedNodeColor(nodeId) {
   const src = fullGraph.nodes.find((n) => n.id === nodeId);
-  if (!src?.color) return { background: "#cbd5e1", border: "#94a3b8" };
-  return typeof src.color === "string" ? { background: src.color, border: src.color } : { ...src.color };
+  if (!src) return { background: "#cbd5e1", border: "#94a3b8" };
+  return nodeColorForMode(src);
 }
 
 const DIM_NODE_COLOR = { background: "#b8bcc4", border: "#8b93a1" };
@@ -370,6 +700,7 @@ function clearHoverFocus() {
 function buildNetworkData(graph, filterNodeId) {
   const decorate = (n, overrides = {}) => ({
     ...n,
+    color: nodeColorForMode(n),
     ...overrides,
     font: {
       size: 16,
@@ -382,12 +713,20 @@ function buildNetworkData(graph, filterNodeId) {
   });
 
   if (!filterNodeId) {
-    const showLabels = graph.nodes.length <= LABEL_LIMIT;
+    const n = graph.nodes.length;
+    const showLabels = n <= LABEL_LIMIT;
+    syncGraphViewport(n);
+    const dotSize = graphNodeSize(n);
     const positioned = normalizeGraphPositions(graph.nodes);
     return {
       nodes: new vis.DataSet(
         applyLabelVisibility(
-          positioned.map((n) => decorate(n, { fixed: { x: true, y: true } })),
+          positioned.map((n) =>
+            decorate(n, {
+              fixed: { x: true, y: true },
+              size: n.size ? Math.min(n.size, dotSize + 4) : dotSize,
+            })
+          ),
           showLabels
         )
       ),
@@ -476,12 +815,50 @@ function graphOptions() {
   };
 }
 
+function graphZoomLimits() {
+  const fit = graphFitScale || 1;
+  return {
+    min: Math.max(GRAPH_ZOOM_ABSOLUTE_MIN, fit * GRAPH_ZOOM_MIN_RATIO),
+    max: Math.min(GRAPH_ZOOM_ABSOLUTE_MAX, fit * GRAPH_ZOOM_MAX_RATIO),
+  };
+}
+
+function clampGraphScale(scale) {
+  const { min, max } = graphZoomLimits();
+  return Math.min(max, Math.max(min, scale));
+}
+
+function rememberGraphZoomAnchor() {
+  if (!network) return;
+  graphZoomAnchor = network.getViewPosition();
+}
+
+function attachGraphZoomLimits(net) {
+  rememberGraphZoomAnchor();
+  net.on("zoom", () => {
+    const scale = net.getScale();
+    const clamped = clampGraphScale(scale);
+    if (scale !== clamped) {
+      net.moveTo({
+        position: graphZoomAnchor || net.getViewPosition(),
+        scale: clamped,
+        animation: false,
+      });
+    } else {
+      rememberGraphZoomAnchor();
+    }
+  });
+  net.on("dragEnd", rememberGraphZoomAnchor);
+}
+
 function fitGraph(padding = 28) {
   if (!network) return;
   network.fit({
     animation: false,
     padding,
   });
+  graphFitScale = network.getScale();
+  rememberGraphZoomAnchor();
 }
 
 function scheduleFit() {
@@ -491,12 +868,24 @@ function scheduleFit() {
   });
 }
 
+function updateGraphToolbarState(graphView) {
+  const scope = graphView ?? $("graph-view").value;
+  $("clear-focus-btn").disabled = !graphFocused;
+  $("focus-family-btn").disabled = !graphFocused;
+  const fullBtn = $("full-dataset-btn");
+  if (scope === "family") {
+    fullBtn.classList.remove("hidden");
+    fullBtn.disabled = false;
+  } else {
+    fullBtn.classList.add("hidden");
+    fullBtn.disabled = true;
+  }
+}
+
 function initNetwork(graph) {
   fullGraph = graph;
   graphFocused = false;
   selectedNodeId = null;
-  $("reset-graph-btn").disabled = true;
-  $("focus-family-btn").disabled = true;
   renderLegend(graph.legend);
 
   const container = $("graph");
@@ -505,6 +894,7 @@ function initNetwork(graph) {
 
   if (network) network.destroy();
   network = new vis.Network(container, data, options);
+  attachGraphZoomLimits(network);
 
   network.on("hoverNode", (params) => {
     applyHoverFocus(params.node);
@@ -528,21 +918,22 @@ function initNetwork(graph) {
     const nodeId = params.nodes[0];
     selectedNodeId = nodeId;
     graphFocused = true;
-    $("reset-graph-btn").disabled = false;
-    $("focus-family-btn").disabled = false;
     network.setData(buildNetworkData(fullGraph, nodeId));
     scheduleFit();
     showNodePane(nodeId);
+    updateGraphToolbarState();
   });
 
   scheduleFit();
 
   const cov = (graph.coverage * 100).toFixed(0);
+  const baseLabel = graph.base ? graph.base.split("/").pop() : "family";
   const title =
     graph.view === "family"
-      ? `${graph.base.split("/").pop()} family · ${graph.n_models} models · ${cov}% disclosed`
+      ? `Family: ${baseLabel} · ${graph.n_models} models · ${graph.n_edges} edges · ${cov}% disclosed`
       : `Full dataset · ${graph.n_models} models · ${graph.n_edges} edges · ${cov}% with report`;
   $("graph-title").textContent = title;
+  updateGraphToolbarState(graph.view);
 }
 
 function nodeDisplayName(nodeId) {
@@ -550,19 +941,38 @@ function nodeDisplayName(nodeId) {
   return node?.display_label || node?.label || nodeId;
 }
 
+function renderNodeDetail(node) {
+  const qClass = qualityChipClass(node.quality || node.quality_key);
+  const qualityLabel = node.quality || node.quality_key || "no report";
+  let html = "";
+  if (node.is_placeholder) {
+    html += `<p><em>Placeholder — groups models trained from scratch (not a Hugging Face repo).</em></p>`;
+  } else if (node.hub_url) {
+    html += `<p><a href="${node.hub_url}" target="_blank" rel="noopener">Open on Hugging Face ↗</a></p>`;
+  }
+  html += `<table class="node-detail-table"><tbody>` +
+    `<tr><th>Role</th><td>${node.role || "—"}</td></tr>` +
+    `<tr><th>Carbon</th><td>${node.carbon || "—"}</td></tr>` +
+    `<tr><th>Water</th><td>${node.water || "—"}</td></tr>` +
+    `<tr><th>Quality</th><td><span class="quality-chip ${qClass}">${qualityLabel}</span></td></tr>` +
+    `</tbody></table>`;
+  if (node.card_disclosure) html += renderCardDisclosure(node.card_disclosure);
+  const row = tableRowsByModel[node.id];
+  if (row && row.method) {
+    html += `<table class="node-detail-table"><tbody>` +
+      `<tr><th>Method</th><td>${row.method}</td></tr>` +
+      `<tr><th>GPU</th><td>${row.gpu || "—"}</td></tr>` +
+      `<tr><th>Region</th><td>${row.region || "—"}</td></tr>` +
+      `</tbody></table>`;
+  }
+  return html;
+}
+
 function showNodePane(nodeId) {
   const node = fullGraph.nodes.find((n) => n.id === nodeId);
   if (!node) return;
   $("pane-name").textContent = node.display_label || node.label || nodeId;
-  const hubLink = node.is_placeholder
-    ? `<p><em>Placeholder — groups models trained from scratch (not a Hugging Face repo).</em></p>`
-    : node.hub_url
-      ? `<p><a href="${node.hub_url}" target="_blank" rel="noopener">Open on Hugging Face</a></p>`
-      : `<p><em>Not a Hugging Face model page — no external link.</em></p>`;
-  $("pane-data").innerHTML =
-    hubLink +
-    (node.card_disclosure ? renderCardDisclosure(node.card_disclosure) : "") +
-    `<pre style="white-space:pre-wrap;font-size:0.82rem">${node.title || ""}</pre>`;
+  $("pane-data").innerHTML = renderNodeDetail(node);
 
   const links = [];
   for (const e of fullGraph.edges) {
@@ -582,48 +992,89 @@ function showNodePane(nodeId) {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-node");
       selectedNodeId = id;
-      const focusedData = buildNetworkData(fullGraph, id);
-      network.setData(focusedData);
+      graphFocused = true;
+      network.setData(buildNetworkData(fullGraph, id));
       scheduleFit();
       showNodePane(id);
+      updateGraphToolbarState();
     });
   });
 
   $("node-pane").classList.remove("hidden");
+  $("pane-close").focus();
 }
 
-function resetGraphView() {
+function closeNodePane() {
+  $("node-pane").classList.add("hidden");
+}
+
+function clearGraphFocus() {
   selectedNodeId = null;
   graphFocused = false;
   hoverActive = false;
   hideHoverLabel();
-  $("reset-graph-btn").disabled = true;
-  $("focus-family-btn").disabled = true;
   $("node-pane").classList.add("hidden");
   if (network && fullGraph.nodes.length) {
     network.setData(buildNetworkData(fullGraph, null));
     scheduleFit();
   }
+  updateGraphToolbarState();
+}
+
+async function showFullDataset() {
+  $("graph-view").value = "all";
+  selectedNodeId = null;
+  graphFocused = false;
+  $("node-pane").classList.add("hidden");
+  await loadDashboard();
 }
 
 async function loadDashboard() {
   const params = queryParams();
   $("csv-link").href = `/api/export.csv?${params.toString()}`;
+  setDashboardLoading(true);
   try {
     const data = await fetchJson(`/api/dashboard?${params.toString()}`);
     if (!data.ok) {
       showError(data.error);
+      renderConfidenceBanner(null);
+      renderFamilyHeading(null);
+      updateKpiFootnote(null);
       return;
     }
+    lastRollup = data.rollup;
+    renderFamilyHeading(data.rollup);
+    renderConfidenceBanner(data.rollup);
     renderKpi(data.kpi);
+    updateKpiFootnote(data.rollup);
     renderSummary(data.rollup);
     renderTable(data.table_rows, data.table_shown, data.table_total, data.rollup);
     renderHardware(data.hardware);
     renderCompare(data.compare);
     renderBarChart(data.bar_chart);
     initNetwork(data.graph);
+    syncUrlState();
+    markControlsApplied();
   } catch (err) {
     showError(err.message || String(err));
+  } finally {
+    setDashboardLoading(false);
+  }
+}
+
+async function copyShareLink() {
+  const p = queryParams();
+  if (isEmbedMode()) p.set("embed", "1");
+  const url = `${window.location.origin}${window.location.pathname}?${p.toString()}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    const btn = $("copy-link-btn");
+    const prev = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(() => { btn.textContent = prev; }, 2000);
+  } catch {
+    showError("Could not copy link — copy from the address bar after clicking View family.");
+    syncUrlState();
   }
 }
 
@@ -788,20 +1239,67 @@ async function ingestBaseFromHub() {
   }
 }
 
-$("apply-btn").addEventListener("click", loadDashboard);
+$("apply-btn").addEventListener("click", () => {
+  clearTimeout(loadDebounceTimer);
+  loadDashboard();
+});
+$("copy-link-btn").addEventListener("click", copyShareLink);
+["base-select", "compare-select", "graph-view", "row-filter"].forEach((id) => {
+  $(id).addEventListener("change", scheduleLoadDashboard);
+});
+$("graph-color-by").addEventListener("change", () => {
+  graphColorBy = $("graph-color-by").value;
+  refreshGraphColors();
+});
+$("table-search").addEventListener("input", () => {
+  tableSearchQuery = $("table-search").value;
+  applyTableView();
+});
+$("footprint-table").querySelector("thead").addEventListener("click", (e) => {
+  const th = e.target.closest("th.sortable");
+  if (!th) return;
+  const key = th.getAttribute("data-sort");
+  if (tableSortKey === key) {
+    tableSortDir = tableSortDir === "asc" ? "desc" : "asc";
+  } else {
+    tableSortKey = key;
+    tableSortDir = key === "carbon" ? "desc" : "asc";
+  }
+  applyTableView();
+});
 $("refresh-btn").addEventListener("click", async () => {
   await fetch("/api/refresh", { method: "POST" });
   await loadMeta();
   await loadDashboard();
 });
-$("reset-graph-btn").addEventListener("click", resetGraphView);
+$("clear-focus-btn").addEventListener("click", clearGraphFocus);
+$("full-dataset-btn").addEventListener("click", showFullDataset);
 $("focus-family-btn").addEventListener("click", focusFamilyFromSelection);
-$("zoom-in-btn").addEventListener("click", () => network && network.moveTo({ scale: network.getScale() * 1.25, animation: true }));
-$("zoom-out-btn").addEventListener("click", () => network && network.moveTo({ scale: network.getScale() * 0.8, animation: true }));
+$("zoom-in-btn").addEventListener("click", () => {
+  if (!network) return;
+  network.moveTo({ scale: clampGraphScale(network.getScale() * 1.25), animation: true });
+});
+$("zoom-out-btn").addEventListener("click", () => {
+  if (!network) return;
+  network.moveTo({ scale: clampGraphScale(network.getScale() * 0.8), animation: true });
+});
 $("zoom-fit-btn").addEventListener("click", () => fitGraph(28));
-window.addEventListener("resize", () => scheduleFit());
-$("pane-close").addEventListener("click", () => {
-  $("node-pane").classList.add("hidden");
+window.addEventListener("resize", () => {
+  syncTopbarHeight();
+  scheduleFit();
+});
+$("pane-close").addEventListener("click", closeNodePane);
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!$("node-pane").classList.contains("hidden")) {
+    $("node-pane").classList.add("hidden");
+    e.preventDefault();
+    return;
+  }
+  if (!$("hub-panel").classList.contains("hidden")) {
+    $("hub-panel").classList.add("hidden");
+    e.preventDefault();
+  }
 });
 $("hub-check-btn").addEventListener("click", checkBaseOnHub);
 $("hub-ingest-btn").addEventListener("click", ingestBaseFromHub);
@@ -811,7 +1309,11 @@ $("hub-panel-close").addEventListener("click", () => {
 
 (async function init() {
   try {
-    await loadMeta();
+    applyEmbedMode();
+    const urlState = readUrlState();
+    applyControlsFromUrl(urlState);
+    await loadMeta(urlState);
+    markControlsApplied();
     await loadDashboard();
   } catch (err) {
     showError(err.message || String(err));

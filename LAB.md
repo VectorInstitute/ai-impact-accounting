@@ -2,7 +2,7 @@
 
 Train demo models on **A100 / A40 / CPU**, push `dia_report` to Hugging Face model
 repos, ingest into **[DIA-MVP/dia-state-lab-2026](https://huggingface.co/datasets/DIA-MVP/dia-state-lab-2026)**,
-and view in the Gradio dashboard.
+and view in the **web dashboard** (local or [HF Space](https://huggingface.co/spaces/DIA-MVP/dia-dashboard)).
 
 Public crawl data stays in [`DIA-MVP/dia-state`](https://huggingface.co/datasets/DIA-MVP/dia-state) — do not mix the two.
 
@@ -75,7 +75,7 @@ dia report   out-bert/README.md
 ```
 
 To show the run in the dashboard, ingest the local card (or push to a model repo
-first, then ingest that repo id). See **Ingest** and **Gradio** below.
+first, then ingest that repo id). See **Ingest** and **Web dashboard** below.
 
 **PyPI-only installs:** the wheel does not include `scripts/` or `dia_finalize.py`.
 See **[README.md — Using DIA from PyPI](README.md#using-dia-from-pypi)** for
@@ -149,17 +149,66 @@ on the dataset page.
 
 ---
 
-## Gradio
+## Web dashboard
 
-On a login node, after ingest:
+The UI is a **FastAPI** app serving a static front-end (vis-network lineage graph,
+KPI rollups, per-model table). Gradio is no longer used.
+
+### Public Space (read-only)
+
+**[DIA-MVP/dia-dashboard](https://huggingface.co/spaces/DIA-MVP/dia-dashboard)** —
+reads `DIA-MVP/dia-state-lab-2026`. Deploy updates with:
+
+```bash
+python scripts/deploy_space.py
+```
+
+Embed on another page: `?embed=1` (hides header/footer chrome).
+
+### Local viewer
+
+On a login node, after ingest (or for the public lab dataset without write access):
 
 ```bash
 export DIA_DATASET=DIA-MVP/dia-state-lab-2026   # required — default is dia-state
-export DIA_BASES=distilbert-base-uncased          # pick a row from the table below
+export DIA_BASES=distilbert-base-uncased          # default base in the UI
 python scripts/view_local.py
 ```
 
-| Family | Base model in UI |
+Open **http://127.0.0.1:7860**. `HF_TOKEN` is optional for read-only public datasets;
+required to ingest or refresh private state.
+
+| Variable | Purpose |
+|----------|---------|
+| `DIA_DATASET` | HF dataset repo with `state.json` (default: lab table) |
+| `DIA_BASES` | Default base model id in the UI |
+| `DIA_STATE_FILE` | Local `state.json` instead of Hub (stress tests; see below) |
+| `PORT` / `HOST` | Bind address (default `7860` / `0.0.0.0`) |
+
+**Shareable views:** use **Copy link** in the UI (encodes base, compare, graph scope,
+table filter in the URL).
+
+**Graph:** click a node for details; **Focus family** rolls up a subtree; **Full dataset**
+returns from family scope. Large families hide node labels (use the table or hover).
+
+**Imputation** (method-based estimates for models without `dia_report`) is implemented
+in the API but **not shown in the UI** yet — reserved for future exploration. Dev-only:
+append `&impute=1` to the dashboard URL.
+
+### Synthetic stress test (no Hub)
+
+Generate a fake 100-node lineage and load it locally:
+
+```bash
+python scripts/generate_synthetic_state.py --nodes 100
+DIA_STATE_FILE=tests/fixtures/synth-100-state.json \
+DIA_BASES=SYNTH-LAB/base-model \
+python scripts/view_local.py
+```
+
+Use this to test graph layout and table performance before scaling real ingest.
+
+### Base models in the UI
 |--------|------------------|
 | BERT | `distilbert-base-uncased` |
 | TinyLlama LoRA | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
