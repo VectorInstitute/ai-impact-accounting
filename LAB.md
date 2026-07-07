@@ -157,11 +157,28 @@ KPI rollups, per-model table). Gradio is no longer used.
 ### Public Space (read-only)
 
 **[DIA-MVP/dia-dashboard](https://huggingface.co/spaces/DIA-MVP/dia-dashboard)** —
-reads `DIA-MVP/dia-state-lab-2026`. Deploy updates with:
+reads `DIA-MVP/dia-state-lab-2026`. It is a **Docker** Space running the FastAPI
+app; deploy or update it with:
 
 ```bash
-python scripts/deploy_space.py
+hf auth login            # once — token needs WRITE access to the DIA-MVP org
+python scripts/deploy_space.py            # vendor package + push Space files
+python scripts/deploy_space.py --status   # print build/runtime stage + URL
 ```
+
+`deploy_space.py` uploads a **light** copy of the Space (no torch/transformers):
+it vendors `src/ai_impact_accounting/` to the Space root and pushes `space/Dockerfile`,
+`space/app.py`, `space/requirements.txt`, and `space/README.md` (whose `sdk: docker`
+frontmatter tells HF to build the `Dockerfile`). After it finishes, HF rebuilds the
+image; watch `--status` until `stage=RUNNING`, then check the live API:
+
+```bash
+curl -s https://dia-mvp-dia-dashboard.hf.space/api/meta
+```
+
+A read-only token deploys nothing — the commit fails with `403 Forbidden`. Point
+`SPACE` in `scripts/deploy_space.py` at a different id (e.g. a `vector-institute/*`
+Space) to publish elsewhere, using a token with write access to that owner.
 
 Embed on another page: `?embed=1` (hides header/footer chrome).
 

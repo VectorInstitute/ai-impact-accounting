@@ -41,7 +41,8 @@ def main() -> int:
         ignore_patterns=["__pycache__/*", "*.pyc"],
         commit_message="Deploy DIA dashboard package",
     )
-    for f in ("app.py", "requirements.txt", "README.md"):
+    # ``Dockerfile`` must land at the Space root for the docker SDK to build.
+    for f in ("Dockerfile", "app.py", "requirements.txt", "README.md"):
         api.upload_file(
             path_or_fileobj=f"space/{f}",
             path_in_repo=f,
