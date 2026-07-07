@@ -45,6 +45,12 @@ def _render_dockerfile(dataset: str) -> bytes:
     return new.encode()
 
 
+def _render_readme(dataset: str) -> bytes:
+    """Return the Space README with its dataset link pointed at ``dataset``."""
+    text = (SPACE_DIR / "README.md").read_text()
+    return text.replace(DEFAULT_DATASET, dataset).encode()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--space", default=DEFAULT_SPACE, help="Target HF Space id.")
@@ -79,7 +85,15 @@ def main() -> int:
         repo_type="space",
         commit_message=f"Deploy Dockerfile (DIA_DATASET={args.dataset})",
     )
-    for f in ("app.py", "requirements.txt", "README.md"):
+    # README's dataset link is rendered per-target too (frontmatter/title stay shared).
+    api.upload_file(
+        path_or_fileobj=_render_readme(args.dataset),
+        path_in_repo="README.md",
+        repo_id=space,
+        repo_type="space",
+        commit_message="Deploy README.md",
+    )
+    for f in ("app.py", "requirements.txt"):
         api.upload_file(
             path_or_fileobj=f"space/{f}",
             path_in_repo=f,
