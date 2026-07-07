@@ -1,0 +1,60 @@
+name: nightly crawl
+
+# Pull-path backfill: index everything the team's orgs publish (DIA_ORGS) and,
+# optionally, third-party derivatives of tracked bases (DIA_BASES); ingest into
+# the DIA dataset and restart the Space. Runs on a schedule (independent of the
+# Space's sleep/rebuild lifecycle).
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # 07:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "DIA_DATASET repo id"
+        required: false
+      orgs:
+        description: "Comma-separated orgs/users to index"
+        required: false
+      bases:
+        description: "Comma-separated base model ids (external derivatives)"
+        required: false
+      space:
+        description: "Space id to restart after crawl (optional)"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dia-nightly-crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      # Light install: the crawl path needs only the Hub client + graph libs,
+      # not torch/transformers, so install the package without its heavy deps.
+      - name: Install light dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-deps -e .
+          pip install "huggingface_hub>=1.2,<2" "networkx>=3.0" "pyyaml>=6.0"
+
+      - name: Crawl, ingest, and refresh the Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          DIA_DATASET: ${{ github.event.inputs.dataset || vars.DIA_DATASET || 'DIA-MVP/dia-state-lab-2026' }}
+          DIA_ORGS: ${{ github.event.inputs.orgs || vars.DIA_ORGS }}
+          DIA_BASES: ${{ github.event.inputs.bases || vars.DIA_BASES }}
+          # Optional: restart this Space after the crawl so it reloads the dataset.
+          DIA_SPACE: ${{ github.event.inputs.space || vars.DIA_SPACE }}
+        run: python scripts/crawl.py

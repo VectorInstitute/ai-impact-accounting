@@ -85,6 +85,49 @@ def crawl_once(store: Store, bases: list[str], token: Optional[str] = None) -> d
     return {"crawled": len(seen)}
 
 
+def crawl_orgs(
+    store: Store,
+    orgs: list[str],
+    token: Optional[str] = None,
+    require_report: bool = True,
+) -> dict:
+    """Ingest every model under each org/user, committing once.
+
+    Discovery by owner rather than by base: whatever the team publishes is
+    indexed, regardless of its lineage or whether it derives from a tracked
+    base. The org list is small and stable; a base list never is.
+
+    Parameters
+    ----------
+    store : Store
+        The accounting store to populate.
+    orgs : list of str
+        Hugging Face org or user names to list models for.
+    token : str, optional
+        Hugging Face token; falls back to ``HF_TOKEN``.
+    require_report : bool, optional
+        Keep only models that disclose a ``dia_report``. Defaults to ``True``.
+
+    Returns
+    -------
+    dict
+        ``{"crawled": <listed>, "kept": <stored>}``.
+    """
+    token = token or os.getenv("HF_TOKEN")
+    api = HfApi(token=token)
+    seen: set[str] = set()
+    for org in orgs:
+        for m in api.list_models(author=org):
+            if m.id in seen:
+                continue
+            seen.add(m.id)
+            res = ingest_model(m.id, store, token=token, persist=False)
+            if require_report and res.get("ok") and not res.get("has_report"):
+                store.nodes.pop(m.id, None)
+    store.save()  # one commit for the whole crawl
+    return {"crawled": len(seen), "kept": len(store.nodes)}
+
+
 def start_scheduler(
     store: Store,
     bases_getter: Callable[[], list[str]],

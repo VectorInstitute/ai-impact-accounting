@@ -176,11 +176,77 @@ image; watch `--status` until `stage=RUNNING`, then check the live API:
 curl -s https://dia-mvp-dia-dashboard.hf.space/api/meta
 ```
 
-A read-only token deploys nothing — the commit fails with `403 Forbidden`. Point
-`SPACE` in `scripts/deploy_space.py` at a different id (e.g. a `vector-institute/*`
-Space) to publish elsewhere, using a token with write access to that owner.
+A read-only token deploys nothing — the commit fails with `403 Forbidden`. Use
+`--space`/`--dataset` to publish elsewhere (e.g. a `vector-institute/*` Space that
+reads its own dataset), with a token that has write access to that owner:
+
+```bash
+python scripts/deploy_space.py \
+  --space vector-institute/dia-dashboard \
+  --dataset vector-institute/dia-state-lab-2026
+```
+
+The chosen dataset is rendered into the uploaded `Dockerfile` (`ENV DIA_DATASET`)
+and the README link, so one script serves multiple Spaces.
 
 Embed on another page: `?embed=1` (hides header/footer chrome).
+
+### Keeping the dataset up to date
+
+The Space serves whatever is in `state.json`. Two independent, complementary
+mechanisms keep that current as the team trains and pushes models:
+
+**1. Real-time webhook (push path) — in the Space.** When the Space has both
+secrets set, `space/app.py` exposes an ingest webhook: a content push to a model
+repo adds/updates its node in the dataset immediately (shared store, so the live
+dashboard reflects it on the next request). Without the secrets the Space stays
+read-only.
+
+| Space secret | Purpose |
+|--------------|---------|
+| `HF_TOKEN` | Write token for the dataset repo |
+| `WEBHOOK_SECRET` | Shared secret; must match the Hub webhook config |
+
+Configure a Hub webhook (watch the org / model repos) pointing at:
+
+```
+https://<space-subdomain>.hf.space/webhooks/webhooks/ingest
+```
+
+Webhooks only fire for repos you own/watch — hence the second mechanism.
+
+**2. Nightly crawl (pull path) — outside the Space.** A Space daemon thread is
+unreliable because free Spaces sleep on inactivity, so the periodic backfill runs
+as a **GitHub Actions** cron (`.github/workflows/crawl.yml`) instead. It discovers
+models two complementary ways:
+
+- **`DIA_ORGS` (recommended)** — index *everything the team publishes* by listing
+  every model under each org/user. The org list is small and stable, so it never
+  goes stale: any new training shows up automatically, whatever base it derives
+  from (or none at all). This is the answer to "a base list is never complete."
+- **`DIA_BASES` (optional)** — also catch *third-party* derivatives of your models
+  via HF `base_model:` tags (forks published outside your orgs).
+
+Set at least one:
+
+```bash
+export DIA_DATASET=DIA-MVP/dia-state-lab-2026
+export DIA_ORGS=vector-institute,DIA-MVP                 # who to index
+export DIA_BASES=distilbert-base-uncased                 # optional: external forks
+export HF_TOKEN=...        # write token
+python scripts/crawl.py
+```
+
+The workflow runs daily (and on manual dispatch). Configure the repo with a
+`HF_TOKEN` **secret** and `DIA_DATASET` / `DIA_ORGS` / `DIA_BASES` / `DIA_SPACE`
+**variables** (defaults: the lab dataset; set `DIA_ORGS` and/or `DIA_BASES`).
+
+Set `DIA_SPACE` (e.g. `vector-institute/dia-dashboard`) to have the crawl
+**restart the Space** when it finishes — the running Space caches `state.json`
+in memory, and a restart reloads the freshly-crawled data. With this, the Space
+needs no webhook or write token: the nightly loop is simply **crawl → write
+dataset → restart Space**. The `HF_TOKEN` used must have write access to both the
+dataset and the Space.
 
 ### Local viewer
 

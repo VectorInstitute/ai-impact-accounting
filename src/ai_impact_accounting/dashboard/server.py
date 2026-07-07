@@ -132,11 +132,18 @@ def register_ingest_webhook(
 ) -> None:
     """Register the HF ingest webhook on a FastAPI app (Hub path convention)."""
     from huggingface_hub._webhooks_server import _wrap_webhook_to_check_secret  # noqa: PLC0415
+    from starlette.routing import Mount  # noqa: PLC0415
 
     route_handler = handler
     if webhook_secret:
         route_handler = _wrap_webhook_to_check_secret(handler, webhook_secret=webhook_secret)
     app.post(path)(route_handler)
+    # ``create_app`` mounts StaticFiles at "/", which matches every path and would
+    # shadow this POST route (405). Move the just-added route ahead of that mount.
+    routes = app.router.routes
+    new_route = routes.pop()
+    insert_at = next((i for i, r in enumerate(routes) if isinstance(r, Mount)), len(routes))
+    routes.insert(insert_at, new_route)
 
 
 def serve(
