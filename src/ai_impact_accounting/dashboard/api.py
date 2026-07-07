@@ -58,18 +58,16 @@ GRAPH_LEGEND = {
 
 
 def _quality_color_key(quality: str) -> str:
-    if quality == "placeholder":
-        return "placeholder"
-    if quality == "disclosed-on-card":
-        return "disclosed-on-card"
-    if quality == "not in dataset":
-        return "not in dataset"
-    if quality == "no report":
-        return "no report"
-    if quality == "measured":
-        return "measured"
-    if quality == "imputed":
-        return "imputed"
+    known = {
+        "placeholder",
+        "disclosed-on-card",
+        "not in dataset",
+        "no report",
+        "measured",
+        "imputed",
+    }
+    if quality in known:
+        return quality
     if quality.startswith("estimated"):
         return "estimated"
     return "no report"
@@ -81,12 +79,12 @@ def _relation_color(relation: str) -> str:
 
 
 def is_scratch_sentinel(model_id: str) -> bool:
-    """True for the from-scratch lineage placeholder, not a real Hub repo."""
+    """Return True for the from-scratch lineage placeholder, not a real Hub repo."""
     return (model_id or "").strip() == "scratch"
 
 
 def is_hub_model_id(model_id: str) -> bool:
-    """True when id looks like a Hugging Face repo (org/name), not a sentinel like scratch."""
+    """Return True when id looks like a Hub repo (org/name), not a sentinel."""
     mid = (model_id or "").strip()
     if not mid or is_scratch_sentinel(mid):
         return False
@@ -229,11 +227,7 @@ def _rollup_json(res: dict, *, base_card: dict[str, Any] | None = None) -> dict[
         "base_footprint": {"carbon": _interval_json(res["base_footprint"]["carbon"])},
         "deriv_footprint": {"carbon": _interval_json(res["deriv_footprint"]["carbon"])},
         "deriv_over_base_ratio": list(ratio) if ratio else None,
-        "carbon_by_quality": {
-            tier: _interval_json(iv)
-            for tier, iv in cbq.items()
-            if iv and iv.hi > 0
-        },
+        "carbon_by_quality": {tier: _interval_json(iv) for tier, iv in cbq.items() if iv and iv.hi > 0},
         "rows": [
             {
                 "model": r["model"],
@@ -300,16 +294,8 @@ def compare_families(primary: dict, secondary: dict) -> dict[str, Any]:
     """Side-by-side comparison table for two family rollups."""
     p_cov = primary["coverage"] * 100
     s_cov = secondary["coverage"] * 100
-    p_c = (
-        primary["total_footprint"]["carbon"]["fmt"]
-        if primary["n_with_report"] >= 2
-        else "n/a"
-    )
-    s_c = (
-        secondary["total_footprint"]["carbon"]["fmt"]
-        if secondary["n_with_report"] >= 2
-        else "n/a"
-    )
+    p_c = primary["total_footprint"]["carbon"]["fmt"] if primary["n_with_report"] >= 2 else "n/a"
+    s_c = secondary["total_footprint"]["carbon"]["fmt"] if secondary["n_with_report"] >= 2 else "n/a"
     return {
         "primary_base": primary["base"],
         "secondary_base": secondary["base"],
@@ -530,8 +516,7 @@ def dashboard_payload(
         return {
             "ok": False,
             "error": (
-                f"No models in the dataset belong to family `{base}` yet, "
-                "or none have disclosed a `dia_report`."
+                f"No models in the dataset belong to family `{base}` yet, or none have disclosed a `dia_report`."
             ),
         }
 

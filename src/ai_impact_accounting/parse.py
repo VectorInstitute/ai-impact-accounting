@@ -474,7 +474,8 @@ def _meta_carbon_rows(card_text: str) -> dict[str, dict[str, Any]]:
 def parse_card_disclosure(card_text: str, model_id: str) -> dict[str, Any] | None:
     """Extract published pretraining footprint from model card prose/tables.
 
-    Supports Meta Llama 3 / 3.1 / 3.2 / 3.3 hardware/carbon sections when no ``dia_report`` exists.
+    Supports Meta Llama 3 / 3.1 / 3.2 / 3.3 hardware/carbon sections when no
+    ``dia_report`` exists.
     """
     if not card_text or not _card_has_carbon_section(card_text):
         return None

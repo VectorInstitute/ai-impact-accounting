@@ -1,8 +1,8 @@
 """Tests for card parsing, scope enforcement, lineage, and imputation."""
 
 from ai_impact_accounting import impute_from_method, parse_lineage, parse_report
-from ai_impact_accounting.parse import parse_card_disclosure
 from ai_impact_accounting.models import Report
+from ai_impact_accounting.parse import parse_card_disclosure
 
 
 def _meta(scope="incremental", energy_q="measured"):

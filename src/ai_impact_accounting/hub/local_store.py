@@ -8,6 +8,7 @@ from typing import Optional
 
 from ..models import Node, Report
 
+
 STATE_FILE = "state.json"
 
 
@@ -43,4 +44,5 @@ class LocalStore:
         raise RuntimeError("LocalStore is read-only; regenerate state.json instead.")
 
     def upsert(self, node: Node, persist: bool = True) -> None:
+        """Reject writes — LocalStore is read-only; regenerate state.json instead."""
         raise RuntimeError("LocalStore is read-only.")

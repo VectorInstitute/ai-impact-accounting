@@ -323,15 +323,12 @@ def impact_graph_figure(
             f"Role: {n['role']}<br>"
             f"Carbon: {n['carbon']}<br>"
             f"Water: {n['water']} · Energy: {n['energy']}<br>"
-            f"Quality: {n['quality']}"
-            + (f"<br>Method: {n['method']}" if n["method"] else "")
+            f"Quality: {n['quality']}" + (f"<br>Method: {n['method']}" if n["method"] else "")
         )
 
     line_widths = [3 if n["highlighted"] else 1 for n in payload["nodes"]]
     line_colors = [
-        (BASE_RING if payload["view"] == "family" else HIGHLIGHT)
-        if n["highlighted"]
-        else "rgba(0,0,0,0.25)"
+        (BASE_RING if payload["view"] == "family" else HIGHLIGHT) if n["highlighted"] else "rgba(0,0,0,0.25)"
         for n in payload["nodes"]
     ]
 
@@ -368,15 +365,9 @@ def impact_graph_figure(
 
     cov = payload["coverage"] * 100
     if payload["view"] == "family":
-        title = (
-            f"{base.rsplit('/', 1)[-1]} family · {payload['n_models']} models · "
-            f"{cov:.0f}% disclosed"
-        )
+        title = f"{base.rsplit('/', 1)[-1]} family · {payload['n_models']} models · {cov:.0f}% disclosed"
     else:
-        title = (
-            f"Full dataset · {payload['n_models']} models · {payload['n_edges']} edges · "
-            f"{cov:.0f}% with report"
-        )
+        title = f"Full dataset · {payload['n_models']} models · {payload['n_edges']} edges · {cov:.0f}% with report"
         if base in node_by_id:
             title += f" · highlight: {base.rsplit('/', 1)[-1]}"
 

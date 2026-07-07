@@ -4,12 +4,12 @@ from unittest.mock import patch
 
 from ai_impact_accounting import Node, Report
 from ai_impact_accounting.dashboard.api import (
+    _rollup_json,
     bar_chart_data,
     base_choices,
     dashboard_payload,
     graph_vis_payload,
     kpi_cards,
-    _rollup_json,
 )
 from ai_impact_accounting.graph import rollup
 from ai_impact_accounting.models import Interval
@@ -117,8 +117,12 @@ def test_dashboard_kpi_includes_base_card_disclosure(mock_disc):
 
 
 def test_kpi_cards_base_card_when_few_dia_reports():
-    res = rollup({"D1": _node("D1", carbon=0.1, parents=["meta-llama/Llama-3.2-3B-Instruct"])},
-                 "meta-llama/Llama-3.2-3B-Instruct")
-    rollup_json = _rollup_json(res, base_card={"carbon": "133,000 kgCO₂eq", "gpu_hours": "460k", "variant": "Llama 3.2 3B"})
+    res = rollup(
+        {"D1": _node("D1", carbon=0.1, parents=["meta-llama/Llama-3.2-3B-Instruct"])},
+        "meta-llama/Llama-3.2-3B-Instruct",
+    )
+    rollup_json = _rollup_json(
+        res, base_card={"carbon": "133,000 kgCO₂eq", "gpu_hours": "460k", "variant": "Llama 3.2 3B"}
+    )
     cards = kpi_cards(rollup_json, base_card=rollup_json["base_card_disclosure"])
     assert any(c["label"] == "Base pretraining (card)" for c in cards)

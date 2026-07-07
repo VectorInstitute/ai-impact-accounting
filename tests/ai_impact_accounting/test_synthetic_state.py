@@ -1,18 +1,18 @@
 """Synthetic dataset generator and large-graph smoke tests."""
 
+import importlib.util
 import json
 from pathlib import Path
 
 from ai_impact_accounting import LocalStore, rollup
 from ai_impact_accounting.dashboard.api import dashboard_payload, graph_vis_payload
 
+
 ROOT = Path(__file__).resolve().parents[2]
 GENERATOR = ROOT / "scripts" / "generate_synthetic_state.py"
 
 
 def _import_builder():
-    import importlib.util
-
     spec = importlib.util.spec_from_file_location("generate_synthetic_state", GENERATOR)
     mod = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
