@@ -41,7 +41,7 @@ dashboard = [
     "uvicorn[standard]>=0.30",
     "starlette>=0.37",
     "plotly>=6.0",
-    "pandas>=2.0",
+    "pandas>=3.0.3",
     "huggingface_hub>=1.2.0,<2.0",
 ]
 # Dependencies for the runnable training demos under scripts/.
