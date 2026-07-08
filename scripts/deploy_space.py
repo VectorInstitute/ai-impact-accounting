@@ -66,7 +66,12 @@ def main() -> int:
         print(f"https://huggingface.co/spaces/{space}")
         return 0
 
-    api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
+    try:
+        api.repo_info(space, repo_type="space")
+    except Exception:
+        # Space may not exist yet; create_repo can 402 on org Docker quotas even when
+        # the Space already exists, so only call this for a missing repo.
+        api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
     # Vendor the package (skip caches).
     api.upload_folder(
         folder_path="src/ai_impact_accounting",
