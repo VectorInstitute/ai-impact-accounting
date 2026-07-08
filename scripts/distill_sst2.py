@@ -31,11 +31,12 @@ from dia_finalize import exit_from_finalize, finalize_run
 
 TEACHER = os.getenv("TEACHER", "distilbert-base-uncased-finetuned-sst-2-english")
 STUDENT = os.getenv("STUDENT", "google/bert_uncased_L-2_H-128_A-2")  # BERT-tiny
+LINEAGE_TEACHER = os.getenv("LINEAGE_TEACHER", TEACHER)
 REPO = os.getenv("REPO", "DIA-MVP/bert-tiny-sst2-distill")
 OUT = os.getenv("OUT", "out-distill")
 N_EXAMPLES = int(os.getenv("N_EXAMPLES", "12000"))
 EPOCHS = int(os.getenv("EPOCHS", "2"))
-TEMP = float(os.getenv("TEMP", "2.0"))
+TEMP = float(os.getenv("DISTILL_TEMP", "2.0"))  # not TEMP: clusters set $TEMP to a tmpdir
 ALPHA = float(os.getenv("ALPHA", "0.5"))  # weight on the hard-label CE loss
 DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -71,7 +72,7 @@ def main() -> None:
     kl = torch.nn.KLDivLoss(reduction="batchmean")
 
     interrupted = False
-    with track(base_model=TEACHER, relation="distill") as t:
+    with track(base_model=LINEAGE_TEACHER, relation="distill") as t:
         try:
             student.train()
             for epoch in range(EPOCHS):
@@ -106,7 +107,7 @@ def main() -> None:
         out_dir=OUT,
         repo=REPO,
         token=token,
-        base_model=TEACHER,
+        base_model=LINEAGE_TEACHER,
         interrupted=interrupted,
         save_fn=lambda: (student.save_pretrained(OUT), tok.save_pretrained(OUT)),
         push_fn=_push,

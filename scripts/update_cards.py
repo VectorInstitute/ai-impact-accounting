@@ -229,7 +229,7 @@ demo. It indexes the training footprint (energy, carbon, water) and lineage of a
 set of demo models trained across **A100 / A40 / CPU** hardware.
 
 It is produced by ingesting each model's `dia_report` card and is read by the DIA
-Gradio dashboard. It stores **metadata only — no model weights**.
+web dashboard. It stores **metadata only — no model weights**.
 
 ## Files
 

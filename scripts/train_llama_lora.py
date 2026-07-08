@@ -54,6 +54,7 @@ from dia_finalize import exit_from_finalize, finalize_run
 
 BASE = os.getenv("BASE", "TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 REPO = os.getenv("REPO", "DIA-MVP/tinyllama-lora-demo")
+LINEAGE_MODEL = os.getenv("LINEAGE_MODEL", BASE)
 OUT = os.getenv("OUT", "out-llama-lora")
 N_EXAMPLES = int(os.getenv("N_EXAMPLES", "1500"))
 EPOCHS = int(os.getenv("EPOCHS", "1"))
@@ -82,13 +83,20 @@ def main() -> None:
 
     # LoRA: train tiny adapter matrices on the attention projections, freeze the
     # rest. ~0.1% of params -> fits on a laptop.
+    # Target modules are architecture-specific: Llama/Qwen use q_proj/v_proj,
+    # while Phi-3 fuses them into qkv_proj. Override with LORA_TARGETS (comma-
+    # separated) or "all-linear" to auto-detect across any architecture.
+    lora_targets = os.getenv("LORA_TARGETS", "q_proj,v_proj")
+    target_modules = "all-linear" if lora_targets == "all-linear" else [
+        m.strip() for m in lora_targets.split(",") if m.strip()
+    ]
     lora = LoraConfig(
         r=8,
         lora_alpha=16,
         lora_dropout=0.05,
         bias="none",
         task_type="CAUSAL_LM",
-        target_modules=["q_proj", "v_proj"],
+        target_modules=target_modules,
     )
     model = get_peft_model(model, lora)
     model.print_trainable_parameters()
@@ -125,7 +133,7 @@ def main() -> None:
     trainer = Trainer(model=model, args=args, train_dataset=ds, data_collator=collator)
 
     interrupted = False
-    with track(base_model=BASE, relation="lora") as t:  # region auto-detected from DIA_REGION/AWS_REGION
+    with track(base_model=LINEAGE_MODEL, relation="lora") as t:  # region auto-detected from DIA_REGION/AWS_REGION
         try:
             trainer.train()
         except KeyboardInterrupt:
@@ -143,7 +151,7 @@ def main() -> None:
         out_dir=OUT,
         repo=REPO,
         token=token,
-        base_model=BASE,
+        base_model=LINEAGE_MODEL,
         interrupted=interrupted,
         save_fn=lambda: (trainer.model.save_pretrained(OUT), tok.save_pretrained(OUT)),
         push_fn=_push,

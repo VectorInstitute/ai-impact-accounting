@@ -3,9 +3,8 @@ title: DIA Footprint Dashboard
 emoji: "\U0001F331"
 colorFrom: green
 colorTo: blue
-sdk: gradio
-sdk_version: 6.19.0
-app_file: app.py
+sdk: docker
+app_port: 7860
 pinned: false
 license: apache-2.0
 ---
@@ -21,3 +20,5 @@ across its whole family (the base plus every derivative trained on top of it).
 
 The footprint of each model is recorded in its model card's `dia_report` block and
 ingested into the dataset this Space reads.
+
+Interactive lineage graph powered by vis-network (Model Atlas–style click-to-focus).

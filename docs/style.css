@@ -475,6 +475,38 @@ h3 {
   line-height: 1.75;
 }
 
+.dashboard-embed-wrap {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-paper);
+}
+
+.dashboard-embed {
+  position: relative;
+  width: 100%;
+  min-height: 720px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #faf9f7;
+}
+
+.dashboard-embed iframe {
+  display: block;
+  width: 100%;
+  height: min(82vh, 900px);
+  min-height: 720px;
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  .dashboard-embed iframe {
+    min-height: 560px;
+    height: 70vh;
+  }
+}
+
 .muted { color: var(--muted); font-family: var(--font-sans); }
 .fineprint {
   color: var(--subtle);

@@ -10,12 +10,13 @@ their derivatives across three planes:
 - **hub** -- :class:`Store`, :func:`ingest_model`, and the crawler collect
   reports from the Hub (operator side).
 
-The Gradio dashboard lives in :mod:`ai_impact_accounting.dashboard` and requires
+The web dashboard lives in :mod:`ai_impact_accounting.dashboard` and requires
 the optional ``dashboard`` extra, so it is not imported here.
 """
 
 from .graph import build_graph, family_members, rollup
 from .hub import (
+    LocalStore,
     Store,
     crawl_once,
     fetch_meta,
@@ -30,6 +31,7 @@ from .producer import track
 
 __all__ = [
     "Interval",
+    "LocalStore",
     "Node",
     "Report",
     "Store",

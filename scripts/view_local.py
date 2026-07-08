@@ -1,9 +1,6 @@
-"""Local dashboard viewer -- launches ONLY the Gradio UI (no webhook server).
+"""Local dashboard viewer — Starlette/FastAPI web UI (no Gradio).
 
-The full Space app (``ai_impact_accounting.dashboard.app``) wraps the UI in
-huggingface_hub's ``WebhooksServer``, whose routing changed between hub versions.
-For local viewing the webhook server isn't needed, so this launches the dashboard
-directly. Requires the ``dashboard`` extra:
+Requires the ``dashboard`` extra::
 
     pip install "ai-impact-accounting[dashboard]"
 """
@@ -11,25 +8,21 @@ directly. Requires the ``dashboard`` extra:
 import os
 import sys
 
-import gradio as gr
 from huggingface_hub import get_token
 
-from ai_impact_accounting import Store
-from ai_impact_accounting.dashboard import build_ui
+from ai_impact_accounting import LocalStore, Store
+from ai_impact_accounting.dashboard.server import serve
 
 
-DATASET = os.environ.get("DIA_DATASET", "DIA-MVP/dia-state")
+DATASET = os.environ.get("DIA_DATASET", "DIA-MVP/dia-state-lab-2026")
+STATE_FILE = os.environ.get("DIA_STATE_FILE", "").strip()
 DEFAULT_BASE = os.environ.get("DIA_BASES", "distilbert-base-uncased").split(",")[0].strip()
-PORT = int(os.environ.get("GRADIO_SERVER_PORT", "7860"))
+PORT = int(os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", "7860")))
+HOST = os.environ.get("HOST", "0.0.0.0")
 
 
 def _force_free_port(port: int) -> None:
-    """Kill any process still bound to ``port`` so each launch is a clean restart.
-
-    Re-running ``view_local.py`` after editing the UI normally fails or serves
-    stale code if an old Gradio server is still holding the port. We find and
-    terminate that listener first. Set ``DIA_NO_KILL=1`` to skip.
-    """
+    """Kill any process still bound to ``port`` so each launch is a clean restart."""
     if os.environ.get("DIA_NO_KILL", "").lower() in ("1", "true", "yes"):
         return
     try:
@@ -49,20 +42,31 @@ def _force_free_port(port: int) -> None:
 
 
 def main() -> None:
-    """Load accounting state and launch the local Gradio dashboard."""
+    """Load accounting state and launch the web dashboard."""
     token = os.getenv("HF_TOKEN") or get_token()
     if not token:
-        print("Run: hf auth login   (or export HF_TOKEN=...)")
-        sys.exit(1)
+        print("No HF_TOKEN — read-only mode (public datasets only).")
     _force_free_port(PORT)
-    store = Store(DATASET, token=token)
+    try:
+        if STATE_FILE:
+            store = LocalStore(STATE_FILE)
+            if DEFAULT_BASE == "distilbert-base-uncased" and store.nodes:
+                synth_bases = [m for m in store.nodes if m.endswith("/base-model")]
+                if synth_bases:
+                    default_base = synth_bases[0]
+                else:
+                    default_base = next(iter(store.nodes))
+            else:
+                default_base = DEFAULT_BASE
+        else:
+            store = Store(DATASET, token=token)
+            default_base = DEFAULT_BASE
+    except (ValueError, FileNotFoundError) as exc:
+        print(exc, file=sys.stderr)
+        sys.exit(1)
     print(f"Loaded {len(store.nodes)} node(s) from {store.repo}")
-    # share=True prints a temporary public https://*.gradio.live link (~72h) so
-    # you can show the dashboard to others. Set DIA_SHARE=0 to keep it local-only.
-    share = os.environ.get("DIA_SHARE", "1") != "0"
-    build_ui(store, default_base=DEFAULT_BASE).launch(
-        share=share, server_port=PORT, theme=gr.themes.Soft()
-    )
+    print(f"DIA dashboard at http://127.0.0.1:{PORT}")
+    serve(store, host=HOST, port=PORT, default_base=default_base)
 
 
 if __name__ == "__main__":
