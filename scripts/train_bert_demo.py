@@ -31,10 +31,17 @@ from dia_finalize import exit_from_finalize, finalize_run
 
 
 # distilbert: smaller/faster on Mac. For full BERT use "google-bert/bert-base-uncased"
-BASE = "distilbert-base-uncased"
+# Override BASE to fine-tune an existing Hub model (multi-hop chain), e.g.:
+#   BASE=DIA-MVP/my-bert-sentiment-a40 REPO=DIA-MVP/my-bert-sentiment-a40-v2 ...
+BASE = os.getenv("BASE", "distilbert-base-uncased")
 REPO = os.getenv("REPO", "DIA-MVP/my-bert-sentiment")
-OUT = "out-bert"
-DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
+LINEAGE_MODEL = os.getenv("LINEAGE_MODEL", BASE)
+OUT = os.getenv("OUT", "out-bert")
+DEVICE = (
+    "cuda"
+    if torch.cuda.is_available()
+    else ("mps" if torch.backends.mps.is_available() else "cpu")
+)
 
 
 def _hf_token() -> str | None:
@@ -75,7 +82,7 @@ def main() -> None:
     trainer = Trainer(model=model, args=args, train_dataset=ds["train"], eval_dataset=ds["test"])
 
     interrupted = False
-    with track(base_model=BASE, relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
+    with track(base_model=LINEAGE_MODEL, relation="finetune") as t:  # region auto-detected from DIA_REGION/AWS_REGION
         try:
             trainer.train()
         except KeyboardInterrupt:
@@ -92,7 +99,7 @@ def main() -> None:
         out_dir=OUT,
         repo=REPO,
         token=token,
-        base_model=BASE,
+        base_model=LINEAGE_MODEL,
         interrupted=interrupted,
         save_fn=lambda: (trainer.save_model(OUT), tok.save_pretrained(OUT)),
         push_fn=_push,
