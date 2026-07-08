@@ -128,10 +128,7 @@ def test_disconnected_two_node_chains_have_component_gap():
         nodes[child] = _node(child, carbon=0.001, parents=[parent])
     payload = graph_payload(nodes, "org/p-0", view="all")
     by_id = {n["id"]: n for n in payload["nodes"]}
-    groups = [
-        {f"org/p-{i}", f"org/c-{i}"}
-        for i in range(4)
-    ]
+    groups = [{f"org/p-{i}", f"org/c-{i}"} for i in range(4)]
 
     def min_cross_dist(ga: set[str], gb: set[str]) -> float:
         best = math.inf

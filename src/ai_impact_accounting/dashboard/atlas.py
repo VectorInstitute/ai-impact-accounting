@@ -113,7 +113,7 @@ def _resolve_collisions(
     min_dist: float = MIN_NODE_SEP,
     iterations: int = 96,
 ) -> dict[str, tuple[float, float]]:
-    """Iteratively separate nodes that sit closer than *min_dist*."""
+    """Separate nodes that sit closer than *min_dist*."""
     if len(pos) < 2:
         return pos
 
@@ -147,6 +147,37 @@ def _resolve_collisions(
             break
 
     return {n: (out[n][0], out[n][1]) for n in nodes}
+
+
+def _fanout_step_and_angles(
+    n: int,
+    radius_step: float,
+    outward: float,
+) -> tuple[float, list[float]]:
+    """Return step length and child angles for *n* siblings fanning from *outward*."""
+    if n == 1:
+        return radius_step, [outward]
+
+    step = radius_step * (1.0 + 0.06 * max(n - 3, 0))
+    max_span = math.pi * 1.35
+    chord = MIN_NODE_SEP
+    half = math.asin(min(chord / (2.0 * step), 1.0))
+    min_span = 2.0 * half * (n - 1)
+    while min_span > max_span and step < radius_step * 2.8:
+        step *= 1.1
+        half = math.asin(min(chord / (2.0 * step), 1.0))
+        min_span = 2.0 * half * (n - 1)
+    span = min(
+        max_span,
+        max(
+            min_span,
+            math.pi * 0.4,
+            math.pi * 0.2 * (n - 1) + math.pi * 0.25,
+        ),
+    )
+    start = outward - span / 2
+    angles = [start + span * i / (n - 1) for i in range(n)]
+    return step, angles
 
 
 def _radial_layout_component(
@@ -191,34 +222,11 @@ def _radial_layout_component(
             outward = math.pi / 2  # roots branch downward
 
         n = len(children)
-        if n == 1:
-            angles = [outward]
-        else:
-            step = radius_step * (1.0 + 0.06 * max(n - 3, 0))
-            max_span = math.pi * 1.35
-            chord = MIN_NODE_SEP
-            half = math.asin(min(chord / (2.0 * step), 1.0))
-            min_span = 2.0 * half * (n - 1)
-            while min_span > max_span and step < radius_step * 2.8:
-                step *= 1.1
-                half = math.asin(min(chord / (2.0 * step), 1.0))
-                min_span = 2.0 * half * (n - 1)
-            span = min(
-                max_span,
-                max(
-                    min_span,
-                    math.pi * 0.4,
-                    math.pi * 0.2 * (n - 1) + math.pi * 0.25,
-                ),
-            )
-            start = outward - span / 2
-            angles = [start + span * i / (n - 1) for i in range(n)]
+        step, angles = _fanout_step_and_angles(n, radius_step, outward)
 
         for child, angle in zip(children, angles):
             if child in pos:
                 continue
-            if n == 1:
-                step = radius_step
             pos[child] = (
                 px + step * math.cos(angle),
                 py + step * math.sin(angle),
@@ -332,7 +340,7 @@ def _layered_layout(
         for node, (x, y) in normalized.items():
             pos[node] = (x + x_cursor, y + y_cursor)
         x_cursor += max(width, min_cell) + col_pad
-        row_height = max(row_height, max(height, min_cell))
+        row_height = max(row_height, height, min_cell)
         col += 1
 
     out = dict(pos)
