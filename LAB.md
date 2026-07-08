@@ -21,6 +21,8 @@ Training → model repo. **Ingest** → table. Weights are never stored in the t
 
 ## Setup (every shell)
 
+First-time install: see **[README.md — Install](README.md#getting-started-with-dia)** (`git clone`, `uv sync --all-extras --dev`, `hf auth login`).
+
 ```bash
 cd /path/to/ai-impact-accounting
 source .venv/bin/activate
@@ -78,9 +80,8 @@ To show the run in the dashboard, ingest the local card (or push to a model repo
 first, then ingest that repo id). See **Ingest** and **Web dashboard** below.
 
 **PyPI-only installs:** the wheel does not include `scripts/` or `dia_finalize.py`.
-See **[README.md — Using DIA from PyPI](README.md#using-dia-from-pypi)** for
-`pip install`, a minimal `track()` example, and the interrupt/finalize pattern to
-copy into your own trainer.
+See **[README.md — Getting started with DIA](README.md#getting-started-with-dia)** for
+clone + editable install, environment variables, and the interrupt/finalize pattern.
 
 ---
 
@@ -292,17 +293,38 @@ python scripts/view_local.py
 Use this to test graph layout and table performance before scaling real ingest.
 
 ### Base models in the UI
-|--------|------------------|
-| BERT | `distilbert-base-uncased` |
-| TinyLlama LoRA | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
-| Llama 3.2 LoRA | `meta-llama/Llama-3.2-3B-Instruct` |
-| Qwen LoRA | `Qwen/Qwen2.5-7B` |
-| ResNet | `microsoft/resnet-50` |
-| SimCLR | your SimCLR repo id (e.g. `DIA-MVP/cifar10-simclr-a100` or `…-a40`) |
-| DDPM | your DDPM repo id (e.g. `DIA-MVP/mnist-ddpm-a100` or `…-cpu`) |
 
-SimCLR and DDPM train from scratch — the dashboard base is the **model repo id**,
-not a Hugging Face foundation checkpoint.
+The **base-model dropdown** is built from ingested lineage (parents and roots in
+`state.json`), not from a fixed list. After ingest, any lineage parent or root
+appears automatically. **`DIA_BASES`** only sets which id loads first (default:
+`distilbert-base-uncased`).
+
+Use the table below to pick a **rollup root** — the model whose family subtree
+you want KPIs and the graph scoped to.
+
+| Demo / branch | Pick in base selector | Training script |
+|---------------|----------------------|-----------------|
+| BERT finetune | `distilbert-base-uncased` | `train_bert_demo.py` |
+| BERT chain (v2, v3, …) | `distilbert-base-uncased` (full chain) or an intermediate repo (e.g. `DIA-MVP/my-bert-sentiment-a40-v2`) for a suffix only | `train_bert_demo.py` |
+| TinyLlama LoRA | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | `train_llama_lora.py` (default `BASE`) |
+| Llama 3.2 LoRA | `meta-llama/Llama-3.2-3B-Instruct` | `train_llama_lora.py` with `BASE=meta-llama/Llama-3.2-3B-Instruct` |
+| Phi-3 LoRA | `microsoft/Phi-3-mini-4k-instruct` | `train_llama_lora.py` with `BASE=microsoft/Phi-3-mini-4k-instruct`, `LORA_TARGETS=qkv_proj` |
+| Phi-3 chain (v2, v3) | `microsoft/Phi-3-mini-4k-instruct` (full chain) or `DIA-MVP/phi3-mini-lora` (suffix) | `train_llama_lora.py` with `BASE=DIA-MVP/phi3-mini-lora-v2` etc. |
+| Gemma 2 LoRA | `google/gemma-2-2b-it` | `train_llama_lora.py` with `BASE=google/gemma-2-2b-it` |
+| Qwen LoRA | `Qwen/Qwen2.5-7B` | `train_qwen_lora.py` |
+| ResNet fine-tune | `microsoft/resnet-50` | `train_resnet50_cifar.py` |
+| Distillation (SST-2) | `distilbert-base-uncased-finetuned-sst-2-english` (teacher) | `distill_sst2.py` |
+| Distill chain (v2) | `distilbert-base-uncased-finetuned-sst-2-english` or `DIA-MVP/bert-tiny-sst2-distill` | `distill_sst2.py` with `TEACHER=…` |
+
+**LoRA chains:** the card lists the immediate training parent (e.g. lora from
+`DIA-MVP/phi3-mini-lora`) and often the HF `base_model` foundation (e.g.
+Phi-3). The graph may show both edges; incremental training is the **lora**
+parent. Pick the foundation id to roll up the whole branch, or an intermediate
+DIA repo for a subtree.
+
+**Region / hardware variants** (euwest, uswest, a40-v4, etc.) appear under the
+same base once ingested — switch base to the foundation or chain root above, then
+use the table filter or click nodes in the graph.
 
 ### How the rollup works
 
