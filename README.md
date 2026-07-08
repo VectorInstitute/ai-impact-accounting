@@ -70,7 +70,40 @@ hf auth login   # once; needs a write token for Hub push / ingest
 **PyPI:** `pip install ai-impact-accounting` will be supported once the release is
 published; until then use the clone + editable install above.
 
-### Environment variables
+### Instrument a training run
+
+```python
+from ai_impact_accounting import track
+
+with track(base_model="distilbert-base-uncased", relation="finetune") as t:
+    trainer.train()
+
+t.write("out/README.md")              # local model card + dia_report
+t.push("your-org/your-model")         # update the Hub card (needs HF token)
+```
+
+```bash
+export DIA_REGION=ca-on
+export DIA_CI=0.03
+```
+
+### Run training demos (this repo)
+
+After install + `hf auth login`:
+
+```bash
+export DIA_REGION=ca-on
+export DIA_CI=0.03
+export DIA_DATASET=DIA-MVP/dia-state-lab-2026
+
+REPO=your-org/my-bert-sentiment python scripts/train_bert_demo.py
+```
+
+All demos share `scripts/dia_finalize.py` for Ctrl+C / partial-run handling.
+See **[LAB.md](LAB.md)** for A100 / A40 / CPU recipes, ingest, and batch jobs.
+
+<details>
+<summary><strong>Environment variables</strong></summary>
 
 Set these in every shell (or add to your job script). Training scripts and the
 dashboard read them from the environment — there is no separate config file.
@@ -114,39 +147,10 @@ Public lab defaults: dataset **[DIA-MVP/dia-state-lab-2026](https://huggingface.
 dashboard **[DIA-MVP/dia-dashboard](https://huggingface.co/spaces/DIA-MVP/dia-dashboard)**.
 Use your own `DIA_DATASET` / namespace if you do not have write access to `DIA-MVP/*`.
 
-### Instrument a training run
+</details>
 
-```python
-from ai_impact_accounting import track
-
-with track(base_model="distilbert-base-uncased", relation="finetune") as t:
-    trainer.train()
-
-t.write("out/README.md")              # local model card + dia_report
-t.push("your-org/your-model")         # update the Hub card (needs HF token)
-```
-
-```bash
-export DIA_REGION=ca-on
-export DIA_CI=0.03
-```
-
-### Run training demos (this repo)
-
-After install + `hf auth login`:
-
-```bash
-export DIA_REGION=ca-on
-export DIA_CI=0.03
-export DIA_DATASET=DIA-MVP/dia-state-lab-2026
-
-REPO=your-org/my-bert-sentiment python scripts/train_bert_demo.py
-```
-
-All demos share `scripts/dia_finalize.py` for Ctrl+C / partial-run handling.
-See **[LAB.md](LAB.md)** for A100 / A40 / CPU recipes, ingest, and batch jobs.
-
-### Local web dashboard
+<details>
+<summary><strong>Local web dashboard &amp; Space deploy</strong></summary>
 
 ```bash
 export DIA_DATASET=DIA-MVP/dia-state-lab-2026
@@ -169,7 +173,10 @@ python scripts/deploy_space.py
 # or: python scripts/deploy_space.py --space your-org/dia-dashboard --dataset your-org/dia-state
 ```
 
-### Ctrl+C and partial runs
+</details>
+
+<details>
+<summary><strong>Ctrl+C and partial runs</strong></summary>
 
 `track()` samples energy for the whole `with` block and finalizes metrics on exit.
 It does **not** save your weights or write a card unless you call `t.write()` /
@@ -190,14 +197,20 @@ if not interrupted:
     t.push("your-org/your-model")
 ```
 
-### CLI
+</details>
+
+<details>
+<summary><strong>CLI</strong></summary>
 
 ```bash
 dia validate path/to/README.md    # or a Hub repo id
 dia report   path/to/README.md
 ```
 
-### What lives where
+</details>
+
+<details>
+<summary><strong>What lives where (repo vs PyPI)</strong></summary>
 
 | | Editable install (this repo) | PyPI (coming soon) |
 |---|------------------------------|---------------------|
@@ -205,6 +218,8 @@ dia report   path/to/README.md
 | `scripts/` training demos + `dia_finalize.py` | yes | no — clone repo |
 | Web dashboard, crawl, Space deploy | yes | `[dashboard]` extra only |
 | Full lab (GPU tiers, ingest, HF Space) | **[LAB.md](LAB.md)** | **[LAB.md](LAB.md)** |
+
+</details>
 
 ### Lab workflow
 
