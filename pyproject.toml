@@ -92,7 +92,7 @@ docs = [
     "mkdocstrings>=1.0.4",
     "mkdocstrings-python>=1.10.0",
     "ipykernel>=6.29.5",
-    "ipython>=8.31.0",
+    "ipython>=9.15.0",
     "tornado>=6.5.6", # Pinning version to address vulnerability CVE-2026-49854
 ]
 
