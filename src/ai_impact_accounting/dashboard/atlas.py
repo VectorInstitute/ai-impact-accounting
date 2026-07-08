@@ -136,9 +136,12 @@ def _layered_layout_component(
         levels.setdefault(level, []).append(node)
 
     pos: dict[str, tuple[float, float]] = {}
+    # Avoid node collisions by ensuring a generous minimum step. The front-end
+    # intentionally disables physics and fixes coordinates for stable views, so
+    # this layout must provide enough separation on its own.
     max_level = max(len(members) for members in levels.values())
-    y_step = min(y_gap, max(40.0, 720.0 / max(max_level, 1)))
-    x_step = x_gap * 0.45
+    y_step = min(y_gap, max(80.0, 1200.0 / max(max_level, 1)))
+    x_step = x_gap * 0.6
 
     for level in sorted(levels):
         members = sorted(levels[level])
@@ -233,7 +236,8 @@ def graph_payload(
     pos = _layered_layout(
         sub,
         x_gap=200.0 + min(n_nodes, 120) * 1.2,
-        y_gap=72.0 + min(n_nodes, 80) * 0.35,
+        # Increase y spacing with graph size so dense levels don't overlap.
+        y_gap=120.0 + min(n_nodes, 120) * 0.8,
     )
 
     out_nodes = []
