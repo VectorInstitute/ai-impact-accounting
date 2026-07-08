@@ -1,5 +1,6 @@
 """Tests for the impact lineage graph payload and figure."""
 
+import math
 from pathlib import Path
 
 from ai_impact_accounting import LocalStore, Node, Report
@@ -54,14 +55,32 @@ def test_impact_graph_figure_all_models_default():
     assert "Full dataset" in fig.layout.title.text
 
 
-def test_layered_layout_spreads_left_to_right():
+def test_radial_layout_places_child_away_from_root():
     nodes = {
         "B": _node("B", carbon=1.0),
         "D1": _node("D1", carbon=0.1, parents=["B"]),
     }
     payload = graph_payload(nodes, "B", view="family")
     by_id = {n["id"]: n for n in payload["nodes"]}
-    assert by_id["D1"]["x"] > by_id["B"]["x"]
+    b = by_id["B"]
+    d1 = by_id["D1"]
+    assert math.hypot(d1["x"] - b["x"], d1["y"] - b["y"]) > 80.0
+
+
+def test_chain_extends_outward_from_parent():
+    """A lone child continues in the parent's outward direction (not sideways/up)."""
+    nodes = {
+        "A": _node("A", carbon=0.01),
+        "B": _node("B", carbon=0.01, parents=["A"]),
+        "C": _node("C", carbon=0.01, parents=["B"]),
+    }
+    payload = graph_payload(nodes, "A", view="all")
+    by_id = {n["id"]: n for n in payload["nodes"]}
+    a, b, c = by_id["A"], by_id["B"], by_id["C"]
+    assert b["y"] > a["y"] + 50
+    assert c["y"] > b["y"] + 50
+    assert abs(b["x"] - a["x"]) < 40
+    assert abs(c["x"] - b["x"]) < 40
 
 
 def test_large_tree_spreads_in_both_axes():
@@ -75,6 +94,57 @@ def test_large_tree_spreads_in_both_axes():
     assert max(ys) - min(ys) > 120
     rounded = {(round(x, -1), round(y, -1)) for x, y in zip(xs, ys)}
     assert len(rounded) >= 40
+
+
+def test_fanout_level_has_minimum_separation():
+    """Many siblings from one parent spread on a ring around the root."""
+    parent = "distilbert-base-uncased"
+    nodes = {parent: _node(parent, carbon=0.01)}
+    for i in range(10):
+        mid = f"DIA-MVP/child-{i}"
+        nodes[mid] = _node(mid, carbon=0.001, parents=[parent])
+    payload = graph_payload(nodes, parent, view="all")
+    by_id = {n["id"]: n for n in payload["nodes"]}
+    root = by_id[parent]
+    positions = [(by_id[f"DIA-MVP/child-{i}"]["x"], by_id[f"DIA-MVP/child-{i}"]["y"]) for i in range(10)]
+    for i, (x1, y1) in enumerate(positions):
+        for x2, y2 in positions[i + 1 :]:
+            assert math.hypot(x1 - x2, y1 - y2) >= 80.0
+    xs = [p[0] for p in positions]
+    ys = [p[1] for p in positions]
+    assert max(xs) - min(xs) > 120.0
+    assert max(ys) - min(ys) > 120.0
+    for x, y in positions:
+        assert math.hypot(x - root["x"], y - root["y"]) > 80.0
+
+
+def test_disconnected_two_node_chains_have_component_gap():
+    """Tiny vertical chains must not pack flush (width≈0) against neighbors."""
+    nodes = {}
+    for i in range(4):
+        parent = f"org/p-{i}"
+        child = f"org/c-{i}"
+        nodes[parent] = _node(parent, carbon=0.01)
+        nodes[child] = _node(child, carbon=0.001, parents=[parent])
+    payload = graph_payload(nodes, "org/p-0", view="all")
+    by_id = {n["id"]: n for n in payload["nodes"]}
+    groups = [
+        {f"org/p-{i}", f"org/c-{i}"}
+        for i in range(4)
+    ]
+
+    def min_cross_dist(ga: set[str], gb: set[str]) -> float:
+        best = math.inf
+        for a in ga:
+            for b in gb:
+                ax, ay = by_id[a]["x"], by_id[a]["y"]
+                bx, by = by_id[b]["x"], by_id[b]["y"]
+                best = min(best, math.hypot(ax - bx, ay - by))
+        return best
+
+    for i in range(4):
+        for j in range(i + 1, 4):
+            assert min_cross_dist(groups[i], groups[j]) >= 95.0
 
 
 def test_merge_family_has_single_merge_node():

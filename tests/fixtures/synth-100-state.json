@@ -28,7 +28,7 @@
         "tool": "synthetic-generator"
       },
       "lineage": [],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-000": {
       "report": {
@@ -63,7 +63,7 @@
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-001": {
       "report": {
@@ -98,7 +98,7 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-002": {
       "report": null,
@@ -108,7 +108,7 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-003": {
       "report": {
@@ -143,7 +143,7 @@
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-004": {
       "report": {
@@ -178,7 +178,7 @@
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-005": {
       "report": {
@@ -213,7 +213,7 @@
           "relation": "distill"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-006": {
       "report": {
@@ -248,7 +248,7 @@
           "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-007": {
       "report": {
@@ -283,7 +283,7 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-008": {
       "report": null,
@@ -293,7 +293,7 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-009": {
       "report": {
@@ -328,7 +328,7 @@
           "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-010": {
       "report": {
@@ -363,7 +363,7 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-011": {
       "report": {
@@ -398,7 +398,7 @@
           "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-012": {
       "report": {
@@ -433,7 +433,7 @@
           "relation": "distill"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-013": {
       "report": {
@@ -468,7 +468,7 @@
           "relation": "distill"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-014": {
       "report": null,
@@ -478,7 +478,7 @@
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-015": {
       "report": null,
@@ -488,7 +488,7 @@
           "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-016": {
       "report": null,
@@ -498,7 +498,7 @@
           "relation": "merge"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-017": {
       "report": null,
@@ -508,7 +508,7 @@
           "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-018": {
       "report": {
@@ -543,7 +543,7 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-019": {
       "report": null,
@@ -553,29 +553,29 @@
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-020": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          0.332265953879742,
-          0.4061028325196847
+          1.2111041036869286,
+          1.4802383489506905
         ],
         "carbon_kgco2eq": [
-          0.17536258676986383,
-          0.19382180642984953
+          0.6391938325014345,
+          0.7064773938173751
         ],
         "water_liters": [
-          7.383687863994267,
-          11.0755317959914
+          26.91342452637619,
+          40.370136789564285
         ],
         "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
+          "carbon": "imputed",
+          "energy": "imputed",
+          "water": "imputed"
         },
-        "method": "adapter",
+        "method": "lora",
         "gpu": "H100",
         "gpu_count": 2,
         "gpu_hours": 117.37,
@@ -584,46 +584,46 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-003",
-          "relation": "adapter"
+          "model": "SYNTH-LAB/model-004",
+          "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-021": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          2.7523507420874154,
-          3.363984240329063
+          1.503735062288526,
+          1.837898409463754
         ],
         "carbon_kgco2eq": [
-          1.4526295583239135,
-          1.6055379328843256
+          0.7936379495411664,
+          0.8771787863349735
         ],
         "water_liters": [
-          61.16334982416478,
-          91.74502473624717
+          33.4163347175228,
+          50.124502076284195
         ],
         "quality": {
           "carbon": "measured",
           "energy": "measured",
           "water": "measured"
         },
-        "method": "distill",
-        "gpu": "H100",
-        "gpu_count": 4,
-        "gpu_hours": 111.51,
+        "method": "lora",
+        "gpu": "L40S",
+        "gpu_count": 7,
+        "gpu_hours": 115.74,
         "region": "eu-west-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
           "model": "SYNTH-LAB/model-004",
-          "relation": "distill"
+          "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-022": {
       "report": {
@@ -658,42 +658,42 @@
           "relation": "distill"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-023": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          2.426538877682585,
-          2.9657697393898266
+          0.7439234440236487,
+          0.909239764917793
         ],
         "carbon_kgco2eq": [
-          1.2806732965546976,
-          1.4154810119815082
+          0.39262626212359236,
+          0.43395534234712846
         ],
         "water_liters": [
-          53.92308617072412,
-          80.88462925608617
+          16.531632089414416,
+          24.797448134121623
         ],
         "quality": {
           "carbon": "measured",
           "energy": "measured",
           "water": "measured"
         },
-        "method": "finetune",
+        "method": "adapter",
         "gpu": "A100",
-        "gpu_count": 1,
-        "gpu_hours": 27.86,
+        "gpu_count": 4,
+        "gpu_hours": 8.55,
         "region": "us-east-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-004",
-          "relation": "finetune"
+          "model": "SYNTH-LAB/model-005",
+          "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-024": {
       "report": {
@@ -724,11 +724,11 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-005",
+          "model": "SYNTH-LAB/model-006",
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-025": {
       "report": {
@@ -759,11 +759,11 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-005",
+          "model": "SYNTH-LAB/model-006",
           "relation": "quantized"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-026": {
       "report": {
@@ -794,33 +794,33 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-005",
+          "model": "SYNTH-LAB/model-006",
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-027": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          1.5047612715609089,
-          1.839152665241111
+          1.6118865012930874,
+          1.9700835015804403
         ],
         "carbon_kgco2eq": [
-          0.7941795599904796,
-          0.8777774084105302
+          0.8507178756824628,
+          0.940267125754301
         ],
         "water_liters": [
-          33.43913936802019,
-          50.1587090520303
+          35.81970002873528,
+          53.72955004310292
         ],
         "quality": {
           "carbon": "measured",
           "energy": "measured",
           "water": "measured"
         },
-        "method": "adapter",
+        "method": "quantized",
         "gpu": "L40S",
         "gpu_count": 2,
         "gpu_hours": 6.55,
@@ -829,71 +829,71 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-005",
-          "relation": "adapter"
+          "model": "SYNTH-LAB/model-007",
+          "relation": "quantized"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-028": {
+      "report": null,
+      "lineage": [
+        {
+          "model": "SYNTH-LAB/model-007",
+          "relation": "finetune"
+        }
+      ],
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
+    },
+    "SYNTH-LAB/model-029": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          0.7428057922644827,
-          0.9078737461010344
+          0.8504042450738566,
+          1.0393829662013803
         ],
         "carbon_kgco2eq": [
-          0.39203639036181026,
-          0.43330337882094827
+          0.4488244626778687,
+          0.4960691429597497
         ],
         "water_liters": [
-          16.50679538365517,
-          24.760193075482757
+          18.897872112752367,
+          28.34680816912855
         ],
         "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
+          "carbon": "estimated (hardware)",
+          "energy": "estimated (hardware)",
+          "water": "estimated (hardware)"
         },
         "method": "lora",
-        "gpu": "A100",
-        "gpu_count": 3,
-        "gpu_hours": 45.79,
+        "gpu": "A40",
+        "gpu_count": 7,
+        "gpu_hours": 0.76,
         "region": "ap-south-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-006",
+          "model": "SYNTH-LAB/model-007",
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-029": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-006",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-030": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          1.2067740389667765,
-          1.47494604762606
+          1.1908118788412903,
+          1.4554367408060216
         ],
         "carbon_kgco2eq": [
-          0.6369085205657986,
-          0.7039515227306196
+          0.6284840471662365,
+          0.6946402626574193
         ],
         "water_liters": [
-          26.817200865928363,
-          40.22580129889255
+          26.462486196473115,
+          39.69372929470968
         ],
         "quality": {
           "carbon": "estimated",
@@ -909,11 +909,11 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-007",
+          "model": "SYNTH-LAB/model-008",
           "relation": "quantized"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-031": {
       "report": {
@@ -944,43 +944,43 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-007",
+          "model": "SYNTH-LAB/model-008",
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-032": {
       "report": null,
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-007",
+          "model": "SYNTH-LAB/model-008",
           "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-033": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          0.10508891606873046,
-          0.12844200852844834
+          2.693004997909544,
+          3.291450553000554
         ],
         "carbon_kgco2eq": [
-          0.05546359459182996,
-          0.06130186770675943
+          1.4213081933411482,
+          1.5709195821139006
         ],
         "water_liters": [
-          2.335309245971788,
-          3.5029638689576816
+          59.84455550910098,
+          89.76683326365146
         ],
         "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
+          "carbon": "measured",
+          "energy": "measured",
+          "water": "measured"
         },
-        "method": "lora",
+        "method": "finetune",
         "gpu": "L40S",
         "gpu_count": 4,
         "gpu_hours": 69.68,
@@ -989,106 +989,36 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-007",
-          "relation": "lora"
+          "model": "SYNTH-LAB/model-009",
+          "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-034": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          0.8268486633022861,
-          1.0105928107027942
+          2.7963814739383284,
+          3.4177995792579567
         ],
         "carbon_kgco2eq": [
-          0.4363923500762065,
-          0.48232838692633356
+          1.4758680001341176,
+          1.6312225264640248
         ],
         "water_liters": [
-          18.374414740050803,
-          27.561622110076204
+          62.14181053196285,
+          93.21271579794427
         ],
         "quality": {
           "carbon": "measured",
           "energy": "measured",
           "water": "measured"
-        },
-        "method": "quantized",
-        "gpu": "T4",
-        "gpu_count": 4,
-        "gpu_hours": 32.24,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-008",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-035": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.1696759964372003,
-          1.4296039956454671
-        ],
-        "carbon_kgco2eq": [
-          0.6173289981196335,
-          0.6823109979217001
-        ],
-        "water_liters": [
-          25.992799920826673,
-          38.98919988124001
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "quantized",
-        "gpu": "L40S",
-        "gpu_count": 2,
-        "gpu_hours": 9.25,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-009",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-036": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          4.67777744426143,
-          5.717283542986193
-        ],
-        "carbon_kgco2eq": [
-          2.46882698447131,
-          2.7287035091525014
-        ],
-        "water_liters": [
-          103.95060987247624,
-          155.92591480871434
-        ],
-        "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
         },
         "method": "merge",
         "gpu": "T4",
-        "gpu_count": 5,
-        "gpu_hours": 19.35,
+        "gpu_count": 4,
+        "gpu_hours": 80.53,
         "region": "ca-central-1",
         "tool": "synthetic-generator"
       },
@@ -1098,29 +1028,114 @@
           "relation": "merge"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
-    "SYNTH-LAB/model-037": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-009",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-038": {
-      "report": null,
+    "SYNTH-LAB/model-035": {
+      "report": {
+        "scope": "incremental",
+        "energy_kwh": [
+          0.9999624483096069,
+          1.2221763257117417
+        ],
+        "carbon_kgco2eq": [
+          0.5277579588300703,
+          0.583311428180604
+        ],
+        "water_liters": [
+          22.221387740213487,
+          33.33208161032023
+        ],
+        "quality": {
+          "carbon": "measured",
+          "energy": "measured",
+          "water": "measured"
+        },
+        "method": "adapter",
+        "gpu": "A100",
+        "gpu_count": 1,
+        "gpu_hours": 55.27,
+        "region": "us-east-1",
+        "tool": "synthetic-generator"
+      },
       "lineage": [
         {
           "model": "SYNTH-LAB/model-010",
-          "relation": "distill"
+          "relation": "adapter"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
-    "SYNTH-LAB/model-039": {
+    "SYNTH-LAB/model-036": {
+      "report": {
+        "scope": "incremental",
+        "energy_kwh": [
+          2.175060801618647,
+          2.6584076464227904
+        ],
+        "carbon_kgco2eq": [
+          1.1479487564098412,
+          1.2687854676108772
+        ],
+        "water_liters": [
+          48.33468448041437,
+          72.50202672062156
+        ],
+        "quality": {
+          "carbon": "measured",
+          "energy": "measured",
+          "water": "measured"
+        },
+        "method": "finetune",
+        "gpu": "A100",
+        "gpu_count": 4,
+        "gpu_hours": 44.66,
+        "region": "eu-west-1",
+        "tool": "synthetic-generator"
+      },
+      "lineage": [
+        {
+          "model": "SYNTH-LAB/model-010",
+          "relation": "finetune"
+        }
+      ],
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
+    },
+    "SYNTH-LAB/model-037": {
+      "report": {
+        "scope": "incremental",
+        "energy_kwh": [
+          2.881160733121312,
+          3.521418673814937
+        ],
+        "carbon_kgco2eq": [
+          1.5206126091473589,
+          1.6806770943207654
+        ],
+        "water_liters": [
+          64.02579406936249,
+          96.03869110404372
+        ],
+        "quality": {
+          "carbon": "imputed",
+          "energy": "imputed",
+          "water": "imputed"
+        },
+        "method": "merge",
+        "gpu": "A100",
+        "gpu_count": 5,
+        "gpu_hours": 111.84,
+        "region": "us-east-1",
+        "tool": "synthetic-generator"
+      },
+      "lineage": [
+        {
+          "model": "SYNTH-LAB/model-011",
+          "relation": "merge"
+        }
+      ],
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
+    },
+    "SYNTH-LAB/model-038": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
@@ -1153,92 +1168,102 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
-    "SYNTH-LAB/model-040": {
+    "SYNTH-LAB/model-039": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          3.5760187656991853,
-          4.370689602521226
+          1.3353525325324835,
+          1.6320975397619244
         ],
         "carbon_kgco2eq": [
-          1.8873432374523478,
-          2.0860109466578582
+          0.7047693921699218,
+          0.778955643977282
         ],
         "water_liters": [
-          79.46708368220412,
-          119.20062552330617
+          29.674500722944078,
+          44.51175108441612
         ],
         "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
+          "carbon": "measured",
+          "energy": "measured",
+          "water": "measured"
         },
-        "method": "merge",
-        "gpu": "H100",
-        "gpu_count": 5,
-        "gpu_hours": 5.77,
+        "method": "distill",
+        "gpu": "A100",
+        "gpu_count": 2,
+        "gpu_hours": 76.3,
         "region": "ca-central-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-012",
-          "relation": "merge"
+          "model": "SYNTH-LAB/model-011",
+          "relation": "distill"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
-    "SYNTH-LAB/model-041": {
+    "SYNTH-LAB/model-040": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          0.41992057784115894,
-          0.513236261805861
+          3.222994453159828,
+          3.939215442750901
         ],
         "carbon_kgco2eq": [
-          0.22162474941616722,
-          0.24495367040734273
+          1.701024850278798,
+          1.8800800976765664
         ],
         "water_liters": [
-          9.3315683964702,
-          13.997352594705298
+          71.62209895910729,
+          107.43314843866092
         ],
         "quality": {
           "carbon": "estimated",
           "energy": "estimated",
           "water": "estimated"
         },
-        "method": "lora",
+        "method": "finetune",
         "gpu": "H100",
-        "gpu_count": 1,
-        "gpu_hours": 13.87,
-        "region": "eu-west-1",
+        "gpu_count": 7,
+        "gpu_hours": 67.53,
+        "region": "us-east-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-012",
-          "relation": "lora"
+          "model": "SYNTH-LAB/model-011",
+          "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
+    },
+    "SYNTH-LAB/model-041": {
+      "report": null,
+      "lineage": [
+        {
+          "model": "SYNTH-LAB/model-012",
+          "relation": "distill"
+        }
+      ],
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-042": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          1.628697698482984,
-          1.9906305203680916
+          1.8574788006591978,
+          2.270251867472353
         ],
         "carbon_kgco2eq": [
-          0.8595904519771304,
-          0.9500736574484073
+          0.9803360336812432,
+          1.083529300384532
         ],
         "water_liters": [
-          36.19328218851075,
-          54.28992328276613
+          41.27730668131551,
+          61.91596002197326
         ],
         "quality": {
           "carbon": "measured",
@@ -1247,41 +1272,41 @@
         },
         "method": "merge",
         "gpu": "A100",
-        "gpu_count": 5,
-        "gpu_hours": 44.08,
-        "region": "us-east-1",
+        "gpu_count": 6,
+        "gpu_hours": 25.6,
+        "region": "eu-west-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-012",
+          "model": "SYNTH-LAB/model-013",
           "relation": "merge"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-043": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          1.0697181809799772,
-          1.3074333323088612
+          3.412693136594284,
+          4.171069389170792
         ],
         "carbon_kgco2eq": [
-          0.564573484406099,
-          0.62400227223832
+          1.8011435998692054,
+          1.9907376630133322
         ],
         "water_liters": [
-          23.771515132888382,
-          35.65727269933257
+          75.83762525765076,
+          113.75643788647612
         ],
         "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
+          "carbon": "estimated (hardware)",
+          "energy": "estimated (hardware)",
+          "water": "estimated (hardware)"
         },
-        "method": "lora",
-        "gpu": "H100",
+        "method": "distill",
+        "gpu": "L40S",
         "gpu_count": 3,
         "gpu_hours": 111.13,
         "region": "eu-west-1",
@@ -1290,10 +1315,10 @@
       "lineage": [
         {
           "model": "SYNTH-LAB/model-013",
-          "relation": "lora"
+          "relation": "distill"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-044": {
       "report": null,
@@ -1303,29 +1328,29 @@
           "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-045": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          1.3103993085237606,
-          1.601599154862374
+          4.050270398793027,
+          4.9503304874137
         ],
         "carbon_kgco2eq": [
-          0.6915996350542069,
-          0.7643995966388604
+          2.1376427104740974,
+          2.3626577326292657
         ],
         "water_liters": [
-          29.119984633861343,
-          43.67997695079202
+          90.00600886206726,
+          135.0090132931009
         ],
         "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
+          "carbon": "estimated",
+          "energy": "estimated",
+          "water": "estimated"
         },
-        "method": "quantized",
+        "method": "finetune",
         "gpu": "A40",
         "gpu_count": 5,
         "gpu_hours": 19.52,
@@ -1334,1566 +1359,91 @@
       },
       "lineage": [
         {
-          "model": "SYNTH-LAB/model-013",
-          "relation": "quantized"
+          "model": "SYNTH-LAB/model-014",
+          "relation": "finetune"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-046": {
       "report": null,
       "lineage": [
         {
           "model": "SYNTH-LAB/model-014",
-          "relation": "finetune"
+          "relation": "quantized"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-047": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          1.1851286341923282,
-          1.4484905529017345
+          1.5857770755570444,
+          1.9381719812363876
         ],
         "carbon_kgco2eq": [
-          0.6254845569348398,
-          0.6913250366121914
+          0.83693790098844,
+          0.9250366274082759
         ],
         "water_liters": [
-          26.336191870940624,
-          39.504287806410936
+          35.23949056793432,
+          52.859235851901474
         ],
         "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
+          "carbon": "measured",
+          "energy": "measured",
+          "water": "measured"
         },
-        "method": "quantized",
+        "method": "lora",
         "gpu": "A40",
-        "gpu_count": 7,
-        "gpu_hours": 39.73,
-        "region": "us-east-1",
+        "gpu_count": 4,
+        "gpu_hours": 3.33,
+        "region": "eu-west-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
           "model": "SYNTH-LAB/model-014",
-          "relation": "quantized"
+          "relation": "lora"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     },
     "SYNTH-LAB/model-048": {
       "report": {
         "scope": "incremental",
         "energy_kwh": [
-          0.8857130604026084,
-          1.0825381849365214
+          1.2713086264998086,
+          1.5538216546108772
         ],
         "carbon_kgco2eq": [
-          0.46745967076804334,
-          0.5166659519015216
+          0.6709684417637878,
+          0.741596698791555
         ],
         "water_liters": [
-          19.682512453391297,
-          29.52376868008695
+          28.251302811106854,
+          42.37695421666028
         ],
         "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
+          "carbon": "imputed",
+          "energy": "imputed",
+          "water": "imputed"
         },
-        "method": "adapter",
-        "gpu": "T4",
-        "gpu_count": 1,
-        "gpu_hours": 14.28,
+        "method": "quantized",
+        "gpu": "L40S",
+        "gpu_count": 7,
+        "gpu_hours": 81.7,
         "region": "ca-central-1",
         "tool": "synthetic-generator"
       },
       "lineage": [
         {
           "model": "SYNTH-LAB/model-014",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-049": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.593992811009356,
-          1.948213435678102
-        ],
-        "carbon_kgco2eq": [
-          0.8412739835882712,
-          0.9298291397554577
-        ],
-        "water_liters": [
-          35.42206246687458,
-          53.13309370031187
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "lora",
-        "gpu": "T4",
-        "gpu_count": 6,
-        "gpu_hours": 52.65,
-        "region": "us-east-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-014",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-050": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.2043938327851437,
-          0.24981468451517563
-        ],
-        "carbon_kgco2eq": [
-          0.10787452285882583,
-          0.11922973579133382
-        ],
-        "water_liters": [
-          4.542085173003193,
-          6.813127759504789
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "merge",
-        "gpu": "L40S",
-        "gpu_count": 4,
-        "gpu_hours": 44.02,
-        "region": "us-east-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-015",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-051": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-015",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-052": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-015",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-053": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.112942601799268,
-          1.3602631799768832
-        ],
-        "carbon_kgco2eq": [
-          0.5873863731718358,
-          0.6492165177162397
-        ],
-        "water_liters": [
-          24.73205781776151,
-          37.098086726642265
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "adapter",
-        "gpu": "L40S",
-        "gpu_count": 3,
-        "gpu_hours": 23.42,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-015",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-054": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.7218345439342315,
-          2.1044644425862833
-        ],
-        "carbon_kgco2eq": [
-          0.9087460092986221,
-          1.0044034839616351
-        ],
-        "water_liters": [
-          38.26298986520514,
-          57.39448479780772
-        ],
-        "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
-        },
-        "method": "merge",
-        "gpu": "A40",
-        "gpu_count": 7,
-        "gpu_hours": 94.4,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-016",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-055": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.1583279052432438,
-          1.4157341064084092
-        ],
-        "carbon_kgco2eq": [
-          0.6113397277672675,
-          0.675691278058559
-        ],
-        "water_liters": [
-          25.74062011651653,
-          38.61093017477479
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "quantized",
-        "gpu": "A40",
-        "gpu_count": 2,
-        "gpu_hours": 34.41,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-016",
           "relation": "quantized"
         }
       ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-056": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.3041678371461066,
-          0.3717606898452414
-        ],
-        "carbon_kgco2eq": [
-          0.16053302516044513,
-          0.17743123833522886
-        ],
-        "water_liters": [
-          6.75928526991348,
-          10.13892790487022
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "lora",
-        "gpu": "A40",
-        "gpu_count": 8,
-        "gpu_hours": 73.55,
-        "region": "us-east-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-017",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-057": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-018",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-058": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          2.330757270693414,
-          2.8487033308475063
-        ],
-        "carbon_kgco2eq": [
-          1.2301218928659685,
-          1.3596084079044914
-        ],
-        "water_liters": [
-          51.7946060154092,
-          77.6919090231138
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "A100",
-        "gpu_count": 2,
-        "gpu_hours": 93.52,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-018",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-059": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-018",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-060": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.38829449031945407,
-          0.47458215483488836
-        ],
-        "carbon_kgco2eq": [
-          0.2049332032241563,
-          0.22650511935301487
-        ],
-        "water_liters": [
-          8.628766451543424,
-          12.943149677315136
-        ],
-        "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
-        },
-        "method": "quantized",
-        "gpu": "H100",
-        "gpu_count": 6,
-        "gpu_hours": 114.03,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-018",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-061": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.7084641028549755,
-          0.8659005701560812
-        ],
-        "carbon_kgco2eq": [
-          0.37391160984012595,
-          0.41327072666540243
-        ],
-        "water_liters": [
-          15.743646730110568,
-          23.61547009516585
-        ],
-        "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
-        },
-        "method": "merge",
-        "gpu": "A40",
-        "gpu_count": 5,
-        "gpu_hours": 92.01,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-019",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-062": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.8236173657430974,
-          2.228865669241564
-        ],
-        "carbon_kgco2eq": [
-          0.9624647208088569,
-          1.0637767966834735
-        ],
-        "water_liters": [
-          40.52483034984661,
-          60.787245524769915
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "distill",
-        "gpu": "T4",
-        "gpu_count": 6,
-        "gpu_hours": 107.22,
-        "region": "us-east-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-019",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-063": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.5522212485597958,
-          0.6749370815730837
-        ],
-        "carbon_kgco2eq": [
-          0.29145010340655886,
-          0.32212906165988087
-        ],
-        "water_liters": [
-          12.271583301328794,
-          18.40737495199319
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "lora",
-        "gpu": "H100",
-        "gpu_count": 7,
-        "gpu_hours": 40.04,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-019",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-064": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.418206910009945,
-          1.7333640011232663
-        ],
-        "carbon_kgco2eq": [
-          0.7484980913941376,
-          0.827287364172468
-        ],
-        "water_liters": [
-          31.51570911133211,
-          47.273563666998164
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "quantized",
-        "gpu": "A100",
-        "gpu_count": 7,
-        "gpu_hours": 57.5,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-019",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-065": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-020",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-066": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.2955090347893043,
-          1.5833999314091498
-        ],
-        "carbon_kgco2eq": [
-          0.6837408794721328,
-          0.7557136036270943
-        ],
-        "water_liters": [
-          28.78908966198454,
-          43.183634492976815
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "quantized",
-        "gpu": "H100",
-        "gpu_count": 4,
-        "gpu_hours": 33.12,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-020",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-067": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          3.213634681861441,
-          3.927775722275095
-        ],
-        "carbon_kgco2eq": [
-          1.696084970982427,
-          1.8746202310858406
-        ],
-        "water_liters": [
-          71.41410404136535,
-          107.12115606204803
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "finetune",
-        "gpu": "H100",
-        "gpu_count": 3,
-        "gpu_hours": 117.7,
-        "region": "us-east-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-020",
-          "relation": "finetune"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-068": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.11174991910183533,
-          0.13658323445779874
-        ],
-        "carbon_kgco2eq": [
-          0.058979123970413085,
-          0.06518745280940394
-        ],
-        "water_liters": [
-          2.483331535596341,
-          3.724997303394511
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "merge",
-        "gpu": "H100",
-        "gpu_count": 3,
-        "gpu_hours": 6.51,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-021",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-069": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.49693246063916036,
-          0.6073618963367515
-        ],
-        "carbon_kgco2eq": [
-          0.26226990978177905,
-          0.28987726870617686
-        ],
-        "water_liters": [
-          11.042943569759117,
-          16.564415354638676
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "adapter",
-        "gpu": "H100",
-        "gpu_count": 5,
-        "gpu_hours": 100.27,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-021",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-070": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.21812392610272108,
-          0.2665959096811035
-        ],
-        "carbon_kgco2eq": [
-          0.11512096099865834,
-          0.12723895689325396
-        ],
-        "water_liters": [
-          4.847198357838246,
-          7.270797536757369
-        ],
-        "quality": {
-          "carbon": "imputed",
-          "energy": "imputed",
-          "water": "imputed"
-        },
-        "method": "finetune",
-        "gpu": "A100",
-        "gpu_count": 1,
-        "gpu_hours": 90.63,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-021",
-          "relation": "finetune"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-071": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-021",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-072": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.17937766297486285,
-          0.21923936585816572
-        ],
-        "carbon_kgco2eq": [
-          0.09467154434784428,
-          0.10463697006867001
-        ],
-        "water_liters": [
-          3.986170288330286,
-          5.979255432495429
-        ],
-        "quality": {
-          "carbon": "imputed",
-          "energy": "imputed",
-          "water": "imputed"
-        },
-        "method": "lora",
-        "gpu": "T4",
-        "gpu_count": 6,
-        "gpu_hours": 20.55,
-        "region": "us-east-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-022",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-073": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-022",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-074": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.6196820090331623,
-          1.979611344373865
-        ],
-        "carbon_kgco2eq": [
-          0.8548321714341689,
-          0.9448145052693446
-        ],
-        "water_liters": [
-          35.99293353407027,
-          53.989400301105405
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "adapter",
-        "gpu": "A40",
-        "gpu_count": 2,
-        "gpu_hours": 71.26,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-023",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-075": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          3.3918079243543113,
-          4.145543018655269
-        ],
-        "carbon_kgco2eq": [
-          1.7901208489647753,
-          1.978554622540015
-        ],
-        "water_liters": [
-          75.37350943009581,
-          113.0602641451437
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "L40S",
-        "gpu_count": 1,
-        "gpu_hours": 41.99,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-024",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-076": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.6866268166611889,
-          2.061432775919231
-        ],
-        "carbon_kgco2eq": [
-          0.8901641532378496,
-          0.9838656430523601
-        ],
-        "water_liters": [
-          37.480595925804195,
-          56.22089388870629
-        ],
-        "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
-        },
-        "method": "finetune",
-        "gpu": "A100",
-        "gpu_count": 7,
-        "gpu_hours": 115.31,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-025",
-          "relation": "finetune"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-077": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.8314926053988809,
-          1.0162687399319656
-        ],
-        "carbon_kgco2eq": [
-          0.43884331951607597,
-          0.4850373531493472
-        ],
-        "water_liters": [
-          18.477613453308464,
-          27.716420179962697
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "L40S",
-        "gpu_count": 8,
-        "gpu_hours": 56.05,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-025",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-078": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-025",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-079": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-026",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-080": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.8874828393260947,
-          2.3069234702874493
-        ],
-        "carbon_kgco2eq": [
-          0.9961714985332165,
-          1.1010316562735551
-        ],
-        "water_liters": [
-          41.94406309613544,
-          62.916094644203156
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "merge",
-        "gpu": "A40",
-        "gpu_count": 8,
-        "gpu_hours": 25.85,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-027",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-081": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.9551768964590238,
-          1.1674384290054736
-        ],
-        "carbon_kgco2eq": [
-          0.504121139797818,
-          0.5571865229344306
-        ],
-        "water_liters": [
-          21.226153254644974,
-          31.83922988196746
-        ],
-        "quality": {
-          "carbon": "estimated (hardware)",
-          "energy": "estimated (hardware)",
-          "water": "estimated (hardware)"
-        },
-        "method": "adapter",
-        "gpu": "L40S",
-        "gpu_count": 4,
-        "gpu_hours": 10.73,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-027",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-082": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.403583576837339,
-          0.49326881613452545
-        ],
-        "carbon_kgco2eq": [
-          0.21300244333081778,
-          0.2354237531551144
-        ],
-        "water_liters": [
-          8.968523929718643,
-          13.452785894577966
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "quantized",
-        "gpu": "H100",
-        "gpu_count": 1,
-        "gpu_hours": 11.62,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-027",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-083": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.47927293000621257,
-          0.5857780255631487
-        ],
-        "carbon_kgco2eq": [
-          0.25294960194772326,
-          0.27957587583695737
-        ],
-        "water_liters": [
-          10.650509555693613,
-          15.975764333540418
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "quantized",
-        "gpu": "L40S",
-        "gpu_count": 6,
-        "gpu_hours": 51.35,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-027",
-          "relation": "quantized"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-084": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.4740639923192789,
-          1.8016337683902297
-        ],
-        "carbon_kgco2eq": [
-          0.7779782181685082,
-          0.859870662186246
-        ],
-        "water_liters": [
-          32.75697760709508,
-          49.13546641064263
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "T4",
-        "gpu_count": 2,
-        "gpu_hours": 89.27,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-028",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-085": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.8723955913813464,
-          1.066261278354979
-        ],
-        "carbon_kgco2eq": [
-          0.4604310065623772,
-          0.5088974283057853
-        ],
-        "water_liters": [
-          19.386568697363252,
-          29.079853046044878
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "lora",
-        "gpu": "L40S",
-        "gpu_count": 5,
-        "gpu_hours": 117.67,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-028",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-086": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.286559104772967,
-          0.3502389058336263
-        ],
-        "carbon_kgco2eq": [
-          0.15123952751906589,
-          0.16715947778423074
-        ],
-        "water_liters": [
-          6.367980106065932,
-          9.551970159098898
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "adapter",
-        "gpu": "T4",
-        "gpu_count": 1,
-        "gpu_hours": 116.93,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-028",
-          "relation": "adapter"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-087": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-029",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-088": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.914001263458935,
-          2.339334877560921
-        ],
-        "carbon_kgco2eq": [
-          1.0101673334922157,
-          1.116500737017712
-        ],
-        "water_liters": [
-          42.53336141019855,
-          63.80004211529783
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "finetune",
-        "gpu": "A100",
-        "gpu_count": 5,
-        "gpu_hours": 112.96,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-029",
-          "relation": "finetune"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-089": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.2916127117605134,
-          0.3564155365961831
-        ],
-        "carbon_kgco2eq": [
-          0.1539067089847154,
-          0.17010741519363284
-        ],
-        "water_liters": [
-          6.480282483566965,
-          9.720423725350447
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "finetune",
-        "gpu": "A40",
-        "gpu_count": 5,
-        "gpu_hours": 10.68,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-030",
-          "relation": "finetune"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-090": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          2.505197069019487,
-          3.0619075288015956
-        ],
-        "carbon_kgco2eq": [
-          1.322187341982507,
-          1.461364956928034
-        ],
-        "water_liters": [
-          55.67104597821082,
-          83.50656896731623
-        ],
-        "quality": {
-          "carbon": "estimated",
-          "energy": "estimated",
-          "water": "estimated"
-        },
-        "method": "merge",
-        "gpu": "L40S",
-        "gpu_count": 7,
-        "gpu_hours": 54.34,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-031",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-091": {
-      "report": null,
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-032",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-092": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          4.661190296297879,
-          5.697010362141853
-        ],
-        "carbon_kgco2eq": [
-          2.460072656379436,
-          2.7190276728404297
-        ],
-        "water_liters": [
-          103.5820065843973,
-          155.37300987659597
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "merge",
-        "gpu": "A40",
-        "gpu_count": 5,
-        "gpu_hours": 79.42,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-032",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-093": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.11761973956194098,
-          0.14375745946459453
-        ],
-        "carbon_kgco2eq": [
-          0.06207708476880218,
-          0.06861151474446557
-        ],
-        "water_liters": [
-          2.613771990265355,
-          3.9206579853980323
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "lora",
-        "gpu": "L40S",
-        "gpu_count": 8,
-        "gpu_hours": 35.31,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-032",
-          "relation": "lora"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-094": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          3.559341854892099,
-          4.350306711534788
-        ],
-        "carbon_kgco2eq": [
-          1.8785415345263854,
-          2.0762827486870576
-        ],
-        "water_liters": [
-          79.09648566426887,
-          118.6447284964033
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "T4",
-        "gpu_count": 4,
-        "gpu_hours": 51.3,
-        "region": "eu-west-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-033",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-095": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.0397250983848945,
-          1.2707751202482045
-        ],
-        "carbon_kgco2eq": [
-          0.548743801925361,
-          0.6065063073911885
-        ],
-        "water_liters": [
-          23.10500218633099,
-          34.65750327949648
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "T4",
-        "gpu_count": 5,
-        "gpu_hours": 52.98,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-033",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-096": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          1.8351905466975669,
-          2.243010668185915
-        ],
-        "carbon_kgco2eq": [
-          0.9685727885348269,
-          1.070527818906914
-        ],
-        "water_liters": [
-          40.782012148834816,
-          61.17301822325223
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "distill",
-        "gpu": "H100",
-        "gpu_count": 2,
-        "gpu_hours": 71.97,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-033",
-          "relation": "distill"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-097": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          0.4559926849626283,
-          0.5573243927321013
-        ],
-        "carbon_kgco2eq": [
-          0.24066280595249825,
-          0.2659957328948665
-        ],
-        "water_liters": [
-          10.133170776947296,
-          15.199756165420943
-        ],
-        "quality": {
-          "carbon": "imputed",
-          "energy": "imputed",
-          "water": "imputed"
-        },
-        "method": "merge",
-        "gpu": "L40S",
-        "gpu_count": 1,
-        "gpu_hours": 119.95,
-        "region": "ca-central-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-034",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
-    },
-    "SYNTH-LAB/model-098": {
-      "report": {
-        "scope": "incremental",
-        "energy_kwh": [
-          3.5588126217589537,
-          4.349659871038722
-        ],
-        "carbon_kgco2eq": [
-          1.8782622170394478,
-          2.07597402935939
-        ],
-        "water_liters": [
-          79.08472492797675,
-          118.62708739196513
-        ],
-        "quality": {
-          "carbon": "measured",
-          "energy": "measured",
-          "water": "measured"
-        },
-        "method": "merge",
-        "gpu": "T4",
-        "gpu_count": 3,
-        "gpu_hours": 119.63,
-        "region": "ap-south-1",
-        "tool": "synthetic-generator"
-      },
-      "lineage": [
-        {
-          "model": "SYNTH-LAB/model-034",
-          "relation": "merge"
-        }
-      ],
-      "updated_at": "2026-07-06T19:29:53.022664+00:00"
+      "updated_at": "2026-07-08T17:43:58.994542+00:00"
     }
   }
 }

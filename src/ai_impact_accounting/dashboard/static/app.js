@@ -535,11 +535,19 @@ function graphNodeSize(nodeCount, baseSize = 22) {
 }
 
 function syncGraphViewport(nodeCount) {
-  const height = nodeCount > 70 ? 520 : nodeCount > 35 ? 440 : 360;
+  const height = nodeCount > 70 ? 540 : nodeCount > 35 ? 480 : nodeCount > 20 ? 440 : 380;
   document.documentElement.style.setProperty("--graph-height", `${height}px`);
 }
 
-function normalizeGraphPositions(nodes, targetSpan) {
+function graphContainerSize() {
+  const graphEl = $("graph");
+  const w = Math.max(graphEl?.clientWidth || 0, 280);
+  const h =
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-height")) || 440;
+  return { w, h: Math.max(h, 200) };
+}
+
+function normalizeGraphPositions(nodes) {
   if (!nodes.length) return nodes;
   const xs = nodes.map((n) => n.x ?? 0);
   const ys = nodes.map((n) => n.y ?? 0);
@@ -549,19 +557,132 @@ function normalizeGraphPositions(nodes, targetSpan) {
   const maxY = Math.max(...ys);
   const spanX = Math.max(maxX - minX, 1);
   const spanY = Math.max(maxY - minY, 1);
-  const span = targetSpan ?? graphTargetSpan(nodes.length);
-  const scale = span / Math.max(spanX, spanY);
   const cx = (minX + maxX) / 2;
   const cy = (minY + maxY) / 2;
+
+  const { w, h } = graphContainerSize();
+  const targetRatio = w / h;
+  const dataRatio = spanX / spanY;
+  let stretchX = 1;
+  let stretchY = 1;
+  // Tall narrow layouts leave side margins after fit(); match panel aspect so fit fills edge-to-edge.
+  const maxStretch = 4.5;
+  if (dataRatio < targetRatio * 0.95) {
+    stretchX = Math.min(maxStretch, targetRatio / dataRatio);
+  } else if (dataRatio > targetRatio * 1.05) {
+    stretchY = Math.min(maxStretch, dataRatio / targetRatio);
+  }
+
   return nodes.map((n) => ({
     ...n,
-    x: (n.x - cx) * scale,
-    y: (n.y - cy) * scale,
+    x: ((n.x ?? 0) - cx) * stretchX,
+    y: ((n.y ?? 0) - cy) * stretchY,
   }));
+}
+
+function graphWeakComponents(nodes, edges) {
+  const parent = new Map(nodes.map((n) => [n.id, n.id]));
+  const find = (x) => {
+    let r = x;
+    while (parent.get(r) !== r) {
+      parent.set(r, parent.get(parent.get(r)));
+      r = parent.get(r);
+    }
+    return r;
+  };
+  const union = (a, b) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  };
+  for (const e of edges) {
+    union(e.from ?? e.source, e.to ?? e.target);
+  }
+  const groups = new Map();
+  for (const n of nodes) {
+    const root = find(n.id);
+    if (!groups.has(root)) groups.set(root, []);
+    groups.get(root).push(n.id);
+  }
+  const componentOf = new Map();
+  for (const members of groups.values()) {
+    members.forEach((id, idx) => componentOf.set(id, members));
+  }
+  return componentOf;
+}
+
+function resolveGraphCollisions(nodes, edges, minDist = 88) {
+  if (nodes.length < 2) return nodes;
+  const componentOf = graphWeakComponents(nodes, edges);
+  const pos = nodes.map((n) => ({ id: n.id, x: n.x ?? 0, y: n.y ?? 0 }));
+  for (let iter = 0; iter < 72; iter++) {
+    let moved = false;
+    for (let i = 0; i < pos.length; i++) {
+      for (let j = i + 1; j < pos.length; j++) {
+        if (componentOf.get(pos[i].id) !== componentOf.get(pos[j].id)) continue;
+        let dx = pos[j].x - pos[i].x;
+        let dy = pos[j].y - pos[i].y;
+        let dist = Math.hypot(dx, dy);
+        if (dist < 1e-6) {
+          const angle = ((i + j) * 0.618) % (2 * Math.PI);
+          dx = Math.cos(angle);
+          dy = Math.sin(angle);
+          dist = 1e-3;
+        }
+        if (dist < minDist) {
+          const push = (minDist - dist) / 2;
+          const ux = dx / dist;
+          const uy = dy / dist;
+          pos[i].x -= ux * push;
+          pos[i].y -= uy * push;
+          pos[j].x += ux * push;
+          pos[j].y += uy * push;
+          moved = true;
+        }
+      }
+    }
+    if (!moved) break;
+  }
+  const byId = Object.fromEntries(pos.map((p) => [p.id, p]));
+  return nodes.map((n) => ({ ...n, x: byId[n.id].x, y: byId[n.id].y }));
 }
 
 function withEdgeIds(edges) {
   return edges.map((e, i) => ({ ...e, id: e.id || `${e.from}|${e.to}|${i}` }));
+}
+
+/** Fan sibling edges up/down (Model Atlas–style) instead of parallel horizontal arcs. */
+function decorateFanOutEdges(edges) {
+  const byParent = {};
+  for (const e of edges) {
+    (byParent[e.from] ??= []).push(e);
+  }
+  for (const parent of Object.keys(byParent)) {
+    byParent[parent].sort((a, b) => String(a.to).localeCompare(String(b.to)));
+  }
+
+  const siblingIdx = {};
+  return edges.map((e) => {
+    const siblings = byParent[e.from] || [e];
+    if (siblings.length <= 1) {
+      return {
+        ...e,
+        smooth: { enabled: true, type: "curvedCW", roundness: 0.42 },
+      };
+    }
+    const idx = siblingIdx[e.from] ?? 0;
+    siblingIdx[e.from] = idx + 1;
+    const type = idx % 2 === 0 ? "curvedCW" : "curvedCCW";
+    const roundness = 0.32 + Math.min(0.28, idx * 0.05);
+    return {
+      ...e,
+      smooth: { enabled: true, type, roundness },
+    };
+  });
+}
+
+function prepareEdges(edges) {
+  return decorateFanOutEdges(withEdgeIds(edges));
 }
 
 function egoNetwork(nodeId) {
@@ -697,6 +818,28 @@ function clearHoverFocus() {
   network.setData(buildNetworkData(fullGraph, null));
 }
 
+function arcPositions(count, radius, angleStart, angleEnd) {
+  if (count <= 0) return [];
+  if (count === 1) {
+    const mid = (angleStart + angleEnd) / 2;
+    return [{ x: radius * Math.cos(mid), y: radius * Math.sin(mid) }];
+  }
+  return Array.from({ length: count }, (_, i) => {
+    const t = i / (count - 1);
+    const angle = angleStart + t * (angleEnd - angleStart);
+    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+  });
+}
+
+function ringPositions(count, radius, angleOffset = -Math.PI / 2) {
+  if (count <= 0) return [];
+  const full = 2 * Math.PI;
+  return Array.from({ length: count }, (_, i) => {
+    const angle = angleOffset + (full * i) / count;
+    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+  });
+}
+
 function buildNetworkData(graph, filterNodeId) {
   const decorate = (n, overrides = {}) => ({
     ...n,
@@ -717,7 +860,10 @@ function buildNetworkData(graph, filterNodeId) {
     const showLabels = n <= LABEL_LIMIT;
     syncGraphViewport(n);
     const dotSize = graphNodeSize(n);
-    const positioned = normalizeGraphPositions(graph.nodes);
+    const positioned = resolveGraphCollisions(
+      normalizeGraphPositions(graph.nodes),
+      graph.edges
+    );
     return {
       nodes: new vis.DataSet(
         applyLabelVisibility(
@@ -730,7 +876,7 @@ function buildNetworkData(graph, filterNodeId) {
           showLabels
         )
       ),
-      edges: new vis.DataSet(withEdgeIds(graph.edges)),
+      edges: new vis.DataSet(prepareEdges(graph.edges)),
     };
   }
 
@@ -746,6 +892,8 @@ function buildNetworkData(graph, filterNodeId) {
     if (e.from === filterNodeId) children.push(e.to);
   }
   const byId = Object.fromEntries(graph.nodes.map((n) => [n.id, n]));
+  const parentRing = arcPositions(parents.length, 280, (Math.PI * 2) / 3, (Math.PI * 4) / 3);
+  const childRing = ringPositions(children.length, 280);
 
   const nodes = applyLabelVisibility(
     [
@@ -756,9 +904,10 @@ function buildNetworkData(graph, filterNodeId) {
       ...parents.flatMap((id, i) => {
         const src = byId[id];
         if (!src) return [];
+        const p = parentRing[i];
         return [
           decorate(
-            { ...src, x: -320, y: (i - (parents.length - 1) / 2) * 120, fixed: { x: true, y: true } },
+            { ...src, x: p.x, y: p.y, fixed: { x: true, y: true } },
             { borderWidth: 2 }
           ),
         ];
@@ -766,9 +915,10 @@ function buildNetworkData(graph, filterNodeId) {
       ...children.flatMap((id, i) => {
         const src = byId[id];
         if (!src) return [];
+        const p = childRing[i];
         return [
           decorate(
-            { ...src, x: 320, y: (i - (children.length - 1) / 2) * 120, fixed: { x: true, y: true } },
+            { ...src, x: p.x, y: p.y, fixed: { x: true, y: true } },
             { borderWidth: 2 }
           ),
         ];
@@ -780,7 +930,7 @@ function buildNetworkData(graph, filterNodeId) {
   const edges = graph.edges.filter(
     (e) => e.from === filterNodeId || e.to === filterNodeId
   );
-  return { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(withEdgeIds(edges)) };
+  return { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(prepareEdges(edges)) };
 }
 
 function graphOptions() {
@@ -795,13 +945,13 @@ function graphOptions() {
       dragView: true,
     },
     edges: {
-      smooth: { type: "cubicBezier", forceDirection: "horizontal", roundness: 0.35 },
+      smooth: { enabled: true, type: "curvedCW", roundness: 0.42 },
       width: 2,
       color: { inherit: false },
     },
     nodes: {
       shape: "dot",
-      margin: 12,
+      margin: 14,
       borderWidth: 2,
       size: 22,
       font: {
@@ -851,7 +1001,7 @@ function attachGraphZoomLimits(net) {
   net.on("dragEnd", rememberGraphZoomAnchor);
 }
 
-function fitGraph(padding = 28) {
+function fitGraph(padding = 10) {
   if (!network) return;
   network.fit({
     animation: false,
@@ -863,8 +1013,13 @@ function fitGraph(padding = 28) {
 
 function scheduleFit() {
   requestAnimationFrame(() => {
-    fitGraph(28);
-    setTimeout(() => fitGraph(28), 120);
+    fitGraph(10);
+    setTimeout(() => {
+      if (network && fullGraph?.nodes?.length && !graphFocused) {
+        network.setData(buildNetworkData(fullGraph, null));
+      }
+      fitGraph(10);
+    }, 120);
   });
 }
 
@@ -1283,9 +1438,12 @@ $("zoom-out-btn").addEventListener("click", () => {
   if (!network) return;
   network.moveTo({ scale: clampGraphScale(network.getScale() * 0.8), animation: true });
 });
-$("zoom-fit-btn").addEventListener("click", () => fitGraph(28));
+$("zoom-fit-btn").addEventListener("click", () => fitGraph(10));
 window.addEventListener("resize", () => {
   syncTopbarHeight();
+  if (network && fullGraph?.nodes?.length && !graphFocused) {
+    network.setData(buildNetworkData(fullGraph, null));
+  }
   scheduleFit();
 });
 $("pane-close").addEventListener("click", closeNodePane);

@@ -104,6 +104,132 @@ def _row_from_store(mid: str, node: Optional[Node], highlight: str) -> dict[str,
     }
 
 
+MIN_NODE_SEP = 92.0
+
+
+def _resolve_collisions(
+    pos: dict[str, tuple[float, float]],
+    *,
+    min_dist: float = MIN_NODE_SEP,
+    iterations: int = 96,
+) -> dict[str, tuple[float, float]]:
+    """Iteratively separate nodes that sit closer than *min_dist*."""
+    if len(pos) < 2:
+        return pos
+
+    nodes = list(pos.keys())
+    out: dict[str, list[float]] = {n: [float(pos[n][0]), float(pos[n][1])] for n in nodes}
+
+    for _ in range(iterations):
+        moved = False
+        for i in range(len(nodes)):
+            for j in range(i + 1, len(nodes)):
+                a, b = nodes[i], nodes[j]
+                ax, ay = out[a]
+                bx, by = out[b]
+                dx = bx - ax
+                dy = by - ay
+                dist = math.hypot(dx, dy)
+                if dist < 1e-6:
+                    angle = ((i + j) * 0.618033988) % (2.0 * math.pi)
+                    dx = math.cos(angle)
+                    dy = math.sin(angle)
+                    dist = 1e-3
+                if dist < min_dist:
+                    push = (min_dist - dist) / 2.0
+                    ux, uy = dx / dist, dy / dist
+                    out[a][0] -= ux * push
+                    out[a][1] -= uy * push
+                    out[b][0] += ux * push
+                    out[b][1] += uy * push
+                    moved = True
+        if not moved:
+            break
+
+    return {n: (out[n][0], out[n][1]) for n in nodes}
+
+
+def _radial_layout_component(
+    g: nx.DiGraph,
+    *,
+    radius_step: float = 150.0,
+) -> dict[str, tuple[float, float]]:
+    """Radial tree: each parent's children fan on an arc in the outward direction.
+
+    Unlike global depth-rings, a lone child continues straight from its parent
+    instead of snapping to a fixed compass point on a shared circle.
+    """
+    if not g.nodes:
+        return {}
+
+    roots = sorted(n for n in g.nodes if g.in_degree(n) == 0)
+    if not roots:
+        roots = [min(g.nodes)]
+
+    pos: dict[str, tuple[float, float]] = {}
+    if len(roots) == 1:
+        pos[roots[0]] = (0.0, 0.0)
+    else:
+        inner = radius_step * 0.32
+        for i, root in enumerate(roots):
+            angle = (2.0 * math.pi * i / len(roots)) - math.pi / 2
+            pos[root] = (inner * math.cos(angle), inner * math.sin(angle))
+
+    q: deque[str] = deque(roots)
+    while q:
+        parent = q.popleft()
+        children = sorted(g.successors(parent))
+        if not children:
+            continue
+
+        px, py = pos[parent]
+        preds = [p for p in g.predecessors(parent) if p in pos]
+        if preds:
+            gx, gy = pos[preds[0]]
+            outward = math.atan2(py - gy, px - gx)
+        else:
+            outward = math.pi / 2  # roots branch downward
+
+        n = len(children)
+        if n == 1:
+            angles = [outward]
+        else:
+            step = radius_step * (1.0 + 0.06 * max(n - 3, 0))
+            max_span = math.pi * 1.35
+            chord = MIN_NODE_SEP
+            half = math.asin(min(chord / (2.0 * step), 1.0))
+            min_span = 2.0 * half * (n - 1)
+            while min_span > max_span and step < radius_step * 2.8:
+                step *= 1.1
+                half = math.asin(min(chord / (2.0 * step), 1.0))
+                min_span = 2.0 * half * (n - 1)
+            span = min(
+                max_span,
+                max(
+                    min_span,
+                    math.pi * 0.4,
+                    math.pi * 0.2 * (n - 1) + math.pi * 0.25,
+                ),
+            )
+            start = outward - span / 2
+            angles = [start + span * i / (n - 1) for i in range(n)]
+
+        for child, angle in zip(children, angles):
+            if child in pos:
+                continue
+            if n == 1:
+                step = radius_step
+            pos[child] = (
+                px + step * math.cos(angle),
+                py + step * math.sin(angle),
+            )
+            q.append(child)
+
+    for node in g.nodes:
+        pos.setdefault(node, (0.0, 0.0))
+    return pos
+
+
 def _layered_layout_component(
     g: nx.DiGraph,
     *,
@@ -136,23 +262,24 @@ def _layered_layout_component(
         levels.setdefault(level, []).append(node)
 
     pos: dict[str, tuple[float, float]] = {}
-    # Avoid node collisions by ensuring a generous minimum step. The front-end
-    # intentionally disables physics and fixes coordinates for stable views, so
-    # this layout must provide enough separation on its own.
-    max_level = max(len(members) for members in levels.values())
-    y_step = min(y_gap, max(80.0, 1200.0 / max(max_level, 1)))
-    x_step = x_gap * 0.6
+    # Per-level vertical spacing (not global max) — one busy column must not
+    # squeeze siblings elsewhere. Coordinates are used as-is by vis-network;
+    # do not rely on the front-end to compress them.
+    min_y_step = 95.0
 
     for level in sorted(levels):
         members = sorted(levels[level])
         n = len(members)
-        cols = 1 if n <= 8 else max(1, math.ceil(math.sqrt(n * 1.35)))
+        level_y_step = max(min_y_step, min(y_gap, 1300.0 / max(n, 1)))
+        # Small fan-outs: vertical stack (readable lineage). Large: loose grid.
+        cols = 1 if n <= 10 else max(1, math.ceil(math.sqrt(n * 1.35)))
         rows = math.ceil(n / cols)
+        x_step = x_gap * 0.5 if cols > 1 else 0.0
         for i, node in enumerate(members):
             row = i // cols
             col = i % cols
             x = level * x_gap + col * x_step
-            y = (row - (rows - 1) / 2.0) * y_step
+            y = (row - (rows - 1) / 2.0) * level_y_step
             pos[node] = (x, y)
     return pos
 
@@ -163,16 +290,24 @@ def _layered_layout(
     x_gap: float = 240.0,
     y_gap: float = 100.0,
     max_cols: int = 3,
+    radius_step: float = 150.0,
 ) -> dict[str, tuple[float, float]]:
     """Lay out disconnected trees in a grid so clusters use width and height."""
     components = [g.subgraph(c).copy() for c in nx.weakly_connected_components(g)]
     components.sort(key=lambda sg: min(sg.nodes) if sg.nodes else "")
+    comp_sets = [set(sub.nodes) for sub in components]
 
     boxes: list[tuple[dict[str, tuple[float, float]], float, float]] = []
+    # Vertical 2-node chains have width≈0; reserve a slot so neighbors are not flush.
+    min_cell = radius_step * 0.34
+    col_pad = max(radius_step * 0.52, x_gap * 0.35)
+    row_pad = max(radius_step * 0.42, y_gap * 1.05)
+
     for sub in components:
         if not sub.nodes:
             continue
-        sub_pos = _layered_layout_component(sub, x_gap=x_gap, y_gap=y_gap)
+        sub_pos = _radial_layout_component(sub, radius_step=radius_step)
+        sub_pos = _resolve_collisions(sub_pos, min_dist=max(MIN_NODE_SEP, radius_step * 0.38))
         min_x = min(x for x, _ in sub_pos.values())
         min_y = min(y for _, y in sub_pos.values())
         normalized = {n: (x - min_x, y - min_y) for n, (x, y) in sub_pos.items()}
@@ -183,20 +318,30 @@ def _layered_layout(
     if not boxes:
         return {}
 
-    max_w = max(w for _, w, _ in boxes)
-    max_h = max(h for _, _, h in boxes)
-    col_pad = x_gap * 0.55
-    row_pad = y_gap * 1.6
-
     pos: dict[str, tuple[float, float]] = {}
-    for i, (normalized, _w, _h) in enumerate(boxes):
-        row = i // max_cols
-        col = i % max_cols
-        x_off = col * (max_w + col_pad)
-        y_off = row * (max_h + row_pad)
+    x_cursor = 0.0
+    y_cursor = 0.0
+    row_height = 0.0
+    col = 0
+    for normalized, width, height in boxes:
+        if col >= max_cols:
+            col = 0
+            x_cursor = 0.0
+            y_cursor += row_height + row_pad
+            row_height = 0.0
         for node, (x, y) in normalized.items():
-            pos[node] = (x + x_off, y + y_off)
-    return pos
+            pos[node] = (x + x_cursor, y + y_cursor)
+        x_cursor += max(width, min_cell) + col_pad
+        row_height = max(row_height, max(height, min_cell))
+        col += 1
+
+    out = dict(pos)
+    min_dist = max(MIN_NODE_SEP, radius_step * 0.36)
+    for members in comp_sets:
+        sub_pos = {n: out[n] for n in members}
+        sub_pos = _resolve_collisions(sub_pos, min_dist=min_dist, iterations=64)
+        out.update(sub_pos)
+    return out
 
 
 def graph_payload(
@@ -233,11 +378,15 @@ def graph_payload(
         }
 
     n_nodes = len(sub.nodes)
+    radius_step = 165.0 + min(n_nodes, 80) * 1.8
+    n_comp = nx.number_weakly_connected_components(sub)
+    max_cols = min(6, max(3, math.ceil(math.sqrt(n_comp * 2.0))))
     pos = _layered_layout(
         sub,
         x_gap=200.0 + min(n_nodes, 120) * 1.2,
-        # Increase y spacing with graph size so dense levels don't overlap.
         y_gap=120.0 + min(n_nodes, 120) * 0.8,
+        max_cols=max_cols,
+        radius_step=radius_step,
     )
 
     out_nodes = []
