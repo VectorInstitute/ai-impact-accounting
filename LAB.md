@@ -21,7 +21,9 @@ Training → model repo. **Ingest** → table. Weights are never stored in the t
 
 ## Setup (every shell)
 
-First-time install: see **[README.md — Install](README.md#getting-started-with-dia)** (`git clone`, `uv sync --all-extras --dev`, `hf auth login`).
+First-time install: see **[README.md — Getting started](README.md#getting-started-with-dia)**.
+The lab workflow (`scripts/`, ingest, Space deploy) requires a **repo clone**
+(`uv sync --all-extras --dev`); `track()` alone works from PyPI.
 
 ```bash
 cd /path/to/ai-impact-accounting
@@ -80,8 +82,8 @@ To show the run in the dashboard, ingest the local card (or push to a model repo
 first, then ingest that repo id). See **Ingest** and **Web dashboard** below.
 
 **PyPI-only installs:** the wheel does not include `scripts/` or `dia_finalize.py`.
-See **[README.md — Getting started with DIA](README.md#getting-started-with-dia)** for
-clone + editable install, environment variables, and the interrupt/finalize pattern.
+See **Ctrl+C and partial runs** below for the finalize pattern, or clone the repo
+for the full demo scripts.
 
 ---
 

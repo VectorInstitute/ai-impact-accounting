@@ -36,14 +36,40 @@ DIA is non-regulatory. It does not restrict who can train or release models. The
 
 ## Getting started with DIA
 
-DIA ships as the `ai_impact_accounting` Python package and `dia` CLI. **Until the
-package is on PyPI, clone this repo** for training demos (`scripts/`), ingest,
-crawl, and the web dashboard. A minimal `track()` integration works from an
-editable install; the full lab workflow is in **[LAB.md](LAB.md)**.
+DIA ships as the [`ai-impact-accounting`](https://pypi.org/project/ai-impact-accounting/)
+package on [**PyPI**](https://pypi.org/project/ai-impact-accounting/) (Python 3.12+)
+and the `dia` CLI. A PyPI install is
+enough for `track()`, `dia`, `Store`, and Hub ingest. **Clone this repo** for
+training demos (`scripts/`), crawl, Space deploy, and the full lab workflow in
+**[LAB.md](LAB.md)**.
 
-### Install (from a clone)
+### Install from PyPI
 
-Requires **Python 3.12+**.
+```bash
+pip install ai-impact-accounting
+
+# optional extras
+pip install "ai-impact-accounting[measure]"              # CodeCarbon / NVML
+pip install "ai-impact-accounting[dashboard]"            # local FastAPI dashboard
+pip install "ai-impact-accounting[measure,dashboard]"    # both
+```
+
+| Extra | Install flag | What it adds |
+|-------|----------------|--------------|
+| Core | (default) | `track()`, `dia`, lineage DAG, Hub ingest |
+| Measured runs | `[measure]` | CodeCarbon / NVML when available |
+| Dashboard | `[dashboard]` | `serve()` / local FastAPI web UI |
+| Training demos | `[examples]` | torch, transformers, datasets (for your own scripts; repo `scripts/` not on PyPI) |
+| All published extras | `[all]` | `[measure,dashboard]` |
+
+On shared HPC login nodes, system `pip` may point at an older Python or a site
+wheelhouse. Use a **Python 3.12+ venv** and `uv pip install` if bare `pip` fails
+with `Requires-Python >=3.12`.
+
+### Install for development / lab (clone)
+
+Requires **Python 3.12+**. Use this path for `scripts/train_*.py`, ingest batch
+jobs, and Space deploy.
 
 ```bash
 git clone https://github.com/VectorInstitute/ai-impact-accounting.git
@@ -66,9 +92,6 @@ hf auth login   # once; needs a write token for Hub push / ingest
 | Measured runs | `[measure]` | CodeCarbon / NVML when available |
 | Dashboard | `[dashboard]` | Local FastAPI web UI (`scripts/view_local.py`) |
 | Training demos | `[examples]` | Dependencies for `scripts/train_*.py` |
-
-**PyPI:** `pip install ai-impact-accounting` will be supported once the release is
-published; until then use the clone + editable install above.
 
 ### Instrument a training run
 
@@ -152,10 +175,26 @@ Use your own `DIA_DATASET` / namespace if you do not have write access to `DIA-M
 <details>
 <summary><strong>Local web dashboard &amp; Space deploy</strong></summary>
 
+**From a clone** (includes `scripts/view_local.py`):
+
 ```bash
 export DIA_DATASET=DIA-MVP/dia-state-lab-2026
 export DIA_BASES=distilbert-base-uncased
 python scripts/view_local.py
+```
+
+**From PyPI** (`[dashboard]` extra — no `view_local.py` script):
+
+```bash
+pip install "ai-impact-accounting[dashboard]"
+export DIA_DATASET=DIA-MVP/dia-state-lab-2026
+export DIA_BASES=distilbert-base-uncased
+python -c "
+import os
+from ai_impact_accounting import Store
+from ai_impact_accounting.dashboard.server import serve
+serve(Store(os.environ['DIA_DATASET']), default_base=os.environ['DIA_BASES'].split(',')[0])
+"
 ```
 
 Open **http://127.0.0.1:7860**. `HF_TOKEN` is optional for read-only public datasets.
@@ -212,12 +251,13 @@ dia report   path/to/README.md
 <details>
 <summary><strong>What lives where (repo vs PyPI)</strong></summary>
 
-| | Editable install (this repo) | PyPI (coming soon) |
+| | [PyPI](https://pypi.org/project/ai-impact-accounting/) | Clone (editable) |
 |---|------------------------------|---------------------|
 | `track()`, `dia`, `Store`, ingest | yes | yes |
-| `scripts/` training demos + `dia_finalize.py` | yes | no — clone repo |
-| Web dashboard, crawl, Space deploy | yes | `[dashboard]` extra only |
-| Full lab (GPU tiers, ingest, HF Space) | **[LAB.md](LAB.md)** | **[LAB.md](LAB.md)** |
+| `scripts/` training demos + `dia_finalize.py` | no — clone repo | yes |
+| `scripts/view_local.py`, `deploy_space.py`, `crawl.py` | no — clone repo | yes |
+| Dashboard API (`serve()`, static UI in wheel) | `[dashboard]` extra | yes |
+| Full lab (GPU tiers, ingest, HF Space) | **[LAB.md](LAB.md)** (clone) | **[LAB.md](LAB.md)** |
 
 </details>
 
