@@ -16,6 +16,7 @@ base model and see the **cumulative** energy, carbon, and water footprint rolled
 across its whole family (the base plus every derivative trained on top of it).
 
 - **Data:** [DIA-MVP/dia-state-lab-2026](https://huggingface.co/datasets/DIA-MVP/dia-state-lab-2026) (metadata only, no weights)
+- **Install:** [`pip install ai-impact-accounting`](https://pypi.org/project/ai-impact-accounting/)
 - **Project / paper:** [VectorInstitute/ai-impact-accounting](https://github.com/VectorInstitute/ai-impact-accounting)
 
 The footprint of each model is recorded in its model card's `dia_report` block and
