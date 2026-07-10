@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .api import (
@@ -23,6 +23,11 @@ from .api import (
 
 
 STATIC_DIR = Path(__file__).parent / "static"
+_HTML_NO_CACHE = {
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
 
 
 def _parse_bool(val: str | None) -> bool:
@@ -118,6 +123,17 @@ def create_app(
             media_type="text/csv",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
+
+    # Serve the shell HTML with no-cache so Space restarts / deploys are not
+    # masked by a sticky browser or CDN copy of an older index.html (e.g. missing
+    # nav links). CSS/JS keep their ?v= query busting.
+    @app.get("/")
+    async def index() -> FileResponse:
+        return FileResponse(STATIC_DIR / "index.html", headers=_HTML_NO_CACHE)
+
+    @app.get("/index.html")
+    async def index_html() -> FileResponse:
+        return FileResponse(STATIC_DIR / "index.html", headers=_HTML_NO_CACHE)
 
     app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
     return app
