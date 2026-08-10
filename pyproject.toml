@@ -17,7 +17,7 @@ dependencies = [
     "networkx>=3.0",         # lineage DAG + family rollup
     "jsonschema>=4.0",       # `dia validate` against dia_schema.json
     "pyyaml>=6.0",           # emit/inspect the dia_report YAML block
-    "huggingface_hub>=1.2.0,<2.0", # read/write model cards, persist state, crawl derivatives
+    "huggingface_hub>=1.22.0,<2.0", # read/write model cards, persist state, crawl derivatives
     "torch>=2.12.1",
     "torchvision>=0.27.1",
     "datasets>=5.0.0",
@@ -42,7 +42,7 @@ dashboard = [
     "starlette>=0.37",
     "plotly>=6.0",
     "pandas>=2.0",
-    "huggingface_hub>=1.2.0,<2.0",
+    "huggingface_hub>=1.22.0,<2.0",
 ]
 # Dependencies for the runnable training demos under scripts/.
 examples = [

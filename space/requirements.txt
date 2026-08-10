@@ -1,4 +1,4 @@
-huggingface_hub>=1.2.0,<2.0
+huggingface_hub>=1.22.0,<2.0
 networkx>=3.0
 pyyaml>=6.0
 pandas>=2.0
