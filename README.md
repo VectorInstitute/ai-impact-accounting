@@ -2,7 +2,7 @@
 
 **ICML 2026 Position Paper Track — Spotlight** (top 5% of submissions)
 
-📄 [Paper (arXiv)](https://arxiv.org/abs/2601.21632) · 🌐 [Project Page](https://vectorinstitute.github.io/ai-impact-accounting/) · 📦 [PyPI](https://pypi.org/project/ai-impact-accounting/)
+📄 [Paper (ICML 2026)](https://icml.cc/virtual/2026/poster/67171) · 🌐 [Project Page](https://vectorinstitute.github.io/ai-impact-accounting/) · 📦 [PyPI](https://pypi.org/project/ai-impact-accounting/)
 
 **Authors:** Shaina Raza, Iuliia Zarubiieva, Ahmed Y. Radwan, Nate Lesperance, Deval Pandya, Sedef Akinli Kocak, Graham W. Taylor
 
