@@ -2,7 +2,7 @@
 
 **ICML 2026 Position Paper Track — Spotlight** (top 5% of submissions)
 
-📄 [Paper (ICML 2026)](https://icml.cc/virtual/2026/poster/67171) · 🌐 [Project Page](https://vectorinstitute.github.io/ai-impact-accounting/) · 📦 [PyPI](https://pypi.org/project/ai-impact-accounting/)
+📄 [Paper (ICML 2026)](https://proceedings.mlr.press/v306/raza26a.html) · 🌐 [Project Page](https://vectorinstitute.github.io/ai-impact-accounting/) · 📦 [PyPI](https://pypi.org/project/ai-impact-accounting/)
 
 **Authors:** Shaina Raza, Iuliia Zarubiieva, Ahmed Y. Radwan, Nate Lesperance, Deval Pandya, Sedef Akinli Kocak, Graham W. Taylor
 
@@ -281,10 +281,18 @@ Graham W. Taylor acknowledges support from the Natural Sciences and Engineering 
 ## Citation
 
 ```bibtex
-@article{raza2026sustainable,
-  title={Sustainable Open-Source AI Requires Tracking the Cumulative Footprint of Derivatives},
-  author={Raza, Shaina and Zarubiieva, Iuliia and Radwan, Ahmed Y and Lesperance, Nate and Pandya, Deval and Kocak, Sedef Akinli and Taylor, Graham W},
-  journal={arXiv preprint arXiv:2601.21632},
-  year={2026}
+@InProceedings{pmlr-v306-raza26a,
+  title = 	 {Position: Sustainable Open-Source {AI} Requires Tracking the Cumulative Footprint of Derivatives},
+  author =       {Raza, Shaina and Zarubiieva, Iuliia and Radwan, Ahmed Y. and Lesperance, Nathaniel and Pandya, Deval and Akinli Kocak, Sedef and Taylor, Graham W.},
+  booktitle = 	 {Proceedings of the 43rd International Conference on Machine Learning},
+  pages = 	 {171864--171879},
+  year = 	 {2026},
+  editor = 	 {Zhang, Tong and Dudik, Miroslav and Jaggi, Martin and Agarwal, Alekh and Li, Sharon and Schuurmans, Dale and Zhu, Jerry and Berkenkamp, Felix and Dong, Hanze and Bietti, Alberto},
+  volume = 	 {306},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {06--11 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {https://raw.githubusercontent.com/mlresearch/v306/main/assets/raza26a/raza26a.pdf},
+  url = 	 {https://proceedings.mlr.press/v306/raza26a.html},
 }
 ```
